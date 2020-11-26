@@ -5,14 +5,14 @@
     using System.IO;
     using System.Threading.Tasks;
 
-    using AspNetCoreTemplate.Data;
-    using AspNetCoreTemplate.Data.Common;
-    using AspNetCoreTemplate.Data.Common.Repositories;
-    using AspNetCoreTemplate.Data.Models;
-    using AspNetCoreTemplate.Data.Repositories;
-    using AspNetCoreTemplate.Data.Seeding;
-    using AspNetCoreTemplate.Services.Data;
-    using AspNetCoreTemplate.Services.Messaging;
+    using CloudPhoto.Data;
+    using CloudPhoto.Data.Common;
+    using CloudPhoto.Data.Common.Repositories;
+    using CloudPhoto.Data.Models;
+    using CloudPhoto.Data.Repositories;
+    using CloudPhoto.Data.Seeding;
+    using CloudPhoto.Services.Data;
+    using CloudPhoto.Services.Messaging;
 
     using CommandLine;
 
