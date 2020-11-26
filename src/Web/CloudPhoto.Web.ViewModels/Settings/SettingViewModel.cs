@@ -1,9 +1,8 @@
 ﻿namespace CloudPhoto.Web.ViewModels.Settings
 {
+    using AutoMapper;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Mapping;
-
-    using AutoMapper;
 
     public class SettingViewModel : IMapFrom<Setting>, IHaveCustomMappings
     {

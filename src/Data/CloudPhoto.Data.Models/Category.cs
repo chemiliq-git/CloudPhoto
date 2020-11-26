@@ -4,7 +4,7 @@
 
     using CloudPhoto.Data.Common.Models;
 
-    public class Category : BaseDeletableModel<string>
+    public class Category : BaseDeletableModel<string>, ISortOrderMode
     {
         public Category()
         {
@@ -20,5 +20,7 @@
         public string AuthorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
+
+        public int SortOrder { get; set; }
     }
 }
