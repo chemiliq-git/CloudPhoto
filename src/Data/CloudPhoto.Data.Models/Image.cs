@@ -26,9 +26,5 @@
         public string AuthorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
-
-        public virtual ICollection<Category> Categories { get; set; }
-
-        public virtual ICollection<Tag> Tags { get; set; }
     }
 }

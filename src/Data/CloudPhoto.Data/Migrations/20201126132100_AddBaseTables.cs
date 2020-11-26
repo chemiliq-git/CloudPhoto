@@ -89,11 +89,6 @@
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_ImageId",
-                table: "Categories",
-                column: "ImageId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Categories_IsDeleted",
                 table: "Categories",
                 column: "IsDeleted");
@@ -112,11 +107,6 @@
                 name: "IX_Tags_AuthorId",
                 table: "Tags",
                 column: "AuthorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Tags_ImageId",
-                table: "Tags",
-                column: "ImageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tags_IsDeleted",

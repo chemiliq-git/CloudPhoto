@@ -93,13 +93,8 @@
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, Category category)
+        public async Task<IActionResult> Edit(string id, EditCategoryViewModel category)
         {
-            if (id != category.Id)
-            {
-                return this.NotFound();
-            }
-
             if (this.ModelState.IsValid)
             {
                 var data = this.categoriesService.GetByCategoryId<Category>(id);
@@ -119,7 +114,7 @@
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!this.CategoryExists(category.Id))
+                    if (!this.CategoryExists(data.Id))
                     {
                         return this.NotFound();
                     }
@@ -132,7 +127,6 @@
                 return this.RedirectToAction(nameof(this.Index));
             }
 
-            this.ViewData["AuthorId"] = new SelectList(this.context.Users, "Id", "Id", category.AuthorId);
             return this.View(category);
         }
 
