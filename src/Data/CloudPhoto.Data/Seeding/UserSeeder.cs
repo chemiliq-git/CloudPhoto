@@ -31,11 +31,13 @@
             {
                 if (user == null)
                 {
-                    ApplicationUser admin = new ApplicationUser();
-                    admin.Id = Guid.NewGuid().ToString();
-                    admin.UserName = GlobalConstants.DefaultAdministratorEmail;
-                    admin.Email = GlobalConstants.DefaultAdministratorEmail;
-                    admin.EmailConfirmed = true;
+                    ApplicationUser admin = new ApplicationUser
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        UserName = GlobalConstants.DefaultAdministratorEmail,
+                        Email = GlobalConstants.DefaultAdministratorEmail,
+                        EmailConfirmed = true,
+                    };
                     await userManager.CreateAsync(admin, GlobalConstants.DefaultAdministratorPassword);
 
                     dbContext.UserRoles.Add(new IdentityUserRole<string>()

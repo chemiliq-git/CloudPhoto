@@ -9,6 +9,7 @@
     using CloudPhoto.Data.Repositories;
     using CloudPhoto.Data.Seeding;
     using CloudPhoto.Services.Data;
+    using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Mapping;
     using CloudPhoto.Services.Messaging;
     using CloudPhoto.Web.ViewModels;
@@ -61,6 +62,8 @@
             services.AddScoped(typeof(IDeletableEntityRepository<>), typeof(EfDeletableEntityRepository<>));
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IDbQueryRunner, DbQueryRunner>();
+
+            services.AddTransient<ICategoriesService, CategoriesService>();
 
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();

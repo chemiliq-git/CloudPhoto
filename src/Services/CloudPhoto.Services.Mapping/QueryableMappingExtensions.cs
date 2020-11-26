@@ -17,6 +17,12 @@
                 throw new ArgumentNullException(nameof(source));
             }
 
+            if (source != null
+               && typeof(TDestination) == source.ElementType)
+            {
+                return (IQueryable<TDestination>)source;
+            }
+
             return source.ProjectTo(AutoMapperConfig.MapperInstance.ConfigurationProvider, null, membersToExpand);
         }
 

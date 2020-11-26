@@ -36,42 +36,43 @@
                 return;
             }
 
-            List<Tag> lstTags = new List<Tag>();
-
-            lstTags.Add(new Tag()
+            List<Tag> lstTags = new List<Tag>
             {
-                Name = "Cat",
-                Description = "Cat",
-                AuthorId = admin.Id,
-            });
+                new Tag()
+                {
+                    Name = "Cat",
+                    Description = "Cat",
+                    AuthorId = admin.Id,
+                },
 
-            lstTags.Add(new Tag()
-            {
-                Name = "Dog",
-                Description = "Dog",
-                AuthorId = admin.Id,
-            });
+                new Tag()
+                {
+                    Name = "Dog",
+                    Description = "Dog",
+                    AuthorId = admin.Id,
+                },
 
-            lstTags.Add(new Tag()
-            {
-                Name = "Mouse",
-                Description = "Mouse",
-                AuthorId = admin.Id,
-            });
+                new Tag()
+                {
+                    Name = "Mouse",
+                    Description = "Mouse",
+                    AuthorId = admin.Id,
+                },
 
-            lstTags.Add(new Tag()
-            {
-                Name = "Nature",
-                Description = "Nature",
-                AuthorId = admin.Id,
-            });
+                new Tag()
+                {
+                    Name = "Nature",
+                    Description = "Nature",
+                    AuthorId = admin.Id,
+                },
 
-            lstTags.Add(new Tag()
-            {
-                Name = "Bear",
-                Description = "Bear",
-                AuthorId = admin.Id,
-            });
+                new Tag()
+                {
+                    Name = "Bear",
+                    Description = "Bear",
+                    AuthorId = admin.Id,
+                },
+            };
             await dbContext.Tags.AddRangeAsync(lstTags);
         }
     }

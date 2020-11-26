@@ -36,86 +36,88 @@
                 return;
             }
 
-            List<Category> lstCategories = new List<Category>();
-            lstCategories.Add(new Category
+            List<Category> lstCategories = new List<Category>
             {
-                Name = "Wallpepers",
-                Description = "Wallpepers",
-                AuthorId = admin.Id,
-                SortOrder = 1,
-            });
+                new Category
+                {
+                    Name = "Wallpepers",
+                    Description = "Wallpepers",
+                    AuthorId = admin.Id,
+                    SortOrder = 1,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Animals",
-                Description = "Animals",
-                AuthorId = admin.Id,
-                SortOrder = 2,
-            });
+                new Category
+                {
+                    Name = "Animals",
+                    Description = "Animals",
+                    AuthorId = admin.Id,
+                    SortOrder = 2,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Seasons",
-                Description = "Seasons",
-                AuthorId = admin.Id,
-                SortOrder = 3,
-            });
+                new Category
+                {
+                    Name = "Seasons",
+                    Description = "Seasons",
+                    AuthorId = admin.Id,
+                    SortOrder = 3,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Nature",
-                Description = "Nature",
-                AuthorId = admin.Id,
-                SortOrder = 4,
-            });
+                new Category
+                {
+                    Name = "Nature",
+                    Description = "Nature",
+                    AuthorId = admin.Id,
+                    SortOrder = 4,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Cars",
-                Description = "Cars",
-                AuthorId = admin.Id,
-                SortOrder = 5,
-            });
+                new Category
+                {
+                    Name = "Cars",
+                    Description = "Cars",
+                    AuthorId = admin.Id,
+                    SortOrder = 5,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Outdoors",
-                Description = "Outdoors",
-                AuthorId = admin.Id,
-                SortOrder = 6,
-            });
+                new Category
+                {
+                    Name = "Outdoors",
+                    Description = "Outdoors",
+                    AuthorId = admin.Id,
+                    SortOrder = 6,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Backgrounds",
-                Description = "Backgrounds",
-                AuthorId = admin.Id,
-                SortOrder = 7,
-            });
+                new Category
+                {
+                    Name = "Backgrounds",
+                    Description = "Backgrounds",
+                    AuthorId = admin.Id,
+                    SortOrder = 7,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Road",
-                Description = "Road",
-                AuthorId = admin.Id,
-                SortOrder = 8,
-            });
+                new Category
+                {
+                    Name = "Road",
+                    Description = "Road",
+                    AuthorId = admin.Id,
+                    SortOrder = 8,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "City",
-                Description = "City",
-                AuthorId = admin.Id,
-                SortOrder = 9,
-            });
+                new Category
+                {
+                    Name = "City",
+                    Description = "City",
+                    AuthorId = admin.Id,
+                    SortOrder = 9,
+                },
 
-            lstCategories.Add(new Category
-            {
-                Name = "Game",
-                Description = "Game",
-                AuthorId = admin.Id,
-                SortOrder = 10,
-            });
+                new Category
+                {
+                    Name = "Game",
+                    Description = "Game",
+                    AuthorId = admin.Id,
+                    SortOrder = 10,
+                },
+            };
 
             await dbContext.Categories.AddRangeAsync(lstCategories);
         }
