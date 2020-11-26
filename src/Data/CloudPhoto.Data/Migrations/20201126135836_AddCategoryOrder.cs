@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-
-namespace CloudPhoto.Data.Migrations
+﻿namespace CloudPhoto.Data.Migrations
 {
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     public partial class AddCategoryOrder : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -1,6 +1,7 @@
 ﻿namespace CloudPhoto.Data.Models
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
 
     using CloudPhoto.Data.Common.Models;
 
@@ -11,16 +12,19 @@
             this.Id = Guid.NewGuid().ToString();
         }
 
+        [Required]
         public string Name { get; set; }
 
         public string Description { get; set; }
 
         public string ImageUrl { get; set; }
 
+        [Required]
         public string AuthorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
 
+        [Required]
         public int SortOrder { get; set; }
     }
 }
