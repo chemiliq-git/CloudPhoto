@@ -26,5 +26,9 @@
         public string AuthorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
+
+        public virtual ICollection<ImageCategory> ImageCategories { get; set; }
+
+        public virtual ICollection<ImageTag> ImageTags { get; set; }
     }
 }

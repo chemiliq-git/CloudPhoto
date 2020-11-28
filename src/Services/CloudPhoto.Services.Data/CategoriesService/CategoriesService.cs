@@ -20,16 +20,16 @@
 
         public async Task<string> CreateAsync(string name, string description, string userId)
         {
-            var post = new Category
+            var category = new Category
             {
                 Description = description,
                 Name = name,
                 AuthorId = userId,
             };
 
-            await this.categoriesRepository.AddAsync(post);
+            await this.categoriesRepository.AddAsync(category);
             await this.categoriesRepository.SaveChangesAsync();
-            return post.Id;
+            return category.Id;
         }
 
         public async Task<bool> Delete(string id)

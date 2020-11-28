@@ -10,6 +10,7 @@
     using CloudPhoto.Data.Seeding;
     using CloudPhoto.Services.Data;
     using CloudPhoto.Services.Data.CategoriesService;
+    using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.Mapping;
@@ -76,6 +77,7 @@
             services.AddTransient<IRemoteStorageService, BlobStorageService>();
             services.AddTransient<IImageValidatorService, ImageValidator>();
             services.AddTransient<ILocalStorageServices, LocalStorage>();
+            services.AddTransient<IImagesService, ImagesService>();
 
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();

@@ -66,6 +66,30 @@
 
             var entityTypes = builder.Model.GetEntityTypes().ToList();
 
+            builder.Entity<ImageCategory>()
+                .HasKey(temp => new { temp.ImageId, temp.CategoryId });
+
+            builder.Entity<ImageTag>()
+                .HasKey(temp => new { temp.ImageId, temp.TagId });
+
+            builder.Entity<ImageCategory>()
+               .HasOne(bc => bc.Image)
+               .WithMany(b => b.ImageCategories)
+               .HasForeignKey(bc => bc.ImageId);
+            builder.Entity<ImageCategory>()
+                .HasOne(bc => bc.Category)
+                .WithMany(c => c.ImageCategories)
+                .HasForeignKey(bc => bc.CategoryId);
+
+            builder.Entity<ImageTag>()
+               .HasOne(bc => bc.Image)
+               .WithMany(b => b.ImageTags)
+               .HasForeignKey(bc => bc.ImageId);
+            builder.Entity<ImageTag>()
+                .HasOne(bc => bc.Tag)
+                .WithMany(c => c.ImageTags)
+                .HasForeignKey(bc => bc.ImageId);
+
             // Set global query filter for not deleted entities only
             var deletableEntityTypes = entityTypes
                 .Where(et => et.ClrType != null && typeof(IDeletableEntity).IsAssignableFrom(et.ClrType));

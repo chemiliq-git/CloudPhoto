@@ -6,7 +6,10 @@
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
+    using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Web.ViewModels.Images;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
@@ -14,14 +17,20 @@
     public class ImagesController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
+        private readonly UserManager<ApplicationUser> userManager;
 
         public ImagesController(
             ApplicationDbContext context,
-            ICategoriesService categoriesService)
+            IImagesService imagesService,
+            ICategoriesService categoriesService,
+            UserManager<ApplicationUser> userManager)
         {
             this.context = context;
+            this.imagesService = imagesService;
             this.categoriesService = categoriesService;
+            this.userManager = userManager;
         }
 
         // GET: Images
@@ -63,15 +72,29 @@
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create(CreateImageViewModel image)
         {
             if (this.ModelState.IsValid)
             {
-                this.context.Add(image);
-                await this.context.SaveChangesAsync();
+                var user = await this.userManager.GetUserAsync(this.User);
+
+                await this.imagesService.CreateAsync(
+                     new CreateImageModelData()
+                     {
+                         Title = image.Title,
+                         Description = image.Description,
+                         CategoryId = image.CategoryId,
+                         ImageUrl = image.ImageUrl,
+                         AuthorId = user.Id,
+                         Tags = image.ImageTags,
+                     }
+               );
+
                 return this.RedirectToAction(nameof(this.Index));
             }
 
+            image.Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>();
             return this.View(image);
         }
 

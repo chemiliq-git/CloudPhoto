@@ -1,6 +1,7 @@
 ﻿namespace CloudPhoto.Data.Models
 {
     using System;
+    using System.Collections.Generic;
 
     using CloudPhoto.Data.Common.Models;
 
@@ -18,5 +19,7 @@
         public string AuthorId { get; set; }
 
         public virtual ApplicationUser Author { get; set; }
+
+        public virtual ICollection<ImageTag> ImageTags { get; set; }
     }
 }

@@ -14,15 +14,17 @@ namespace CloudPhoto.Web.ViewModels.Images
         public string Description { get; set; }
 
         [Required]
+        [Display(Name = "Image")]
         public string ImageUrl { get; set; }
 
         [Required]
+        [Display(Name = "Category")]
         public string CategoryId { get; set; }
 
+        [Required]
+        [Display(Name = "Tags")]
         public string ImageTags { get; set; }
 
         public IEnumerable<CategoryDropDownViewModel> Categories { get; set; }
-
-        public string Tags { get; set; }
     }
 }

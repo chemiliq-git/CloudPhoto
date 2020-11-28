@@ -1,6 +1,7 @@
 ﻿namespace CloudPhoto.Data.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
     using CloudPhoto.Data.Common.Models;
@@ -26,5 +27,7 @@
 
         [Required]
         public int SortOrder { get; set; }
+
+        public virtual ICollection<ImageCategory> ImageCategories { get; set; }
     }
 }

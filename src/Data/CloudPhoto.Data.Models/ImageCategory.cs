@@ -5,13 +5,8 @@
 
     using CloudPhoto.Data.Common.Models;
 
-    public class ImageCategory : BaseDeletableModel<string>
+    public class ImageCategory : IDeletableEntity
     {
-        public ImageCategory()
-        {
-            this.Id = Guid.NewGuid().ToString();
-        }
-
         [Required]
         public string ImageId { get; set; }
 
@@ -21,5 +16,9 @@
         public string CategoryId { get; set; }
 
         public virtual Category Category { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+        public DateTime? DeletedOn { get; set; }
     }
 }
