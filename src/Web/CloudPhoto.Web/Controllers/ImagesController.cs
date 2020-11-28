@@ -1,6 +1,8 @@
 ﻿namespace CloudPhoto.Web.Controllers
 {
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Text.Json;
     using System.Threading.Tasks;
 
     using CloudPhoto.Data;
@@ -79,6 +81,8 @@
             {
                 var user = await this.userManager.GetUserAsync(this.User);
 
+                List<string> lstImageTag = JsonSerializer.Deserialize<List<string>>(image.ImageTags);
+
                 await this.imagesService.CreateAsync(
                      new CreateImageModelData()
                      {
@@ -87,7 +91,7 @@
                          CategoryId = image.CategoryId,
                          ImageUrl = image.ImageUrl,
                          AuthorId = user.Id,
-                         Tags = image.ImageTags,
+                         Tags = lstImageTag,
                      }
                );
 

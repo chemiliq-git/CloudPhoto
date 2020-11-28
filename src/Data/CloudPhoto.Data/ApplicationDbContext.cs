@@ -88,7 +88,7 @@
             builder.Entity<ImageTag>()
                 .HasOne(bc => bc.Tag)
                 .WithMany(c => c.ImageTags)
-                .HasForeignKey(bc => bc.ImageId);
+                .HasForeignKey(bc => bc.TagId);
 
             // Set global query filter for not deleted entities only
             var deletableEntityTypes = entityTypes

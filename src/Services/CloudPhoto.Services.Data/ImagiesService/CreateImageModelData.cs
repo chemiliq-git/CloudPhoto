@@ -1,5 +1,7 @@
 ﻿namespace CloudPhoto.Services.Data.ImagiesService
 {
+    using System.Collections.Generic;
+
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Mapping;
 
@@ -15,6 +17,6 @@
 
         public string AuthorId { get; set; }
 
-        public string Tags { get; set; }
+        public List<string> Tags { get; set; }
     }
 }
