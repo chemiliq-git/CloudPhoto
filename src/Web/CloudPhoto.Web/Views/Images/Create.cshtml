@@ -15,7 +15,7 @@
         <form id="dragFileForm" method="post" enctype="multipart/form-data">
             <div id="dragAndDropArea" class="text-truncate drag-and-drop-area">
                 Drag and drop a file into this area
-                <input id="file" class="custom-file-input" name="file" value="" type="file" size="1" );" />
+                <input id="file" class="custom-file-input" name="file" value="" type="file" size="1" onchange="uploadControlFile('file');" />
             </div>
         </form>
     </div>
@@ -83,6 +83,53 @@
 
 @section Scripts {
     <script>
+
+        function uploadControlFile(inputId) {
+            var input = document.getElementById(inputId);
+            var files = input.files;
+            var formData = new FormData();
+
+            for (var i = 0; i != files.length; i++) {
+                formData.append("file", files[i]);
+            }
+            uploadFile(formData);
+        }
+
+        function uploadFile(formData) {
+
+            var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
+            $.ajax(
+                {
+                    url: "/api/uploadfiles",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    headers: { 'X-CSRF-TOKEN': token },
+                    beforeSend: function () {
+                        $('#loader').show();
+                    },
+                    complete: function () {
+                        $('#loader').hide();
+                    },
+                    success: function (data) {
+                        if (data.result == true) {
+                            //set image source on image control
+                            $("#uploadImageId").attr("src", data.imageUrl);
+                            //fill input form image sourse
+                            $("#image-url").attr("value", data.imageUrl);
+                            $("#image-url").value = data.imageUrl;
+                            //show input form
+                            $("#main-form").collapse('show');
+                        }
+                        else {
+                            alert(data.errorMessage);
+                        }
+                    }
+                }
+            );
+        }
+
         function initializeDragAndDropArea() {
             if (typeof (window["FileReader"]) == "undefined") {
                 return;
@@ -112,38 +159,8 @@
                 for (var i = 0; i != event.dataTransfer.files.length; i++) {
                     formData.append("file", event.dataTransfer.files[i]);
                 }
-
-                var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
-                $.ajax(
-                    {
-                        url: "/api/uploadfiles",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        type: "POST",
-                        headers: { 'X-CSRF-TOKEN': token },
-                        beforeSend: function () {
-                            $('#loader').show();
-                        },
-                        complete: function () {
-                            $('#loader').hide();
-                        },
-                        success: function (data) {
-                            if (data.result == true) {
-                                //set image source on image control
-                                $("#uploadImageId").attr("src", data.imageUrl);
-                                //fill input form image sourse
-                                $("#image-url").attr("value", data.imageUrl);
-                                $("#image-url").value = data.imageUrl;
-                                //show input form
-                                $("#main-form").collapse('show');
-                            }
-                            else {
-                                alert(data.errorMessage);
-                            }
-                        }
-                    }
-                );
+                uploadFile(formData);
+                
                 return false;
             }
         }
@@ -157,9 +174,17 @@
                     btntag.className = "btn-primary btn-lg rounded m-1";
                     btntag.onclick = function () {
                         var data = document.getElementById("added-tags").value
-                        data = data.replace(";" + btntag.id, '');
-                        document.getElementById("added-tags").value = data;
+                        var js = JSON.parse(data);
+                        var filtered = js.filter(function (value, index, arr) {
+                            return value != btntag.id;
+                        });
 
+                        if (filtered != '') {
+                            document.getElementById("added-tags").value = JSON.stringify(filtered);
+                        }
+                        else {
+                            document.getElementById("added-tags").value = '';
+                        }
                         btntag.remove();
                     };
 
@@ -175,8 +200,16 @@
                     element.appendChild(btntag);
                     //change hide field
                     var data = document.getElementById("added-tags").value
-                    data = data + ";" + node.value;
-                    document.getElementById("added-tags").value = data;
+                    var js;
+                    if (data != '') {
+                        js = JSON.parse(data);
+                        json = js.push(node.value);
+                    }
+                    else {
+                        js = new Array(node.value);
+                    }
+
+                    document.getElementById("added-tags").value = JSON.stringify(js);
                     //delete input data
                     node.value = "";
 

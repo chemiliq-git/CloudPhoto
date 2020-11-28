@@ -34,7 +34,7 @@
 
         public IImageValidatorService ImageValidator { get; }
 
-        public IWebHostEnvironment Env { get; } 
+        public IWebHostEnvironment Env { get; }
 
         public IConfiguration Configuration { get; }
 
@@ -48,6 +48,15 @@
                 {
                     return this.BadRequest();
                 }
+
+#if DEBUG
+                string testImage = "https://res.cloudinary.com/dyfravfyd/image/upload/v1605823767/samples/animals/three-dogs.jpg";
+                return this.Json(new ResponceUploadFileController()
+                {
+                    Result = true,
+                    ImageUrl = testImage,
+                });
+#endif
 
                 ImageValidateResult result = this.ImageValidator.ValidateImageFile(file);
                 if (!result.IsValid)
