@@ -10,8 +10,11 @@
     using CloudPhoto.Data.Seeding;
     using CloudPhoto.Services.Data;
     using CloudPhoto.Services.Data.CategoriesService;
+    using CloudPhoto.Services.ImageValidate;
+    using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.Mapping;
     using CloudPhoto.Services.Messaging;
+    using CloudPhoto.Services.RemoteStorage;
     using CloudPhoto.Web.ViewModels;
 
     using Microsoft.AspNetCore.Builder;
@@ -53,6 +56,12 @@
                     {
                         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
                     }).AddRazorRuntimeCompilation();
+
+            services.AddAntiforgery(options =>
+            {
+                options.HeaderName = "X-CSRF-TOKEN";
+            });
+
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -64,6 +73,9 @@
             services.AddScoped<IDbQueryRunner, DbQueryRunner>();
 
             services.AddTransient<ICategoriesService, CategoriesService>();
+            services.AddTransient<IRemoteStorageService, BlobStorageService>();
+            services.AddTransient<IImageValidatorService, ImageValidator>();
+            services.AddTransient<ILocalStorageServices, LocalStorage>();
 
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();

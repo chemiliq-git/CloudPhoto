@@ -7,6 +7,8 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Web.ViewModels.Categories;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
@@ -15,11 +17,16 @@
     {
         private readonly ApplicationDbContext context;
         private readonly ICategoriesService categoriesService;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public CategoriesController(ApplicationDbContext context, ICategoriesService categoriesService)
+        public CategoriesController(
+            ApplicationDbContext context,
+            ICategoriesService categoriesService,
+            UserManager<ApplicationUser> userManager)
         {
             this.context = context;
             this.categoriesService = categoriesService;
+            this.userManager = userManager;
         }
 
         // GET: Categories
@@ -47,6 +54,7 @@
         }
 
         // GET: Categories/Create
+        [Authorize]
         public IActionResult Create()
         {
             this.ViewData["AuthorId"] = new SelectList(this.context.Users, "Id", "Id");
@@ -58,16 +66,18 @@
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description,ImageUrl,AuthorId,SortOrder,IsDeleted,DeletedOn,Id,CreatedOn,ModifiedOn")] Category category)
+        [Authorize]
+        public async Task<IActionResult> Create(CreateCategoryViewModel category)
         {
+            var user = await this.userManager.GetUserAsync(this.User);
+
             if (this.ModelState.IsValid)
             {
-                this.context.Add(category);
+                await this.categoriesService.CreateAsync(category.Name, category.Description, user.Id);
                 await this.context.SaveChangesAsync();
                 return this.RedirectToAction(nameof(this.Index));
             }
 
-            this.ViewData["AuthorId"] = new SelectList(this.context.Users, "Id", "Id", category.AuthorId);
             return this.View(category);
         }
 
@@ -93,28 +103,22 @@
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Edit(string id, EditCategoryViewModel category)
         {
             if (this.ModelState.IsValid)
             {
-                var data = this.categoriesService.GetByCategoryId<Category>(id);
-
-                if (data == null)
-                {
-                    return this.NotFound();
-                }
-
-                data.Description = category.Description;
-                data.Name = category.Name;
-
                 try
                 {
-                    this.context.Update(data);
-                    await this.context.SaveChangesAsync();
+                    bool result = await this.categoriesService.UpdateAsync(id, category.Name, category.Description);
+                    if (!result)
+                    {
+                        return this.NotFound();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!this.CategoryExists(data.Id))
+                    if (this.categoriesService.GetByCategoryId<Category>(id) == null)
                     {
                         return this.NotFound();
                     }
@@ -131,16 +135,15 @@
         }
 
         // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        [Authorize]
+        public IActionResult Delete(string id)
         {
             if (id == null)
             {
                 return this.NotFound();
             }
 
-            var category = await this.context.Categories
-                .Include(c => c.Author)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var category = this.categoriesService.GetByCategoryId<ReadonlyCategoryViewMode>(id);
             if (category == null)
             {
                 return this.NotFound();
@@ -153,17 +156,17 @@
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var category = await this.context.Categories.FindAsync(id);
-            this.context.Categories.Remove(category);
-            await this.context.SaveChangesAsync();
-            return this.RedirectToAction(nameof(this.Index));
-        }
-
-        private bool CategoryExists(string id)
-        {
-            return this.context.Categories.Any(e => e.Id == id);
+            if (await this.categoriesService.Delete(id))
+            {
+                return this.RedirectToAction(nameof(this.Index));
+            }
+            else
+            {
+                return this.NotFound();
+            }
         }
     }
 }

@@ -1,0 +1,182 @@
+﻿@using CloudPhoto.Web.ViewModels.Images
+@model CreateImageViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Image</h4>
+<hr />
+
+<div class="row">
+    <div class="col-4">
+    </div>
+    <div class="col-10">
+        <form id="dragFileForm" method="post" enctype="multipart/form-data">
+            <div id="dragAndDropArea" class="text-truncate drag-and-drop-area">
+                Drag and drop a file into this area
+                <input id="file" class="custom-file-input" name="file" value="" type="file" size="1" );" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId"
+                        asp-items="@(new SelectList(Model.Categories,"Id","Name"))">
+                    <option>Please select one</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageUrl" class="control-label"></label>
+                <input id="image-url" asp-for="ImageUrl" class="form-control" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<div class="row container-fluid">
+    <div class="col-5 ml-2">
+        <img id="uploadImageId" class="img-fluid" src="">
+    </div>
+    <div class="col-5 ml-1">
+        <input type="text" id="inputTag" />
+        <div id="newElements">
+        </div>
+        <form id="form" asp-controller="home" asp-action="testaction">
+            <input type="text" id="added-tags" asp-for=Tags>
+            <input type="submit" value="Send" />
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function initializeDragAndDropArea() {
+            if (typeof (window["FileReader"]) == "undefined") {
+                return;
+            }
+
+            var dragAndDropArea = $("#dragAndDropArea");
+
+            if (dragAndDropArea.length == 0) {
+                return;
+            }
+
+            dragAndDropArea[0].ondragover = function () {
+                dragAndDropArea.addClass("drag-and-drop-area-dragging");
+                return false;
+            };
+
+            dragAndDropArea[0].ondragleave = function () {
+                dragAndDropArea.removeClass("drag-and-drop-area-dragging");
+                return false;
+            };
+
+            dragAndDropArea[0].ondrop = function (event) {
+                dragAndDropArea.removeClass("drag-and-drop-area-dragging");
+
+                var formData = new FormData();
+
+                for (var i = 0; i != event.dataTransfer.files.length; i++) {
+                    formData.append("file", event.dataTransfer.files[i]);
+                }
+
+                var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
+                $.ajax(
+                    {
+                        url: "/api/uploadfiles",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        type: "POST",
+                        headers: { 'X-CSRF-TOKEN': token },
+                        success: function (data) {
+                            if (data.result == true) {
+                                $("#uploadImageId").attr("src", data.imageUrl);
+                                $("#image-url").attr("value", data.imageUrl);
+                                $("#image-url").value = data.imageUrl;
+                                
+                            }
+                            else {
+                                alert(data.errorMessage);
+                            }
+                        }
+                    }
+                );
+                return false;
+            }
+        }
+
+        function lisiningForAddTag() {
+            const node = document.getElementById("inputTag");
+            node.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    var btntag = document.createElement("button");
+                    btntag.id = node.value;
+                    btntag.className = "btn-primary btn-lg rounded m-1";
+                    btntag.onclick = function () {
+                        var data = document.getElementById("added-tags").value
+                        data = data.replace(";" + btntag.id, '');
+                        document.getElementById("added-tags").value = data;
+
+                        btntag.remove();
+                    };
+
+                    //add icon
+                    var icon = document.createElement("i");
+                    icon.className = "far fa-times-circle";
+                    btntag.appendChild(icon);
+                    //add text
+                    var text = document.createTextNode(node.value);
+                    btntag.appendChild(text);
+                    //add btntag on document
+                    var element = document.getElementById("newElements");
+                    element.appendChild(btntag);
+                    //change hide field
+                    var data = document.getElementById("added-tags").value
+                    data = data + ";" + node.value;
+                    document.getElementById("added-tags").value = data;
+                    //delete input data
+                    node.value = "";
+                }
+            });
+        }
+
+        $(document).ready(
+            function () {
+                initializeDragAndDropArea();
+
+                lisiningForAddTag();
+            }
+        );
+    </script>
+}

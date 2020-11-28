@@ -1,0 +1,62 @@
+﻿/* Copyright © 2017 Dmitry Sikorsky. All rights reserved. */
+/* Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. */
+
+.upload-button {
+  background: #f0f0f0;
+  border-radius: 100px;
+  text-align: center;
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.upload-button .label {
+  line-height: 200px;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 200px;
+}
+
+.upload-button input {
+  opacity: 0;
+  cursor: pointer;
+  font-size: 200px;
+  width: 200px;
+  height: 200px;
+}
+
+.drag-and-drop-area {
+  background-color:  darkgray;
+  border-radius: 200px;
+  line-height: 200px;
+  text-align: center;
+  margin-top: 20px;
+  width: 100%;
+  height: 200px;
+}
+
+.drag-and-drop-area-dragging {
+  background-color: forestgreen;
+}
+
+.drag-and-drop-area input {
+    /*opacity: 0;*/
+    position: absolute;
+    left:0px;
+    cursor: pointer;
+    width: 100%;
+    height: 200px;
+}
+
+.dynamic-div {
+    background-color: darkgray;
+    border-radius: 200px;
+    line-height: 200px;
+    text-align: center;
+    margin-top: 20px;
+    width: 30px;
+    height: 30px;
+}
