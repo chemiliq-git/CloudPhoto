@@ -2,12 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.TagsService;
+    using CloudPhoto.Services.Mapping;
 
     public class ImagesService : IImagesService
     {
@@ -48,6 +50,34 @@
             return image.Id;
         }
 
+        public Task<bool> Delete(string id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public T GetByCategoryId<T>(string categoryId)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public IEnumerable<T> GetByFilter<T>(SearchImageData searchData)
+        {
+            IQueryable<Image> query =
+                this.ImageRepository.All();
+
+            if (!string.IsNullOrEmpty(searchData.AuthorId))
+            {
+                query = query.Where(img => img.AuthorId == searchData.AuthorId);
+            }
+
+            return query.To<T>().ToList();
+        }
+
+        public Task<bool> UpdateAsync(string id, string name, string description)
+        {
+            throw new System.NotImplementedException();
+        }
+
         private async Task<ICollection<ImageTag>> ParseImageTag(Image image, List<string> tags)
         {
             List<ImageTag> imageTags = new List<ImageTag>();
@@ -75,21 +105,6 @@
             }
 
             return imageTags;
-        }
-
-        public Task<bool> Delete(string id)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public T GetByCategoryId<T>(string categoryId)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<bool> UpdateAsync(string id, string name, string description)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

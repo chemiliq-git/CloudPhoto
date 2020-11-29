@@ -36,10 +36,10 @@
         }
 
         // GET: Images
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var applicationDbContext = this.context.Images.Include(i => i.Author);
-            return this.View(await applicationDbContext.ToListAsync());
+            var images = this.imagesService.GetByFilter<ListImageViewModel>(new SearchImageData());
+            return this.View(images);
         }
 
         // GET: Images/Details/5

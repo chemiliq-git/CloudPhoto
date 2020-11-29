@@ -12,6 +12,7 @@
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
+    using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.Mapping;
@@ -80,6 +81,7 @@
             services.AddTransient<ILocalStorageServices, LocalStorage>();
             services.AddTransient<IImagesService, ImagesService>();
             services.AddTransient<ITagsService, Services.Data.TagsService.TagService>();
+            services.AddTransient<IVotesService, VotesService>();
 
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();

@@ -30,5 +30,7 @@
         public virtual ICollection<ImageCategory> ImageCategories { get; set; }
 
         public virtual ICollection<ImageTag> ImageTags { get; set; }
+
+        public virtual ICollection<Vote> Votes { get; set; }
     }
 }

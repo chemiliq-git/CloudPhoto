@@ -60,3 +60,27 @@
     width: 30px;
     height: 30px;
 }
+
+.m-image-container .my-like-icon-right {
+    position: absolute;
+    right: 10%;
+    bottom: 2%;
+    font-size: 30px;
+    color: white;
+}
+
+.m-image-container .my-icon-middle {
+    position: absolute;
+    right: 25%;
+    bottom: 2%;
+    font-size: 30px;
+    color: white;
+}
+
+.m-image-container .my-icon-left {
+    position: absolute;
+    left: 10%;
+    bottom: 2%;
+    font-size: 30px;
+    color: white;
+}

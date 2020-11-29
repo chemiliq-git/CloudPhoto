@@ -1,7 +1,7 @@
 ﻿namespace CloudPhoto.Web.Controllers
 {
-    using System.IO;
     using System.Threading.Tasks;
+
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.RemoteStorage;

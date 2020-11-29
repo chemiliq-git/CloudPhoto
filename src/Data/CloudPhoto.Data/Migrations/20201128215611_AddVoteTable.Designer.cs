@@ -4,14 +4,16 @@ using CloudPhoto.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CloudPhoto.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201128215611_AddVoteTable")]
+    partial class AddVoteTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -350,8 +352,10 @@ namespace CloudPhoto.Data.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ImageId")
-                        .IsRequired()
+                    b.Property<int>("ImageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("IsLike")
@@ -364,7 +368,7 @@ namespace CloudPhoto.Data.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("ImageId");
+                    b.HasIndex("ImageId1");
 
                     b.ToTable("Votes");
                 });
@@ -552,9 +556,7 @@ namespace CloudPhoto.Data.Migrations
 
                     b.HasOne("CloudPhoto.Data.Models.Image", "Image")
                         .WithMany("Votes")
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("ImageId1");
 
                     b.Navigation("Author");
 
