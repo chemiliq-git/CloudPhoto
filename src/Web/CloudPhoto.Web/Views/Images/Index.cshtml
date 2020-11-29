@@ -20,7 +20,7 @@
         @foreach (var item in @Model)
         {
             string likeIconColor = string.Empty;
-            if(item.IsLike)
+            if (item.IsLike)
             {
                 likeIconColor = "red";
             }
@@ -33,7 +33,7 @@
                 <a asp-action="Delete" asp-route-id=@item.Id class="my-icon-middle">
                     <i class="far fa-times-circle"></i>
                 </a>
-                <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id')">
+                <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
                     <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
                 </a>
 
@@ -45,6 +45,12 @@
 
 @section Scripts {
     <script>
+        //function lisiningForAddTag() {
+        //    const node = document.getElementById("inputTag");
+        //    node.addEventListener("click", function (event) {
+        //        alert("Click");
+        //    });
+        //}
 
         function sendVote(imageId) {
             var token = $("#voteForm input[name=__RequestVerificationToken]").val();
@@ -68,6 +74,9 @@
                     contentType: false,
                     type: "POST",
                     headers: { 'X-CSRF-TOKEN': token },
+                    complete: function () {
+                        return false;
+                    },
                     success: function (data) {
                         if (data.result == true) {
                             if (style.includes("red")) {
@@ -80,7 +89,15 @@
                     }
                 }
             );
+
+            return false;
         }
+
+        //$(document).ready(
+        //    function () {
+        //        lisiningForAddTag();
+        //    }
+        //);
 
     </script>
 }
