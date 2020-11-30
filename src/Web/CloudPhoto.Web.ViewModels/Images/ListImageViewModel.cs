@@ -10,7 +10,7 @@ namespace CloudPhoto.Web.ViewModels.Images
     {
         public string Id { get; set; }
 
-        public string Name { get; set; }
+        public string Title { get; set; }
 
         public string Description { get; set; }
 
@@ -18,7 +18,7 @@ namespace CloudPhoto.Web.ViewModels.Images
 
         public bool IsLike { get; set; }
 
-        public ApplicationUser UserUserName { get; set; }
+        public string AuthorUserName { get; set; }
 
         public void CreateMappings(IProfileExpression configuration)
         {
