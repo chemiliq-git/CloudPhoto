@@ -9,6 +9,8 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
+    using CloudPhoto.Web.ViewModels.Categories;
+    using CloudPhoto.Web.ViewModels.FilterBar;
     using CloudPhoto.Web.ViewModels.Images;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
@@ -185,6 +187,16 @@
             this.context.Images.Remove(image);
             await this.context.SaveChangesAsync();
             return this.RedirectToAction(nameof(this.Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult GetSearchingData(FilterBarSearchDataViewModel inputSearchData)
+        {
+            SearchImageData searchData = new SearchImageData();
+            searchData.FilterCategory.Add("2aacb261-6035-4818-80e1-80c64890c39d");
+            var data = this.imagesService.GetByFilter<ListImageViewModel>(searchData);
+            return this.View("Index", data);
         }
 
         private bool ImageExists(string id)

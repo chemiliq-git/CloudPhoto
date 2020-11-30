@@ -1,0 +1,26 @@
+﻿@using CloudPhoto.Web.ViewModels.FilterBar
+@model FilterBarSearchDataViewModel
+
+<input id="sideCloseBtn" type="button" class="btn" value="CloseSideMenu" />
+
+<form id="filterForm" asp-controller="images" asp-action="GetSearchingData" method="post">
+
+    @{ 
+    for (int i = 0; i < Model.Category.Count; i++)
+    {
+        <div class="form-group">
+            <input type="checkbox" asp-for="@Model.Category[i].Check" />
+            <label asp-for="@Model.Category[i].Name">@Model.Category[i].Name</label>
+            <input type="text" asp-for="@Model.Category[i].Id" value="@Model.Category[i].Id" hidden/>
+        </div>
+    }
+        }
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <input type="submit" value="Search">
+</form>

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using CloudPhoto.Data.Models;
 using CloudPhoto.Services.Mapping;
+using CloudPhoto.Web.ViewModels.Categories;
 using Newtonsoft.Json;
 
 namespace CloudPhoto.Web.ViewModels.Images

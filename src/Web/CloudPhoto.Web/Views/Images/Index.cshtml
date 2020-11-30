@@ -12,37 +12,93 @@
     <a asp-action="Create">Create New</a>
 </p>
 
-//use only form generate token
 <form id="voteForm" method="post"></form>
 
-<div class="container">
-    <div class="row">
-        @foreach (var item in @Model)
-        {
-            string likeIconColor = string.Empty;
-            if (item.IsLike)
+<div class="row container-fluid">
+    <div id="side-search" class="col-md-2">
+        @await Component.InvokeAsync("FilterBar")
+    </div>
+    <div id="hide-side-search" style="display:none">
+        <a href="#" onclick="closeMenu()">
+            <i class="fas fa-search"></i>
+            Show search
+        </a>
+    </div>
+    <div id="containerImages" class="col-md-10">
+        <div class="row">
+            <partial name="_ImageListPartial" model="@Model" data="@Model">
+                @*@foreach (var item in @Model)
             {
-                likeIconColor = "red";
-            }
+                string likeIconColor = string.Empty;
+                if (item.IsLike)
+                {
+                    likeIconColor = "red";
+                }
 
-            <div class="col-md-4 m-image-container">
-                <img src=@item.ImageUrl class="img-thumbnail">
+                <div class="col-md-4 m-image-container">
+                    <img src=@item.ImageUrl class="img-thumbnail">
 
-                <a asp-action="Delete" asp-route-id=@item.Id class="my-icon-middle">
-                    <i class="far fa-times-circle"></i>
-                </a>
-                <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
-                    <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
-                </a>
+                    <a asp-action="Delete" asp-route-id=@item.Id class="my-icon-middle">
+                        <i class="far fa-times-circle"></i>
+                    </a>
+                    <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
+                        <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
+                    </a>
 
-            </div>
-        }
+                </div>
+            }*@
+        </div>
     </div>
 </div>
 
 
 @section Scripts {
     <script>
+
+        $(document).ready(
+            function () {
+                hookToCloseSideMenu();
+            }
+        );
+
+        function hookToCloseSideMenu() {
+            const node = document.getElementById("sideCloseBtn");
+            node.addEventListener("click", function (event) {
+                closeMenu();
+            });
+
+            const node1 = document.getElementById("checkSearch");
+            node1.addEventListener("change", function (event) {
+                closeMenu();
+            });
+        }
+
+        function closeMenu() {
+            var x = document.getElementById("side-search");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+
+            var x1 = document.getElementById("hide-side-search");
+            if (x1.style.display === "none") {
+                x1.style.display = "block";
+            } else {
+                x1.style.display = "none";
+            }
+
+            var x2 = document.getElementById("containerImages");
+            if (x2.classList.contains("col-md-10")) {
+                x2.classList.remove("col-md-10");
+                x2.classList.add("col-md-12")
+            } else {
+                x2.classList.remove("col-md-12");
+                x2.classList.add("col-md-10")
+            }
+            
+        }
+
         function sendVote(imageId) {
             var token = $("#voteForm input[name=__RequestVerificationToken]").val();
 

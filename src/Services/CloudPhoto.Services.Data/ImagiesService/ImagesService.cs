@@ -70,6 +70,12 @@
                 query = query.Where(img => img.AuthorId == searchData.AuthorId);
             }
 
+            if (searchData.FilterCategory != null
+                && searchData.FilterCategory.Count > 0)
+            {
+                //this.ImageRepository
+            }
+
             return query.To<T>().ToList();
         }
 
