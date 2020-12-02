@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-
+    using CloudPhoto.Common;
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
@@ -60,7 +60,10 @@
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<T> GetByFilter<T>(SearchImageData searchData)
+        public IEnumerable<T> GetByFilter<T>(
+            SearchImageData searchData,
+            int page = 1,
+            int perPage = GlobalConstants.ImagePerPageDefaultValue)
         {
             IQueryable<Image> query =
                 this.ImageRepository.All();
@@ -73,10 +76,19 @@
             if (searchData.FilterCategory != null
                 && searchData.FilterCategory.Count > 0)
             {
-                //this.ImageRepository
+                query = query.Where(img => img.ImageCategories.Where(i => searchData.FilterCategory.Contains(i.CategoryId)).Count() > 0);
+            }
+            if (searchData.FilterTags != null
+                && searchData.FilterTags.Count > 0)
+            {
+                query = query.Where(img => img.ImageTags.Where(i => searchData.FilterTags.Contains(i.TagId)).Count() > 0);
             }
 
-            return query.To<T>().ToList();
+            return query
+                .OrderBy(i => i.Id)
+                .To<T>()
+                .Skip(perPage * (page - 1))
+                .Take(perPage).ToList();
         }
 
         public Task<bool> UpdateAsync(string id, string name, string description)

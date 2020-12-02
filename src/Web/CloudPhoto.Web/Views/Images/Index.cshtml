@@ -25,29 +25,15 @@
         </a>
     </div>
     <div id="containerImages" class="col-md-10">
-        <div class="row">
+        <div id="partialView" class="row">
             <partial name="_ImageListPartial" model="@Model" data="@Model">
-                @*@foreach (var item in @Model)
-            {
-                string likeIconColor = string.Empty;
-                if (item.IsLike)
-                {
-                    likeIconColor = "red";
-                }
-
-                <div class="col-md-4 m-image-container">
-                    <img src=@item.ImageUrl class="img-thumbnail">
-
-                    <a asp-action="Delete" asp-route-id=@item.Id class="my-icon-middle">
-                        <i class="far fa-times-circle"></i>
-                    </a>
-                    <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
-                        <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
-                    </a>
-
-                </div>
-            }*@
         </div>
+    </div>
+</div>
+
+<div id="progress" class="text-center" style="display: none;">
+    <div class="spinner-border a" role="status">
+        <span class="sr-only">Loading...</span>
     </div>
 </div>
 
@@ -55,11 +41,20 @@
 @section Scripts {
     <script>
 
+        var pageSize = 5;
+        var pageIndex = 2;
+
         $(document).ready(
             function () {
                 hookToCloseSideMenu();
+            });
+
+        $(window).scroll(function () {
+            if ($(window).scrollTop() ==
+                $(document).height() - $(window).height()) {
+                GetData();
             }
-        );
+        });
 
         function hookToCloseSideMenu() {
             const node = document.getElementById("sideCloseBtn");
@@ -96,7 +91,7 @@
                 x2.classList.remove("col-md-12");
                 x2.classList.add("col-md-10")
             }
-            
+
         }
 
         function sendVote(imageId) {
@@ -138,6 +133,39 @@
             );
 
             return false;
+        }
+
+        function GetData() {
+            var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+
+            var formData = new FormData();
+            formData.append("page", pageIndex);
+            formData.append("perPage", pageSize);
+
+            $.ajax({
+                url: '/images/GetSearchingData',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                headers: { 'X-CSRF-TOKEN': token },
+                success: function (data) {
+                    if (data != null) {
+                        var partialView = $('#partialView');
+                        partialView.append(data);
+                        pageIndex++;
+                    }
+                },
+                beforeSend: function () {
+                    $("#progress").show();
+                },
+                complete: function () {
+                    $("#progress").hide();
+                },
+                error: function () {
+                    alert("Error while retrieving data!");
+                }
+            });
         }
     </script>
 }

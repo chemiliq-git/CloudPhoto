@@ -1,5 +1,6 @@
 ﻿namespace CloudPhoto.Services.Data.ImagiesService
 {
+    using CloudPhoto.Common;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -13,6 +14,9 @@
 
         public T GetByCategoryId<T>(string categoryId);
 
-        public IEnumerable<T> GetByFilter<T>(SearchImageData searchData);
+        public IEnumerable<T> GetByFilter<T>(
+            SearchImageData searchData,
+            int page = 1,
+            int perPage = GlobalConstants.ImagePerPageDefaultValue);
     }
 }

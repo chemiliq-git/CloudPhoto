@@ -9,5 +9,9 @@
         public const string DefaultAdministratorEmail = "administrator@gmail.com";
 
         public const string DefaultAdministratorPassword = "34Dsad34!:";
+
+        public const int ImagePerPageDefaultValue = 5;
+
+        public const string LocalUploadFolder = "UploadImages";
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace CloudPhoto.Web.Controllers
 {
     using System.Threading.Tasks;
-
+    using CloudPhoto.Common;
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.RemoteStorage;
@@ -49,31 +49,22 @@
                     return this.BadRequest();
                 }
 
-#if DEBUG
-                string testImage = "https://res.cloudinary.com/dyfravfyd/image/upload/v1605823767/samples/animals/three-dogs.jpg";
-                return this.Json(new ResponceUploadFileController()
-                {
-                    Result = true,
-                    ImageUrl = testImage,
-                });
-#endif
-
                 ImageValidateResult result = this.ImageValidator.ValidateImageFile(file);
                 if (!result.IsValid)
                 {
-                    return this.Json(new ResponceUploadFileController() { Result = false, ErrorMessage = "Not valid image format" });
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Not valid image format" });
                 }
 
-                // string localFolder = Path.Combine(this.Env.WebRootPath, this.Configuration.GetSection("LocalImageFolder").Value);
-                // StoreFileInfo info = await this.LocalStorageService.UploadFile(new UploadDataInfo(file, localFolder));
+                //await this.LocalStorageService.UploadFile(new UploadDataInfo(file, GlobalConstants.LocalUploadFolder, "Dasd"));
+
                 StoreFileInfo info = await this.RemoteStorageService.UploadFile(new UploadDataInfo(file, "WebPictures", string.Empty));
                 if (info.BoolResult)
                 {
-                    return this.Json(new ResponceUploadFileController() { Result = true, ImageUrl = info.FileAddress });
+                    return this.Json(new ResponseUploadFileController() { Result = true, ImageUrl = info.FileAddress });
                 }
                 else
                 {
-                    return this.Json(new ResponceUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
                 }
             }
             else

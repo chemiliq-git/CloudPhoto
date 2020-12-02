@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Text.Json;
     using System.Threading.Tasks;
-
+    using CloudPhoto.Common;
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
@@ -38,9 +38,12 @@
         }
 
         // GET: Images
-        public IActionResult Index()
+        public IActionResult Index(int page = 1, int perPage = GlobalConstants.ImagePerPageDefaultValue)
         {
-            var images = this.imagesService.GetByFilter<ListImageViewModel>(new SearchImageData());
+            var images = this.imagesService.GetByFilter<ListImageViewModel>(
+                new SearchImageData(),
+                page,
+                perPage);
             return this.View(images);
         }
 
@@ -190,13 +193,35 @@
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult GetSearchingData(FilterBarSearchDataViewModel inputSearchData)
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> GetSearchingData(FilterBarSearchDataViewModel inputSearchData)
+
+        public async Task<ActionResult> GetSearchingData(int page,int perPage)
         {
             SearchImageData searchData = new SearchImageData();
-            searchData.FilterCategory.Add("2aacb261-6035-4818-80e1-80c64890c39d");
-            var data = this.imagesService.GetByFilter<ListImageViewModel>(searchData);
-            return this.View("Index", data);
+            //if (inputSearchData.Category != null)
+            //{
+            //    searchData.FilterCategory = inputSearchData.Category.Where(i => i.Check).Select(o => o.Id).ToList();
+            //}
+
+
+            if (this.User.Identity.IsAuthenticated)
+            {
+                var user = await this.userManager.GetUserAsync(this.User);
+                searchData.AuthorId = user.Id;
+            }
+
+            var data = this.imagesService.GetByFilter<ListImageViewModel>(
+                searchData, page, perPage);
+            //inputSearchData.Page == 0 ? 1 : inputSearchData.Page,
+            //inputSearchData.PerPage == 0 ? GlobalConstants.ImagePerPageDefaultValue : inputSearchData.PerPage);
+            
+            return this.PartialView("_ImageListPartial", data);
+            
+            //return this.View("Index", data);
+            
+            //string message = "true";
+            //return this.Json(message);
         }
 
         private bool ImageExists(string id)
