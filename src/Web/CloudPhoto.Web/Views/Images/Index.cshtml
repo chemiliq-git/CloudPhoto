@@ -186,6 +186,9 @@
                     var partialView = $('#partialView');
                     if (data != '') {
                         partialView.append(data);
+                        if (pageIndex == 1) {
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        }
                         pageIndex++;
                     }
                     else {
@@ -197,9 +200,6 @@
                 },
                 complete: function () {
                     $("#progress").hide();
-                    if (pageIndex == 1) {
-                        $(window).scrollTop(0);
-                    }
                     hasStartRequest = false;
                 },
                 error: function () {

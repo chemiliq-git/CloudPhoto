@@ -49,18 +49,8 @@
         }
 
         // GET: Images
-        public IActionResult Index(int perPage, int page = 1)
+        public IActionResult Index()
         {
-            //if (perPage == 0)
-            //{
-            //    perPage = int.Parse(this.configuration.GetSection("Images:CountPerPage").Value);
-            //}
-
-            //var images = this.imagesService.GetByFilter<ListImageViewModel>(
-            //    new SearchImageData(),
-            //    perPage,
-            //    page);
-            //return this.View(images);
             return this.View();
         }
 

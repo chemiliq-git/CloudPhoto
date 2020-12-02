@@ -25,6 +25,7 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -84,6 +85,7 @@
             services.AddTransient<ITagsService, Services.Data.TagsService.TagService>();
             services.AddTransient<IVotesService, VotesService>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
+
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();
             services.AddTransient<ISettingsService, SettingsService>();
