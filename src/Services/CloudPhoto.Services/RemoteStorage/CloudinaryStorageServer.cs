@@ -77,9 +77,9 @@
         {
             try
             {
-                if (uploadInfo.FileInfo == null
-                   || uploadInfo.FileInfo.Length == 0
-                   || string.IsNullOrEmpty(uploadInfo.FileInfo.FileName))
+                if (uploadInfo.Stream == null
+                   || uploadInfo.Stream.Length == 0
+                   || string.IsNullOrEmpty(uploadInfo.FileName))
                 {
                     this.Logger.LogError("File is required");
                     return new StoreFileInfo(false);
@@ -97,9 +97,9 @@
                 ImageUploadResult uploadResult;
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    uploadInfo.FileInfo.CopyTo(stream);
+                    uploadInfo.Stream.CopyTo(stream);
                     stream.Position = 0;
-                    uploadParams.File = new FileDescription(uploadInfo.FileInfo.FileName, stream);
+                    uploadParams.File = new FileDescription(uploadInfo.FileName, stream);
                     if (!string.IsNullOrEmpty(uploadInfo.DirectoryName))
                     {
                         uploadParams.Folder = uploadInfo.DirectoryName;

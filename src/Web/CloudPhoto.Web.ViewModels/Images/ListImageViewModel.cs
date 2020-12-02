@@ -14,7 +14,7 @@ namespace CloudPhoto.Web.ViewModels.Images
 
         public string Description { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string ThumbnailImageUrl { get; set; }
 
         public bool IsLike { get; set; }
 

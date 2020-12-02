@@ -21,6 +21,9 @@ namespace CloudPhoto.Web.ViewModels.Images
         public string ImageUrl { get; set; }
 
         [Required]
+        public string ImageId { get; set; }
+
+        [Required]
         [Display(Name = "Category")]
         public string CategoryId { get; set; }
 

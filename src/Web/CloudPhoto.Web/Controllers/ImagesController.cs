@@ -4,46 +4,58 @@
     using System.Linq;
     using System.Text.Json;
     using System.Threading.Tasks;
+
     using CloudPhoto.Common;
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Web.ViewModels.Categories;
-    using CloudPhoto.Web.ViewModels.FilterBar;
     using CloudPhoto.Web.ViewModels.Images;
     using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
 
     public class ImagesController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly IConfiguration configuration;
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IWebHostEnvironment env;
 
         public ImagesController(
             ApplicationDbContext context,
+            IConfiguration configuration,
             IImagesService imagesService,
             ICategoriesService categoriesService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IWebHostEnvironment env)
         {
             this.context = context;
+            this.configuration = configuration;
             this.imagesService = imagesService;
             this.categoriesService = categoriesService;
             this.userManager = userManager;
+            this.env = env;
         }
 
         // GET: Images
-        public IActionResult Index(int page = 1, int perPage = GlobalConstants.ImagePerPageDefaultValue)
+        public IActionResult Index(int perPage, int page = 1)
         {
+            if (perPage == 0)
+            {
+                perPage = int.Parse(this.configuration.GetSection("Images:CountPerPage").Value);
+            }
+
             var images = this.imagesService.GetByFilter<ListImageViewModel>(
                 new SearchImageData(),
-                page,
-                perPage);
+                perPage,
+                page);
             return this.View(images);
         }
 
@@ -69,8 +81,10 @@
         // GET: Images/Create
         public IActionResult Create()
         {
-            CreateImageViewModel model = new CreateImageViewModel();
-            model.Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>();
+            CreateImageViewModel model = new CreateImageViewModel
+            {
+                Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>(),
+            };
             return this.View(model);
         }
 
@@ -89,16 +103,17 @@
                 List<string> lstImageTag = JsonSerializer.Deserialize<List<string>>(image.ImageTags);
 
                 await this.imagesService.CreateAsync(
-                     new CreateImageModelData()
-                     {
-                         Title = image.Title,
-                         Description = image.Description,
-                         CategoryId = image.CategoryId,
-                         ImageUrl = image.ImageUrl,
-                         AuthorId = user.Id,
-                         Tags = lstImageTag,
-                     }
-               );
+                    this.env.WebRootPath,
+                    new CreateImageModelData()
+                    {
+                        Id = image.ImageId,
+                        Title = image.Title,
+                        Description = image.Description,
+                        CategoryId = image.CategoryId,
+                        ImageUrl = image.ImageUrl,
+                        AuthorId = user.Id,
+                        Tags = lstImageTag,
+                    });
 
                 return this.RedirectToAction(nameof(this.Index));
             }
@@ -193,17 +208,14 @@
         }
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<ActionResult> GetSearchingData(FilterBarSearchDataViewModel inputSearchData)
-
-        public async Task<ActionResult> GetSearchingData(int page,int perPage)
+        public async Task<ActionResult> GetSearchingData(int page, int perPage)
         {
-            SearchImageData searchData = new SearchImageData();
-            //if (inputSearchData.Category != null)
-            //{
-            //    searchData.FilterCategory = inputSearchData.Category.Where(i => i.Check).Select(o => o.Id).ToList();
-            //}
+            if (perPage == 0)
+            {
+                perPage = int.Parse(this.configuration.GetSection("Images:CountPerPage").Value);
+            }
 
+            SearchImageData searchData = new SearchImageData();
 
             if (this.User.Identity.IsAuthenticated)
             {
@@ -212,16 +224,9 @@
             }
 
             var data = this.imagesService.GetByFilter<ListImageViewModel>(
-                searchData, page, perPage);
-            //inputSearchData.Page == 0 ? 1 : inputSearchData.Page,
-            //inputSearchData.PerPage == 0 ? GlobalConstants.ImagePerPageDefaultValue : inputSearchData.PerPage);
-            
+                searchData, perPage, page);
+
             return this.PartialView("_ImageListPartial", data);
-            
-            //return this.View("Index", data);
-            
-            //string message = "true";
-            //return this.Json(message);
         }
 
         private bool ImageExists(string id)

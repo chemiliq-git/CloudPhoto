@@ -13,6 +13,7 @@
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.VotesService;
+    using CloudPhoto.Services.ImageManipulationProvider;
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.Mapping;
@@ -76,13 +77,13 @@
             services.AddScoped<IDbQueryRunner, DbQueryRunner>();
 
             services.AddTransient<ICategoriesService, CategoriesService>();
-            services.AddTransient<IRemoteStorageService, BlobStorageService>();
+            services.AddTransient<IRemoteStorageService, CloudinaryStorageServer>();
             services.AddTransient<IImageValidatorService, ImageValidator>();
             services.AddTransient<ILocalStorageServices, LocalStorage>();
             services.AddTransient<IImagesService, ImagesService>();
             services.AddTransient<ITagsService, Services.Data.TagsService.TagService>();
             services.AddTransient<IVotesService, VotesService>();
-
+            services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();
             services.AddTransient<ISettingsService, SettingsService>();

@@ -31,10 +31,10 @@
                     Directory.CreateDirectory(uploadInfo.DirectoryName);
                 }
 
-                string fileName = Path.Combine(uploadInfo.DirectoryName, uploadInfo.FileInfo.FileName);
+                string fileName = Path.Combine(uploadInfo.DirectoryName, uploadInfo.FileName);
                 using (FileStream fileStream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write))
                 {
-                    await uploadInfo.FileInfo.CopyToAsync(fileStream);
+                    await uploadInfo.Stream.CopyToAsync(fileStream);
                     await fileStream.FlushAsync();
                 }
 

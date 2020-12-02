@@ -10,10 +10,9 @@ namespace CloudPhoto.Data.Migrations
                 name: "FK_ImageTags_Tags_ImageId",
                 table: "ImageTags");
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ImageTags_TagId",
-                table: "ImageTags",
-                column: "TagId");
+            migrationBuilder.DropForeignKey(
+                name: "FK_ImageTags_Tags_TagId",
+                table: "ImageTags");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ImageTags_Tags_TagId",
@@ -28,10 +27,6 @@ namespace CloudPhoto.Data.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_ImageTags_Tags_TagId",
-                table: "ImageTags");
-
-            migrationBuilder.DropIndex(
-                name: "IX_ImageTags_TagId",
                 table: "ImageTags");
 
             migrationBuilder.AddForeignKey(

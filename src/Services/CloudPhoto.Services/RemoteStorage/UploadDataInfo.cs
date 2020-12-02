@@ -1,28 +1,31 @@
 ﻿namespace CloudPhoto.Services.RemoteStorage
 {
-    using Microsoft.AspNetCore.Http;
+    using System.IO;
 
     public class UploadDataInfo
     {
-        public UploadDataInfo(IFormFile fileInfo)
+        public UploadDataInfo(string fileName, MemoryStream stream)
         {
-            this.FileInfo = fileInfo;
+            this.FileName = fileName;
+            this.Stream = stream;
         }
 
-        public UploadDataInfo(IFormFile fileInfo, string container, string directoryName)
-            : this(fileInfo)
+        public UploadDataInfo(string fileName, MemoryStream stream, string container, string directoryName)
+            : this(fileName, stream)
         {
             this.Container = container;
             this.DirectoryName = directoryName;
         }
 
-        public UploadDataInfo(IFormFile fileInfo, string directoryName)
-            : this(fileInfo)
+        public UploadDataInfo(string fileName, MemoryStream stream, string directoryName)
+            : this(fileName, stream)
         {
             this.DirectoryName = directoryName;
         }
 
-        public IFormFile FileInfo { get; private set; }
+        public string FileName { get; }
+
+        public MemoryStream Stream { get; }
 
         public string Container { get; private set; }
 

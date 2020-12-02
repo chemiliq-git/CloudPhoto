@@ -40,13 +40,11 @@
             await directory.CreateIfNotExistsAsync();
 
             // Get a reference to a file and upload it
-            ShareFileClient file = directory.GetFileClient(this.GenerateFileName(uploadInfo.FileInfo.FileName));
-            using MemoryStream stream = new MemoryStream();
-            uploadInfo.FileInfo.CopyTo(stream);
-            Response<ShareFileInfo> uploadFile = file.Create(stream.Length);
+            ShareFileClient file = directory.GetFileClient(this.GenerateFileName(uploadInfo.FileName));
+            Response<ShareFileInfo> uploadFile = file.Create(uploadInfo.Stream.Length);
             file.UploadRange(
-                new HttpRange(0, stream.Length),
-                stream);
+                new HttpRange(0, uploadInfo.Stream.Length),
+                uploadInfo.Stream);
 
             return new StoreFileInfo(string.Empty, uploadFile.Value.SmbProperties.FileId);
         }

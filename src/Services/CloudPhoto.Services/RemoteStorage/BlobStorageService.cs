@@ -52,6 +52,7 @@
         }
 
         public IConfiguration Configuration { get; }
+
         public ILogger<BlobStorageService> Logger { get; }
 
         public async Task<StoreFileInfo> UploadFile(UploadDataInfo uploadInfo)
@@ -69,9 +70,9 @@
                     return new StoreFileInfo(false);
                 }
 
-                if (uploadInfo.FileInfo == null
-                    || uploadInfo.FileInfo.Length == 0
-                    || string.IsNullOrEmpty(uploadInfo.FileInfo.FileName))
+                if (uploadInfo.Stream == null
+                    || uploadInfo.Stream.Length == 0
+                    || string.IsNullOrEmpty(uploadInfo.FileName))
                 {
                     this.Logger.LogError("File is required");
                     return new StoreFileInfo(false);
@@ -83,19 +84,19 @@
 
                 // Get a reference to a blob named "sample-file" in a container named "sample-container"
                 BlobClient blob = blobContainer.GetBlobClient(
-                    this.GenerateFileName(uploadInfo.DirectoryName, uploadInfo.FileInfo.FileName));
+                    this.GenerateFileName(uploadInfo.DirectoryName, uploadInfo.FileName));
 
                 // Upload local file
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    uploadInfo.FileInfo.CopyTo(stream);
+                    uploadInfo.Stream.CopyTo(stream);
                     stream.Position = 0;
                     Response<BlobContentInfo> response = await blob.UploadAsync(
                         stream,
-                        new BlobHttpHeaders
-                        {
-                            ContentType = uploadInfo.FileInfo.ContentType,
-                        },
+                        //new BlobHttpHeaders
+                        //{
+                        //    ContentType = uploadInfo.FileInfo.ContentType,
+                        //},
                         conditions: null);
                 }
 

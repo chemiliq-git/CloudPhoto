@@ -70,6 +70,9 @@
                 <input id="image-url" asp-for="ImageUrl" class="form-control" />
                 <span asp-validation-for="ImageUrl" class="text-danger"></span>
             </div>
+            <div class="form-group" hidden>
+                <input id="image-id" asp-for="ImageId" class="form-control" />
+            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -118,7 +121,7 @@
                             $("#uploadImageId").attr("src", data.imageUrl);
                             //fill input form image sourse
                             $("#image-url").attr("value", data.imageUrl);
-                            $("#image-url").value = data.imageUrl;
+                            $("#image-id").attr("value", data.fileId);
                             //show input form
                             $("#main-form").collapse('show');
                         }

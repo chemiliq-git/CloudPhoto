@@ -14,10 +14,10 @@
             this.BoolResult = result;
         }
 
-        public bool BoolResult { get; private set; }
+        public bool BoolResult { get; set; }
 
-        public string FileAddress { get; private set; }
+        public string FileAddress { get; set; }
 
-        public string FileId { get; private set; }
+        public string FileId { get; set; }
     }
 }

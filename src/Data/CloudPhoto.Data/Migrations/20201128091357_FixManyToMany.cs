@@ -19,10 +19,6 @@ namespace CloudPhoto.Data.Migrations
                 name: "PK_ImageCategories",
                 table: "ImageCategories");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_ImageTags_Tags_ImageId",
-                table: "ImageTags");
-
             migrationBuilder.DropIndex(
                 name: "IX_ImageCategories_ImageId",
                 table: "ImageCategories");

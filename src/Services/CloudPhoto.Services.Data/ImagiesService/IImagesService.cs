@@ -1,12 +1,13 @@
 ﻿namespace CloudPhoto.Services.Data.ImagiesService
 {
-    using CloudPhoto.Common;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
+    using CloudPhoto.Common;
+
     public interface IImagesService
     {
-        public Task<string> CreateAsync(CreateImageModelData createData);
+        public Task<string> CreateAsync(string rootFolder, CreateImageModelData createData);
 
         public Task<bool> UpdateAsync(string id, string name, string description);
 
@@ -16,7 +17,7 @@
 
         public IEnumerable<T> GetByFilter<T>(
             SearchImageData searchData,
-            int page = 1,
-            int perPage = GlobalConstants.ImagePerPageDefaultValue);
+            int perPage,
+            int page = 1);
     }
 }

@@ -1,7 +1,9 @@
 ﻿namespace CloudPhoto.Web.Controllers
 {
+    using System;
+    using System.IO;
     using System.Threading.Tasks;
-    using CloudPhoto.Common;
+
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.RemoteStorage;
@@ -55,21 +57,61 @@
                     return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Not valid image format" });
                 }
 
-                //await this.LocalStorageService.UploadFile(new UploadDataInfo(file, GlobalConstants.LocalUploadFolder, "Dasd"));
-
-                StoreFileInfo info = await this.RemoteStorageService.UploadFile(new UploadDataInfo(file, "WebPictures", string.Empty));
+                StoreFileInfo info = await this.UploadFileToLocalFolder(file);
                 if (info.BoolResult)
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = true, ImageUrl = info.FileAddress });
+                    return this.Json(new ResponseUploadFileController()
+                    {
+                        Result = true,
+                        ImageUrl = info.FileAddress,
+                        FileId = info.FileId,
+                    });
                 }
                 else
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
+                    return this.Json(new ResponseUploadFileController()
+                    {
+                        Result = false,
+                        ErrorMessage = "Error uploading file to storage",
+                    });
                 }
+
+                //StoreFileInfo info = await this.RemoteStorageService.UploadFile(new UploadDataInfo(file, "WebPictures", string.Empty));
+                //if (info.BoolResult)
+                //{
+                //    return this.Json(new ResponseUploadFileController() { Result = true, ImageUrl = info.FileAddress });
+                //}
+                //else
+                //{
+                //    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
+                //}
             }
             else
             {
                 return this.BadRequest();
+            }
+        }
+
+        private async Task<StoreFileInfo> UploadFileToLocalFolder(IFormFile file)
+        {
+            string fileId = Guid.NewGuid().ToString();
+            string folderForResize = Path.Combine(
+                this.Env.WebRootPath,
+                this.Configuration.GetSection("Images:LocalImageFolder").Value,
+                fileId);
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+                stream.Position = 0;
+                StoreFileInfo info = await this.LocalStorageService.UploadFile(
+                    new UploadDataInfo(
+                        file.FileName,
+                        stream,
+                        folderForResize));
+                info.FileId = fileId;
+                info.FileAddress = info.FileAddress.Replace(this.Env.WebRootPath, "");
+                return info;
             }
         }
     }

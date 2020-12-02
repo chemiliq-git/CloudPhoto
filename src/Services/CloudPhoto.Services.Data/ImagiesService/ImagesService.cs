@@ -2,26 +2,43 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+
     using CloudPhoto.Common;
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.TagsService;
+    using CloudPhoto.Services.ImageManipulationProvider;
     using CloudPhoto.Services.Mapping;
+    using CloudPhoto.Services.RemoteStorage;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
 
     public class ImagesService : IImagesService
     {
         public ImagesService(
-           IDeletableEntityRepository<Image> imageRepository,
-           ICategoriesService categoriesService,
-           ITagsService tagsService)
+            ILogger<ImagesService> logger,
+            IDeletableEntityRepository<Image> imageRepository,
+            ICategoriesService categoriesService,
+            ITagsService tagsService,
+            IRemoteStorageService storageService,
+            IImageManipulationProvider imageManipulation,
+            IConfiguration configuration)
         {
+            this.Logger = logger;
             this.ImageRepository = imageRepository;
             this.CategoriesService = categoriesService;
             this.TagsService = tagsService;
+            this.ImageManipulation = imageManipulation;
+            this.Configuration = configuration;
+            this.StorageService = storageService;
         }
+
+        public ILogger<ImagesService> Logger { get; }
 
         public IDeletableEntityRepository<Image> ImageRepository { get; }
 
@@ -29,17 +46,25 @@
 
         public ITagsService TagsService { get; }
 
-        public async Task<string> CreateAsync(CreateImageModelData createData)
+        public IImageManipulationProvider ImageManipulation { get; }
+
+        public IConfiguration Configuration { get; }
+
+        public IRemoteStorageService StorageService { get; }
+
+        public async Task<string> CreateAsync(string rootFolder, CreateImageModelData createData)
         {
             Category category = this.CategoriesService.GetByCategoryId<Category>(createData.CategoryId);
 
             var image = new Image
             {
+                Id = createData.Id,
                 Title = createData.Title,
                 Description = createData.Description,
                 AuthorId = createData.AuthorId,
-                ImageUrl = createData.ImageUrl,
             };
+
+            image.ThumbnailImageUrl = await this.GenerateThumbnailImage(rootFolder, createData.ImageUrl);
 
             image.ImageTags = await this.ParseImageTag(image, createData.Tags);
             image.ImageCategories = new List<ImageCategory>() { new ImageCategory() { CategoryId = category.Id, ImageId = image.Id } };
@@ -47,6 +72,9 @@
             await this.ImageRepository.AddAsync(image);
 
             await this.ImageRepository.SaveChangesAsync();
+
+            await this.UploadOriginalFile(createData.Id, rootFolder, createData.ImageUrl);
+
             return image.Id;
         }
 
@@ -62,8 +90,8 @@
 
         public IEnumerable<T> GetByFilter<T>(
             SearchImageData searchData,
-            int page = 1,
-            int perPage = GlobalConstants.ImagePerPageDefaultValue)
+            int perPage,
+            int page = 1)
         {
             IQueryable<Image> query =
                 this.ImageRepository.All();
@@ -123,6 +151,81 @@
             }
 
             return imageTags;
+        }
+
+        private async Task UploadOriginalFile(string id, string rootFolder, string imageUrl)
+        {
+            try
+            {
+                string fullPath = rootFolder + imageUrl;
+                using (FileStream str = new FileStream(fullPath, FileMode.Open))
+                {
+                    using (MemoryStream memory = new MemoryStream())
+                    {
+                        str.CopyTo(memory);
+                        memory.Position = 0;
+                        StoreFileInfo storeFile = await this.StorageService.UploadFile(
+                            new UploadDataInfo(
+                                Path.GetFileName(fullPath),
+                                memory,
+                                "WebPictures",
+                                string.Empty));
+
+                        Image image = this.ImageRepository.All().First(image => image.Id == id);
+                        image.ImageUrl = storeFile.FileAddress;
+                        this.ImageRepository.Update(image);
+                        await this.ImageRepository.SaveChangesAsync();
+                    }
+                }
+
+                this.DeleteLocalFiles(fullPath);
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError("Error upload original file", e);
+            }
+        }
+
+        private void DeleteLocalFiles(string fullPath)
+        {
+            try
+            {
+                string directoryName = Path.GetDirectoryName(fullPath);
+                Directory.Delete(directoryName, true);
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError("Error delete local files", e);
+            }
+        }
+
+        private async Task<string> GenerateThumbnailImage(string rootFolder, string imageUrl)
+        {
+            string fullPath = rootFolder + imageUrl;
+            using (FileStream str = new FileStream(fullPath, FileMode.Open))
+            {
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    str.CopyTo(memory);
+                    memory.Position = 0;
+                    byte[] image = this.ImageManipulation.Resize(
+                        memory,
+                        int.Parse(this.Configuration.GetSection("Images:ThumbnailImageWidth").Value),
+                        int.Parse(this.Configuration.GetSection("Images:ThumbnailImageHeight").Value));
+
+                    using (MemoryStream cropImage = new MemoryStream(image))
+                    {
+                        StoreFileInfo storeFile = await this.StorageService.UploadFile(
+                            new UploadDataInfo(
+                                Path.GetFileName(fullPath),
+                                cropImage,
+                                "WebPictures",
+                                string.Empty));
+                        return storeFile.FileAddress;
+                    }
+                }
+
+            }
         }
     }
 }
