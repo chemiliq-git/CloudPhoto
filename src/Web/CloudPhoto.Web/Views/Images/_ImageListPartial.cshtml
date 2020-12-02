@@ -2,13 +2,15 @@
 @model IEnumerable<ListImageViewModel>
 
 
-@foreach (var item in @Model)
+@if (@Model != null)
 {
-    string likeIconColor = string.Empty;
-    if (item.IsLike)
+    foreach (var item in @Model)
     {
-        likeIconColor = "red";
-    }
+        string likeIconColor = string.Empty;
+        if (item.IsLike)
+        {
+            likeIconColor = "red";
+        }
 
 <div class="col-md-4 mb-2 m-image-container">
     <img src=@item.ThumbnailImageUrl class="img-fluid">
@@ -19,4 +21,5 @@
         <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
     </a>
 </div>
+    }
 }

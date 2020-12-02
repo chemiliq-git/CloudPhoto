@@ -9,7 +9,7 @@
     for (int i = 0; i < Model.Category.Count; i++)
     {
         <div class="form-group">
-            <input type="checkbox" asp-for="@Model.Category[i].Check" />
+            <input type="checkbox" name="checkBoxValue" asp-for="@Model.Category[i].Check" onchange="startSearchData()" />
             <label asp-for="@Model.Category[i].Name">@Model.Category[i].Name</label>
             <input type="text" asp-for="@Model.Category[i].Id" value="@Model.Category[i].Id" hidden/>
         </div>
@@ -22,5 +22,5 @@
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-    <input type="submit" value="Search">
+    <input type="submit" value="Search" onclick="startSearchData(); return false;">
 </form>

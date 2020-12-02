@@ -19,5 +19,7 @@
             SearchImageData searchData,
             int perPage,
             int page = 1);
+
+        public int GetCountByFilter<T>(SearchImageData searchData);
     }
 }

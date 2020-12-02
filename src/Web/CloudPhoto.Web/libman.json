@@ -40,6 +40,11 @@
       "provider": "cdnjs",
       "library": "font-awesome@5.15.1",
       "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "jquery-cookie@1.4.1",
+      "destination": "wwwroot/jquery-cookie/"
     }
   ]
 }

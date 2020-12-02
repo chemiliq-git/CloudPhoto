@@ -93,30 +93,22 @@
             int perPage,
             int page = 1)
         {
-            IQueryable<Image> query =
-                this.ImageRepository.All();
-
-            if (!string.IsNullOrEmpty(searchData.AuthorId))
-            {
-                query = query.Where(img => img.AuthorId == searchData.AuthorId);
-            }
-
-            if (searchData.FilterCategory != null
-                && searchData.FilterCategory.Count > 0)
-            {
-                query = query.Where(img => img.ImageCategories.Where(i => searchData.FilterCategory.Contains(i.CategoryId)).Count() > 0);
-            }
-            if (searchData.FilterTags != null
-                && searchData.FilterTags.Count > 0)
-            {
-                query = query.Where(img => img.ImageTags.Where(i => searchData.FilterTags.Contains(i.TagId)).Count() > 0);
-            }
+            IQueryable<Image> query = this.GenerateFilterQuery(searchData);
 
             return query
                 .OrderBy(i => i.Id)
                 .To<T>()
                 .Skip(perPage * (page - 1))
                 .Take(perPage).ToList();
+        }
+
+        public int GetCountByFilter<T>(SearchImageData searchData)
+        {
+            IQueryable<Image> query = this.GenerateFilterQuery(searchData);
+
+            return query
+                .OrderBy(i => i.Id)
+                .Count();
         }
 
         public Task<bool> UpdateAsync(string id, string name, string description)
@@ -226,6 +218,31 @@
                 }
 
             }
+        }
+
+        private IQueryable<Image> GenerateFilterQuery(SearchImageData searchData)
+        {
+            IQueryable<Image> query =
+                            this.ImageRepository.All();
+
+            if (!string.IsNullOrEmpty(searchData.AuthorId))
+            {
+                query = query.Where(img => img.AuthorId == searchData.AuthorId);
+            }
+
+            if (searchData.FilterCategory != null
+                && searchData.FilterCategory.Count > 0)
+            {
+                query = query.Where(img => img.ImageCategories.Where(i => searchData.FilterCategory.Contains(i.CategoryId)).Count() > 0);
+            }
+
+            if (searchData.FilterTags != null
+                && searchData.FilterTags.Count > 0)
+            {
+                query = query.Where(img => img.ImageTags.Where(i => searchData.FilterTags.Contains(i.TagId)).Count() > 0);
+            }
+
+            return query;
         }
     }
 }

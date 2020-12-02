@@ -16,10 +16,11 @@
 
 <div class="row container-fluid">
     <div id="side-search" class="col-md-2">
+        @* Load filter bar *@
         @await Component.InvokeAsync("FilterBar")
     </div>
     <div id="hide-side-search" style="display:none">
-        <a href="#" onclick="closeMenu()">
+        <a href="#" onclick="onclickShowSearcBar()">
             <i class="fas fa-search"></i>
             Show search
         </a>
@@ -42,54 +43,76 @@
     <script>
 
         var pageSize = 6;
-        var pageIndex = 2;
+        var pageIndex = 1;
+        var pageCount = 0;
+        var hasStartRequest = false;
 
         $(document).ready(
             function () {
                 hookToCloseSideMenu();
+                configPage();
+                startSearchData();
             });
 
         $(window).scroll(function () {
             if ($(window).scrollTop() ==
                 $(document).height() - $(window).height()) {
-                GetData();
+                if (!hasStartRequest) {
+                    GetData();
+                }
             }
         });
+
+        function startSearchData() {
+            var partialView = $('#partialView');
+            partialView.html("");
+            pageIndex = 1;
+            GetPageCount();
+        }
+
+        function configPage() {
+            var showSearchBar = $.cookie("show-serch-bar");
+            if (showSearchBar != null) {
+                toggleMenu();
+            }
+        }
+
+        function onclickShowSearcBar() {
+            $.cookie("show-serch-bar", "true", { path: "/Images" });
+            toggleMenu();
+        }
 
         function hookToCloseSideMenu() {
             const node = document.getElementById("sideCloseBtn");
             node.addEventListener("click", function (event) {
-                closeMenu();
-            });
-
-            const node1 = document.getElementById("checkSearch");
-            node1.addEventListener("change", function (event) {
-                closeMenu();
+                $.cookie("show-serch-bar", "false", { path: "/Images" });
+                toggleMenu();
             });
         }
 
-        function closeMenu() {
-            var x = document.getElementById("side-search");
-            if (x.style.display === "none") {
-                x.style.display = "block";
+        function toggleMenu() {
+            var show = $.cookie("show-serch-bar");
+            var searchBox = document.getElementById("side-search");
+            if (show === "true") {
+                searchBox.style.display = "block";
             } else {
-                x.style.display = "none";
+                searchBox.style.display = "none";
             }
 
-            var x1 = document.getElementById("hide-side-search");
-            if (x1.style.display === "none") {
-                x1.style.display = "block";
+            var hideSearchBox = document.getElementById("hide-side-search");
+            if (show === "false") {
+                hideSearchBox.style.display = "block";
             } else {
-                x1.style.display = "none";
+                hideSearchBox.style.display = "none";
             }
 
-            var x2 = document.getElementById("containerImages");
-            if (x2.classList.contains("col-md-10")) {
-                x2.classList.remove("col-md-10");
-                x2.classList.add("col-md-12")
+            var containerImage = document.getElementById("containerImages");
+            if (show === "false") {
+                containerImage.classList.remove("col-md-10");
+                containerImage.classList.add("col-md-12")
             } else {
-                x2.classList.remove("col-md-12");
-                x2.classList.add("col-md-10")
+                containerImage.classList.remove("col-md-12");
+                containerImage.classList.add("col-md-10")
             }
 
         }
@@ -136,11 +159,18 @@
         }
 
         function GetData() {
+            hasStartRequest = true;
             var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+            var strFilterData = $('#filterForm').serialize();
+
+            if (pageIndex > pageCount) {
+                return;
+            }
 
             var formData = new FormData();
             formData.append("page", pageIndex);
             formData.append("perPage", pageSize);
+            formData.append("searchData", strFilterData);
 
             $.ajax({
                 url: '/images/GetSearchingData',
@@ -149,11 +179,17 @@
                 contentType: false,
                 type: "POST",
                 headers: { 'X-CSRF-TOKEN': token },
+                xhrFields: {
+                    withCredentials: true
+                },
                 success: function (data) {
-                    if (data != null) {
-                        var partialView = $('#partialView');
+                    var partialView = $('#partialView');
+                    if (data != '') {
                         partialView.append(data);
                         pageIndex++;
+                    }
+                    else {
+                        partialView.html("");
                     }
                 },
                 beforeSend: function () {
@@ -161,6 +197,40 @@
                 },
                 complete: function () {
                     $("#progress").hide();
+                    if (pageIndex == 1) {
+                        $(window).scrollTop(0);
+                    }
+                    hasStartRequest = false;
+                },
+                error: function () {
+                    alert("Error while retrieving data!");
+                }
+            });
+        }
+
+        function GetPageCount() {
+            var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+            var strFilterData = $('#filterForm').serialize();
+
+            var formData = new FormData();
+            formData.append("itemPerPage", pageSize);
+            formData.append("searchData", strFilterData);
+
+            $.ajax({
+                url: '/images/GetPageCount',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                headers: { 'X-CSRF-TOKEN': token },
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (data) {
+                    pageCount = data;
+                    if (pageCount != "0") {
+                        GetData();
+                    }
                 },
                 error: function () {
                     alert("Error while retrieving data!");
