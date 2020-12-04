@@ -14,18 +14,18 @@
 
 <form id="voteForm" method="post"></form>
 
-<div class="row container-fluid">
-    <div id="side-search" class="col-md-2">
+<div class="row container-fluid" >
+    <div id="side-search" class="col-md-2" style="display:none">
         @* Load filter bar *@
         @await Component.InvokeAsync("FilterBar")
     </div>
-    <div id="hide-side-search" style="display:none">
+    <div id="hide-side-search" @*style="display:none"*@>
         <a href="#" onclick="onclickShowSearcBar()">
             <i class="fas fa-search"></i>
             Show search
         </a>
     </div>
-    <div id="containerImages" class="col-md-10">
+    <div id="containerImages" class="col-md-12">
         <div id="partialView" class="row">
             <partial name="_ImageListPartial" model="@Model" data="@Model">
         </div>
@@ -42,9 +42,11 @@
 @section Scripts {
     <script>
 
+        
         var pageSize = 6;
         var pageIndex = 1;
         var pageCount = 0;
+
         var hasStartRequest = false;
 
         $(document).ready(
@@ -63,6 +65,27 @@
             }
         });
 
+        function checkUncheckCategory(checkBox) {
+
+            var strFilter = $.cookie("select-category-filter");
+            var selectCategory = [];
+            if (strFilter != null) {
+                selectCategory = JSON.parse(strFilter);
+            }
+
+            if (checkBox.checked == true) {
+                selectCategory.push(checkBox.id);
+            }
+            else {
+                var filtered = selectCategory.filter(function (value, index, arr) {
+                    return value != checkBox.id;
+                });
+                selectCategory = filtered;
+            }
+            $.cookie("select-category-filter", JSON.stringify(selectCategory), { path: "/Images" });
+            startSearchData();
+        }
+
         function startSearchData() {
             var partialView = $('#partialView');
             partialView.html("");
@@ -75,6 +98,16 @@
             if (showSearchBar != null) {
                 toggleMenu();
             }
+
+            var strFilter = $.cookie("select-category-filter");
+            if (strFilter != null) {
+                showCheckedCategory(JSON.parse(strFilter));
+            }
+        }
+
+        function showCheckedCategory(arraySelectCategories) {
+            arraySelectCategories.forEach(element =>
+                document.getElementById(element).checked = true);
         }
 
         function onclickShowSearcBar() {
@@ -161,7 +194,7 @@
         function GetData() {
             hasStartRequest = true;
             var token = $("#voteForm input[name=__RequestVerificationToken]").val();
-            var strFilterData = $('#filterForm').serialize();
+            var filterCategoryIds = $.cookie("select-category-filter");
 
             if (pageIndex > pageCount) {
                 return;
@@ -170,7 +203,9 @@
             var formData = new FormData();
             formData.append("page", pageIndex);
             formData.append("perPage", pageSize);
-            formData.append("searchData", strFilterData);
+            if (filterCategoryIds != null) {
+                formData.append("filterByCategories", filterCategoryIds);
+            }
 
             $.ajax({
                 url: '/images/GetSearchingData',
@@ -210,11 +245,13 @@
 
         function GetPageCount() {
             var token = $("#voteForm input[name=__RequestVerificationToken]").val();
-            var strFilterData = $('#filterForm').serialize();
+            var filterCategoryIds = $.cookie("select-category-filter");
 
             var formData = new FormData();
             formData.append("itemPerPage", pageSize);
-            formData.append("searchData", strFilterData);
+            if (filterCategoryIds != null) {
+                formData.append("filterByCategories", filterCategoryIds);
+            }
 
             $.ajax({
                 url: '/images/GetPageCount',

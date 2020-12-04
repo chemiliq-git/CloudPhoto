@@ -7,21 +7,19 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Common;
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Web.ViewModels.Categories;
-    using CloudPhoto.Web.ViewModels.FilterBar;
     using CloudPhoto.Web.ViewModels.Images;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
+
 
     public class ImagesController : Controller
     {
@@ -203,10 +201,16 @@
         }
 
         [HttpPost]
-        public async Task<ActionResult> GetSearchingData(int page, int perPage, string searchData)
+        public async Task<ActionResult> GetSearchingData(
+            int page,
+            int perPage,
+            string filterByCategories)
         {
             SearchImageData localSearchData = new SearchImageData();
-            localSearchData.FilterCategory = this.ParseSelectCategories(searchData);
+            if (!string.IsNullOrEmpty(filterByCategories))
+            {
+                localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(filterByCategories);
+            }
 
             if (perPage == 0)
             {
@@ -238,10 +242,13 @@
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> GetPageCount(int itemPerPage, string searchData)
+        public async Task<ActionResult<int>> GetPageCount(int itemPerPage, string filterByCategories)
         {
             SearchImageData localSearchData = new SearchImageData();
-            localSearchData.FilterCategory = this.ParseSelectCategories(searchData);
+            if (!string.IsNullOrEmpty(filterByCategories))
+            {
+                localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(filterByCategories);
+            }
 
             if (itemPerPage == 0)
             {
@@ -256,19 +263,6 @@
 
             int count = this.imagesService.GetCountByFilter<ListImageViewModel>(localSearchData);
             return count == 0 ? 0 : (int)Math.Ceiling((double)count / itemPerPage);
-        }
-
-        private List<string> ParseSelectCategories(string searchData1)
-        {
-            List<string> selectCategories = new List<string>();
-            string regex = "checkBoxValue=true&Category%5B[0-9]*%5D.Id=(?<id>[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})";
-            MatchCollection matches = Regex.Matches(searchData1, regex);
-            foreach (Match item in matches)
-            {
-                selectCategories.Add(item.Groups["id"].Value);
-            }
-
-            return selectCategories;
         }
 
         private bool ImageExists(string id)
