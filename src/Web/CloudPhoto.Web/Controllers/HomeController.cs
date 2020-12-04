@@ -10,7 +10,7 @@
     {
         public IActionResult Index()
         {
-            return this.Redirect("/Images/Index");
+            return this.Redirect("/Images/Create");
         }
 
         public IActionResult Privacy()

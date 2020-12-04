@@ -1,5 +1,6 @@
 ﻿namespace CloudPhoto.Services.Data.TagsService
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -37,6 +38,14 @@
             await this.TagRepository.AddAsync(tag);
             await this.TagRepository.SaveChangesAsync();
             return tag.Id;
+        }
+
+        public List<T> FiterTagsByNames<T>(string searchText)
+        {
+            var query =
+                  this.TagRepository.All()
+                  .Where(c => c.Name.Contains(searchText));
+            return query.To<T>().ToList();
         }
     }
 }
