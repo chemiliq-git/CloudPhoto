@@ -242,32 +242,6 @@
                 return this.PartialView("_ImageListPartial", data);
             }
         }
-
-        [HttpPost]
-        public async Task<ActionResult<int>> GetPageCount(int itemPerPage, string searchText, string filterByCategories)
-        {
-            SearchImageData localSearchData = new SearchImageData();
-            localSearchData.FilterByTag = searchText;
-            if (!string.IsNullOrEmpty(filterByCategories))
-            {
-                localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(filterByCategories);
-            }
-
-            if (itemPerPage == 0)
-            {
-                return this.BadRequest();
-            }
-
-            if (this.User.Identity.IsAuthenticated)
-            {
-                var user = await this.userManager.GetUserAsync(this.User);
-                localSearchData.AuthorId = user.Id;
-            }
-
-            int count = this.imagesService.GetCountByFilter<ListImageViewModel>(localSearchData);
-            return count == 0 ? 0 : (int)Math.Ceiling((double)count / itemPerPage);
-        }
-
         private bool ImageExists(string id)
         {
             return this.context.Images.Any(e => e.Id == id);

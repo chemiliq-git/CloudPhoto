@@ -14,7 +14,7 @@
 
 <form id="voteForm" method="post"></form>
 
-<div class="row container-fluid" >
+<div class="row container-fluid">
     <div id="side-search" class="col-md-2" style="display:none">
         @* Load filter bar *@
         @await Component.InvokeAsync("FilterBar")
@@ -41,12 +41,11 @@
 
 @section Scripts {
     <script>
-
         
         var pageSize = 6;
         var pageIndex = 1;
-        var pageCount = 0;
 
+        var hasAnoutherPages = true;
         var hasStartRequest = false;
 
         $(document).ready(
@@ -93,7 +92,8 @@
             var partialView = $('#partialView');
             partialView.html("");
             pageIndex = 1;
-            GetPageCount();
+            hasAnoutherPages = true;
+            GetData();
         }
 
         function configPage() {
@@ -216,9 +216,9 @@
 
         function GetData() {
             hasStartRequest = true;
-            
 
-            if (pageIndex > pageCount) {
+
+            if (!hasAnoutherPages) {
                 return;
             }
 
@@ -256,7 +256,10 @@
                         pageIndex++;
                     }
                     else {
-                        partialView.html("");
+                        hasAnoutherPages = false;
+                        if (pageIndex == 1) {
+                            partialView.html("");
+                        }
                     }
                 },
                 beforeSend: function () {
@@ -265,43 +268,6 @@
                 complete: function () {
                     $("#progress").hide();
                     hasStartRequest = false;
-                },
-                error: function () {
-                    alert("Error while retrieving data!");
-                }
-            });
-        }
-
-        function GetPageCount() {
-            var token = $("#voteForm input[name=__RequestVerificationToken]").val();
-            var filterCategoryIds = $.cookie("select-category-filter");
-
-            var searchText = $('#searchImageText').val();
-            $.cookie("search-image-text", searchText, { path: "/Images" });
-            
-
-            var formData = new FormData();
-            formData.append("itemPerPage", pageSize);
-            formData.append("searchText", searchText);
-            if (filterCategoryIds != null) {
-                formData.append("filterByCategories", filterCategoryIds);
-            }
-
-            $.ajax({
-                url: '/images/GetPageCount',
-                data: formData,
-                processData: false,
-                contentType: false,
-                type: "POST",
-                headers: { 'X-CSRF-TOKEN': token },
-                xhrFields: {
-                    withCredentials: true
-                },
-                success: function (data) {
-                    pageCount = data;
-                    if (pageCount != "0") {
-                        GetData();
-                    }
                 },
                 error: function () {
                     alert("Error while retrieving data!");
@@ -360,6 +326,5 @@
                     });
             });
         }
-
     </script>
 }
