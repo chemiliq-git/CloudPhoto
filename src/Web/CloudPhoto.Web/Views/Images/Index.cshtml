@@ -52,7 +52,10 @@
         $(document).ready(
             function () {
                 hookToCloseSideMenu();
+                hookToClearAllFilter();
+
                 configPage();
+                configAutoCompleteTags();
                 startSearchData();
             });
 
@@ -100,8 +103,13 @@
             }
 
             var strFilter = $.cookie("select-category-filter");
-            if (strFilter != null) {
+            if (strFilter) {
                 showCheckedCategory(JSON.parse(strFilter));
+            }
+
+            var searchText = $.cookie("search-image-text");
+            if (searchText) {
+                $('#searchImageText').val(searchText);
             }
         }
 
@@ -120,6 +128,21 @@
             node.addEventListener("click", function (event) {
                 $.cookie("show-serch-bar", "false", { path: "/Images" });
                 toggleMenu();
+            });
+        }
+
+        function hookToClearAllFilter() {
+            const node = document.getElementById("clearFilter");
+            node.addEventListener("click", function (event) {
+                $.cookie("select-category-filter", "", { path: "/Images" });
+                $('#groupCheckBox input:checked').each(function () {
+                    this.checked = false;
+                });
+
+                $.cookie("search-image-text", "", { path: "/Images" });
+                $('#searchImageText').val(null);
+
+                startSearchData();
             });
         }
 
@@ -193,16 +216,22 @@
 
         function GetData() {
             hasStartRequest = true;
-            var token = $("#voteForm input[name=__RequestVerificationToken]").val();
-            var filterCategoryIds = $.cookie("select-category-filter");
+            
 
             if (pageIndex > pageCount) {
                 return;
             }
 
+            var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+            var filterCategoryIds = $.cookie("select-category-filter");
+
+            var searchText = $('#searchImageText').val();
+            $.cookie("search-image-text", searchText, { path: "/Images" });
+
             var formData = new FormData();
             formData.append("page", pageIndex);
             formData.append("perPage", pageSize);
+            formData.append("searchText", searchText);
             if (filterCategoryIds != null) {
                 formData.append("filterByCategories", filterCategoryIds);
             }
@@ -247,8 +276,13 @@
             var token = $("#voteForm input[name=__RequestVerificationToken]").val();
             var filterCategoryIds = $.cookie("select-category-filter");
 
+            var searchText = $('#searchImageText').val();
+            $.cookie("search-image-text", searchText, { path: "/Images" });
+            
+
             var formData = new FormData();
             formData.append("itemPerPage", pageSize);
+            formData.append("searchText", searchText);
             if (filterCategoryIds != null) {
                 formData.append("filterByCategories", filterCategoryIds);
             }
@@ -274,5 +308,58 @@
                 }
             });
         }
+
+        function configAutoCompleteTags() {
+            $('#searchImageText').keyup(function (event) {
+                var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+                var filterCategoryIds = $.cookie("select-category-filter");
+
+                var searchText = $('#searchImageText').val();
+                $.cookie("search-image-text", searchText, { path: "/Images" });
+
+
+                var formData = new FormData();
+                formData.append("searchData", searchText);
+                if (filterCategoryIds != null) {
+                    formData.append("filterByCategories", filterCategoryIds);
+                }
+
+                $('#searchImageText').autocomplete(
+                    {
+                        scroll: true,
+                        selectFirst: false,
+                        autoFocus: false,
+                        source: function (request, response) {
+                            $.ajax(
+                                {
+                                    type: "POST",
+                                    data: formData,
+                                    url: "/tags/autocompletesearch",
+                                    processData: false,
+                                    contentType: false,
+                                    headers: { 'X-CSRF-TOKEN': token },
+                                    success: function (data) {
+                                        response($.map(data, function (item) {
+                                            return {
+                                                label: item.name,
+                                                val: item.id
+                                            }
+                                        }));
+                                    },
+                                    error: function (result) { }
+                                });
+                        },
+                        minLength: 2,
+                        select: function (event, ui) {
+                            $('#searchImageText').val(ui.item.value);
+                            event.returnValue = false;
+                            event.cancel = true;
+
+                            return false;
+                        }
+                    });
+            });
+        }
+
     </script>
 }

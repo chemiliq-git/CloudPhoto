@@ -204,9 +204,11 @@
         public async Task<ActionResult> GetSearchingData(
             int page,
             int perPage,
+            string searchText,
             string filterByCategories)
         {
             SearchImageData localSearchData = new SearchImageData();
+            localSearchData.FilterByTag = searchText;
             if (!string.IsNullOrEmpty(filterByCategories))
             {
                 localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(filterByCategories);
@@ -242,9 +244,10 @@
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> GetPageCount(int itemPerPage, string filterByCategories)
+        public async Task<ActionResult<int>> GetPageCount(int itemPerPage, string searchText, string filterByCategories)
         {
             SearchImageData localSearchData = new SearchImageData();
+            localSearchData.FilterByTag = searchText;
             if (!string.IsNullOrEmpty(filterByCategories))
             {
                 localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(filterByCategories);

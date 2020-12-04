@@ -93,7 +93,13 @@
             int perPage,
             int page = 1)
         {
-            IQueryable<Image> query = this.GenerateFilterQuery(searchData);
+            bool hasAvailableItems;
+            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out hasAvailableItems);
+
+            if (!hasAvailableItems)
+            {
+                return new List<T>();
+            }
 
             return query
                 .OrderBy(i => i.Id)
@@ -104,7 +110,13 @@
 
         public int GetCountByFilter<T>(SearchImageData searchData)
         {
-            IQueryable<Image> query = this.GenerateFilterQuery(searchData);
+            bool hasAvailableItems;
+            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out hasAvailableItems);
+
+            if (!hasAvailableItems)
+            {
+                return 0;
+            }
 
             return query
                 .OrderBy(i => i.Id)
@@ -220,8 +232,9 @@
             }
         }
 
-        private IQueryable<Image> GenerateFilterQuery(SearchImageData searchData)
+        private IQueryable<Image> GenerateFilterQuery(SearchImageData searchData, out bool hasAvailableItem)
         {
+            hasAvailableItem = true;
             IQueryable<Image> query =
                             this.ImageRepository.All();
 
@@ -234,6 +247,20 @@
                 && searchData.FilterCategory.Count > 0)
             {
                 query = query.Where(img => img.ImageCategories.Where(i => searchData.FilterCategory.Contains(i.CategoryId)).Count() > 0);
+            }
+
+            if (!string.IsNullOrEmpty(searchData.FilterByTag))
+            {
+                var foundTags = this.TagsService.FiterTagsByNames<Tag>(searchData.FilterByTag);
+                if (!foundTags.Any())
+                {
+                    hasAvailableItem = false;
+                }
+
+                foreach (Tag tag in foundTags)
+                {
+                    searchData.FilterTags.Add(tag.Id);
+                }
             }
 
             if (searchData.FilterTags != null

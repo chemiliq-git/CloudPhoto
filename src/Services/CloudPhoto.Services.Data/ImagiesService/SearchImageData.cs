@@ -14,6 +14,8 @@
 
         public List<string> FilterTags { get; set; }
 
+        public string FilterByTag { get; set; }
+
         public string AuthorId { get; set; }
     }
 }
