@@ -100,19 +100,17 @@
                 this.Configuration.GetSection("Images:LocalImageFolder").Value,
                 fileId);
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                file.CopyTo(stream);
-                stream.Position = 0;
-                StoreFileInfo info = await this.LocalStorageService.UploadFile(
-                    new UploadDataInfo(
-                        file.FileName,
-                        stream,
-                        folderForResize));
-                info.FileId = fileId;
-                info.FileAddress = info.FileAddress.Replace(this.Env.WebRootPath, "");
-                return info;
-            }
+            using MemoryStream stream = new MemoryStream();
+            file.CopyTo(stream);
+            stream.Position = 0;
+            StoreFileInfo info = await this.LocalStorageService.UploadFile(
+                new UploadDataInfo(
+                    file.FileName,
+                    stream,
+                    folderForResize));
+            info.FileId = fileId;
+            info.FileAddress = info.FileAddress.Replace(this.Env.WebRootPath, "");
+            return info;
         }
     }
 }

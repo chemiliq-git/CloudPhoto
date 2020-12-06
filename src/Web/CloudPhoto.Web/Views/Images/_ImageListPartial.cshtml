@@ -12,14 +12,19 @@
             likeIconColor = "red";
         }
 
-<div class="col-md-4 mb-2 m-image-container">
-    <img src=@item.ThumbnailImageUrl class="img-fluid">
-    <a asp-action="Delete" asp-route-id=@item.Id class="my-icon-middle">
-        <i class="far fa-times-circle"></i>
-    </a>
-    <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
-        <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
-    </a>
-</div>
+        <div class="col-md-4 mb-2 m-image-container">
+            @*<a href="#" onclick="showImage(@item.ImageIndex); return false">
+                    <img src=@item.ThumbnailImageUrl class="img-fluid">
+                </a>*@
+            <a asp-controller="Images" asp-action="PreviewImage" asp-route-id=@item.ImageIndex>
+                <img src=@item.ThumbnailImageUrl class="img-fluid">
+            </a>
+            <a asp-action="Delete" asp-route-id=@item.Id class="my-icon-middle">
+                <i class="far fa-times-circle"></i>
+            </a>
+            <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
+                <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
+            </a>
+        </div>
     }
 }

@@ -15,8 +15,7 @@
         private readonly string connection = string.Empty;
 
         public FileStorageServices(
-            IConfiguration configuration,
-            ILogger<FileStorageServices> logger)
+            IConfiguration configuration)
         {
             this.connection = configuration.GetSection("BlobAzureSettings:Connection")?.Value;
         }

@@ -93,8 +93,7 @@
             int perPage,
             int page = 1)
         {
-            bool hasAvailableItems;
-            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out hasAvailableItems);
+            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out bool hasAvailableItems);
 
             if (!hasAvailableItems)
             {
@@ -110,8 +109,7 @@
 
         public int GetCountByFilter<T>(SearchImageData searchData)
         {
-            bool hasAvailableItems;
-            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out hasAvailableItems);
+            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out bool hasAvailableItems);
 
             if (!hasAvailableItems)
             {
@@ -206,30 +204,23 @@
         private async Task<string> GenerateThumbnailImage(string rootFolder, string imageUrl)
         {
             string fullPath = rootFolder + imageUrl;
-            using (FileStream str = new FileStream(fullPath, FileMode.Open))
-            {
-                using (MemoryStream memory = new MemoryStream())
-                {
-                    str.CopyTo(memory);
-                    memory.Position = 0;
-                    byte[] image = this.ImageManipulation.Resize(
-                        memory,
-                        int.Parse(this.Configuration.GetSection("Images:ThumbnailImageWidth").Value),
-                        int.Parse(this.Configuration.GetSection("Images:ThumbnailImageHeight").Value));
+            using FileStream str = new FileStream(fullPath, FileMode.Open);
+            using MemoryStream memory = new MemoryStream();
+            str.CopyTo(memory);
+            memory.Position = 0;
+            byte[] image = this.ImageManipulation.Resize(
+                memory,
+                int.Parse(this.Configuration.GetSection("Images:ThumbnailImageWidth").Value),
+                int.Parse(this.Configuration.GetSection("Images:ThumbnailImageHeight").Value));
 
-                    using (MemoryStream cropImage = new MemoryStream(image))
-                    {
-                        StoreFileInfo storeFile = await this.StorageService.UploadFile(
-                            new UploadDataInfo(
-                                Path.GetFileName(fullPath),
-                                cropImage,
-                                "WebPictures",
-                                string.Empty));
-                        return storeFile.FileAddress;
-                    }
-                }
-
-            }
+            using MemoryStream cropImage = new MemoryStream(image);
+            StoreFileInfo storeFile = await this.StorageService.UploadFile(
+                new UploadDataInfo(
+                    Path.GetFileName(fullPath),
+                    cropImage,
+                    "WebPictures",
+                    string.Empty));
+            return storeFile.FileAddress;
         }
 
         private IQueryable<Image> GenerateFilterQuery(SearchImageData searchData, out bool hasAvailableItem)

@@ -115,6 +115,52 @@
             return this.View(image);
         }
 
+        public IActionResult PreviewImage(int id)
+        {
+            if (this.Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                };
+                SeachCookieData cookieSearchData = JsonSerializer.Deserialize<SeachCookieData>(readSearchDataCookie, options);
+
+                SearchImageData localSearchData = new SearchImageData
+                {
+                    FilterByTag = cookieSearchData.SearchText,
+                    FilterCategory = cookieSearchData.SelectCategory,
+                };
+
+                var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
+                        localSearchData, 1, id);
+
+                if (!data.Any())
+                {
+                    if (id > 1)
+                    {
+                        data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
+                            localSearchData, 1, id - 1);
+                        ImagePreviewViewModel previewImage = data.First();
+                        previewImage.ImageIndex = id - 1;
+                        previewImage.IsEndedImage = true;
+                        return this.View(previewImage);
+                    }
+
+                    return this.Json(string.Empty);
+                }
+                else
+                {
+                    ImagePreviewViewModel previewImage = data.First();
+                    previewImage.ImageIndex = id;
+                    return this.View(previewImage);
+                }
+            }
+            else
+            {
+                return this.BadRequest();
+            }
+        }
+
         // GET: Images/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
@@ -201,14 +247,17 @@
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> GetSearchingData(
             int page,
             int perPage,
             string searchText,
             string filterByCategories)
         {
-            SearchImageData localSearchData = new SearchImageData();
-            localSearchData.FilterByTag = searchText;
+            SearchImageData localSearchData = new SearchImageData
+            {
+                FilterByTag = searchText,
+            };
             if (!string.IsNullOrEmpty(filterByCategories))
             {
                 localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(filterByCategories);
@@ -233,6 +282,13 @@
             var data = this.imagesService.GetByFilter<ListImageViewModel>(
                 localSearchData, perPage, page);
 
+            int indexOfPage = 1;
+            foreach (ListImageViewModel model in data)
+            {
+                model.ImageIndex = ((page - 1) * perPage) + indexOfPage;
+                indexOfPage++;
+            }
+
             if (!data.Any())
             {
                 return this.Json(string.Empty);
@@ -242,6 +298,7 @@
                 return this.PartialView("_ImageListPartial", data);
             }
         }
+
         private bool ImageExists(string id)
         {
             return this.context.Images.Any(e => e.Id == id);

@@ -41,9 +41,12 @@
 
 @section Scripts {
     <script>
-        
-        var pageSize = 6;
-        var pageIndex = 1;
+
+        var searchData = new Object();
+        searchData.pageSize = 6;
+        searchData.pageIndex = 0;
+        searchData.selectCategory = [];
+        searchData.searchText = "";
 
         var hasAnoutherPages = true;
         var hasStartRequest = false;
@@ -58,6 +61,26 @@
                 startSearchData();
             });
 
+        function readSearchData() {
+            var txtSearchData = $.cookie("searchData");
+            if (txtSearchData) {
+                var tempSearchData = JSON.parse(txtSearchData);
+                return tempSearchData;
+            }
+            else {
+                return searchData;
+            }
+        }
+
+        function saveSearchData(searchData) {
+            var txtSearchData = JSON.stringify(searchData);
+            $.cookie("searchData", txtSearchData, { path: "/" });
+        }
+
+        function clearSearchData() {
+            $.cookie("searchData", "", { path: "/" });
+        }
+
         $(window).scroll(function () {
             if ($(window).scrollTop() ==
                 $(document).height() - $(window).height()) {
@@ -68,49 +91,43 @@
         });
 
         function checkUncheckCategory(checkBox) {
-
-            var strFilter = $.cookie("select-category-filter");
-            var selectCategory = [];
-            if (strFilter != null) {
-                selectCategory = JSON.parse(strFilter);
-            }
+            searchData = readSearchData();
 
             if (checkBox.checked == true) {
-                selectCategory.push(checkBox.id);
+                searchData.selectCategory.push(checkBox.id);
             }
             else {
-                var filtered = selectCategory.filter(function (value, index, arr) {
+                var filtered = searchData.selectCategory.filter(function (value, index, arr) {
                     return value != checkBox.id;
                 });
-                selectCategory = filtered;
+                searchData.selectCategory = filtered;
             }
-            $.cookie("select-category-filter", JSON.stringify(selectCategory), { path: "/Images" });
+            saveSearchData(searchData);
             startSearchData();
         }
 
         function startSearchData() {
             var partialView = $('#partialView');
             partialView.html("");
-            pageIndex = 1;
+
+            searchData.pageIndex = 1;
+            saveSearchData(searchData);
+
             hasAnoutherPages = true;
             GetData();
         }
 
         function configPage() {
-            var showSearchBar = $.cookie("show-serch-bar");
+            var showSearchBar = $.cookie("show-search-bar");
             if (showSearchBar != null) {
                 toggleMenu();
             }
 
-            var strFilter = $.cookie("select-category-filter");
-            if (strFilter) {
-                showCheckedCategory(JSON.parse(strFilter));
-            }
+            searchData = readSearchData();
 
-            var searchText = $.cookie("search-image-text");
-            if (searchText) {
-                $('#searchImageText').val(searchText);
-            }
+            showCheckedCategory(searchData.selectCategory);
+
+            $('#searchImageText').val(searchData.searchText);
         }
 
         function showCheckedCategory(arraySelectCategories) {
@@ -119,14 +136,15 @@
         }
 
         function onclickShowSearcBar() {
-            $.cookie("show-serch-bar", "true", { path: "/Images" });
+            $.cookie("show-search-bar", "true", { path: "/Images" });
+            alert("Set togleCookie:" + true);
             toggleMenu();
         }
 
         function hookToCloseSideMenu() {
             const node = document.getElementById("sideCloseBtn");
             node.addEventListener("click", function (event) {
-                $.cookie("show-serch-bar", "false", { path: "/Images" });
+                $.cookie("show-search-bar", "false", { path: "/Images" });
                 toggleMenu();
             });
         }
@@ -134,12 +152,11 @@
         function hookToClearAllFilter() {
             const node = document.getElementById("clearFilter");
             node.addEventListener("click", function (event) {
-                $.cookie("select-category-filter", "", { path: "/Images" });
+                clearSearchData();
                 $('#groupCheckBox input:checked').each(function () {
                     this.checked = false;
                 });
 
-                $.cookie("search-image-text", "", { path: "/Images" });
                 $('#searchImageText').val(null);
 
                 startSearchData();
@@ -147,7 +164,8 @@
         }
 
         function toggleMenu() {
-            var show = $.cookie("show-serch-bar");
+            var show = $.cookie("show-search-bar");
+            alert("TogleMenu:" + show);
             var searchBox = document.getElementById("side-search");
             if (show === "true") {
                 searchBox.style.display = "block";
@@ -217,23 +235,20 @@
         function GetData() {
             hasStartRequest = true;
 
-
             if (!hasAnoutherPages) {
                 return;
             }
 
             var token = $("#voteForm input[name=__RequestVerificationToken]").val();
-            var filterCategoryIds = $.cookie("select-category-filter");
 
-            var searchText = $('#searchImageText').val();
-            $.cookie("search-image-text", searchText, { path: "/Images" });
+            searchData = readSearchData();
 
             var formData = new FormData();
-            formData.append("page", pageIndex);
-            formData.append("perPage", pageSize);
-            formData.append("searchText", searchText);
-            if (filterCategoryIds != null) {
-                formData.append("filterByCategories", filterCategoryIds);
+            formData.append("page", searchData.pageIndex);
+            formData.append("perPage", searchData.pageSize);
+            formData.append("searchText", searchData.searchText);
+            if (searchData.selectCategory != null) {
+                formData.append("filterByCategories", JSON.stringify(searchData.selectCategory));
             }
 
             $.ajax({
@@ -250,14 +265,15 @@
                     var partialView = $('#partialView');
                     if (data != '') {
                         partialView.append(data);
-                        if (pageIndex == 1) {
+                        if (searchData.pageIndex == 1) {
                             $('html, body').animate({ scrollTop: 0 }, 'slow');
                         }
-                        pageIndex++;
+                        searchData.pageIndex++;
+                        saveSearchData(searchData);
                     }
                     else {
                         hasAnoutherPages = false;
-                        if (pageIndex == 1) {
+                        if (searchData.pageIndex == 1) {
                             partialView.html("");
                         }
                     }
@@ -278,16 +294,15 @@
         function configAutoCompleteTags() {
             $('#searchImageText').keyup(function (event) {
                 var token = $("#voteForm input[name=__RequestVerificationToken]").val();
-                var filterCategoryIds = $.cookie("select-category-filter");
 
-                var searchText = $('#searchImageText').val();
-                $.cookie("search-image-text", searchText, { path: "/Images" });
-
+                searchData = readSearchData();
+                searchData.searchText = $('#searchImageText').val();
+                saveSearchData();
 
                 var formData = new FormData();
-                formData.append("searchData", searchText);
-                if (filterCategoryIds != null) {
-                    formData.append("filterByCategories", filterCategoryIds);
+                formData.append("searchData", searchData.searchText);
+                if (searchData.selectCategory != null) {
+                    formData.append("filterByCategories", searchData.selectCategory);
                 }
 
                 $('#searchImageText').autocomplete(
