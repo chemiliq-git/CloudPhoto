@@ -11,6 +11,7 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.TagsService;
+    using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Services.ImageManipulationProvider;
     using CloudPhoto.Services.Mapping;
     using CloudPhoto.Services.RemoteStorage;

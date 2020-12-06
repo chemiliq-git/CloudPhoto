@@ -6,7 +6,7 @@ using CloudPhoto.Services.Mapping;
 
 namespace CloudPhoto.Web.ViewModels.Images
 {
-    public class ListImageViewModel : IMapFrom<Image>, IHaveCustomMappings
+    public class ListImageViewModel : IMapFrom<Image>
     {
         public string Id { get; set; }
 
@@ -20,15 +20,8 @@ namespace CloudPhoto.Web.ViewModels.Images
 
         public bool IsLike { get; set; }
 
-        public string AuthorUserName { get; set; }
+        public string AuthorId { get; set; }
 
-        public void CreateMappings(IProfileExpression configuration)
-        {
-            configuration.CreateMap<Image, ListImageViewModel>()
-                .ForMember(x => x.IsLike, options =>
-                {
-                    options.MapFrom(p => p.Votes.Sum(v => (int)v.IsLike) == 1);
-                });
-        }
+        public string AuthorUserName { get; set; }
     }
 }

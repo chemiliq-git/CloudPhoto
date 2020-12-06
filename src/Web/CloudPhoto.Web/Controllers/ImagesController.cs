@@ -11,6 +11,7 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
+    using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Web.ViewModels.Categories;
     using CloudPhoto.Web.ViewModels.Images;
     using Microsoft.AspNetCore.Authorization;
@@ -27,6 +28,7 @@
         private readonly IConfiguration configuration;
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
+        private readonly IVotesService votesService;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IWebHostEnvironment env;
 
@@ -35,6 +37,7 @@
             IConfiguration configuration,
             IImagesService imagesService,
             ICategoriesService categoriesService,
+            IVotesService votesService,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment env)
         {
@@ -42,6 +45,7 @@
             this.configuration = configuration;
             this.imagesService = imagesService;
             this.categoriesService = categoriesService;
+            this.votesService = votesService;
             this.userManager = userManager;
             this.env = env;
         }
@@ -115,7 +119,7 @@
             return this.View(image);
         }
 
-        public IActionResult PreviewImage(int id)
+        public async Task<IActionResult> PreviewImage(int id)
         {
             if (this.Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
             {
@@ -131,6 +135,13 @@
                     FilterCategory = cookieSearchData.SelectCategory,
                 };
 
+                ApplicationUser user = null;
+                if (this.User.Identity.IsAuthenticated)
+                {
+                    user = await this.userManager.GetUserAsync(this.User);
+                    //localSearchData.AuthorId = user.Id;
+                }
+
                 var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
                         localSearchData, 1, id);
 
@@ -143,6 +154,8 @@
                         ImagePreviewViewModel previewImage = data.First();
                         previewImage.ImageIndex = id - 1;
                         previewImage.IsEndedImage = true;
+                        this.SetIsLikeFlags(user.Id, previewImage);
+
                         return this.View(previewImage);
                     }
 
@@ -152,6 +165,8 @@
                 {
                     ImagePreviewViewModel previewImage = data.First();
                     previewImage.ImageIndex = id;
+                    this.SetIsLikeFlags(user.Id, previewImage);
+
                     return this.View(previewImage);
                 }
             }
@@ -273,19 +288,35 @@
                 return this.BadRequest();
             }
 
+            ApplicationUser user = null;
             if (this.User.Identity.IsAuthenticated)
             {
-                var user = await this.userManager.GetUserAsync(this.User);
-                localSearchData.AuthorId = user.Id;
+                user = await this.userManager.GetUserAsync(this.User);
+                //localSearchData.AuthorId = user.Id;
             }
 
             var data = this.imagesService.GetByFilter<ListImageViewModel>(
                 localSearchData, perPage, page);
 
+            List<Vote> lstVotes = null;
+            if (user != null)
+            {
+                lstVotes = this.votesService.GetByUser<Vote>(user.Id).ToList();
+            }
+
             int indexOfPage = 1;
             foreach (ListImageViewModel model in data)
             {
                 model.ImageIndex = ((page - 1) * perPage) + indexOfPage;
+                if (user == null)
+                {
+                    model.IsLike = false;
+                }
+                else
+                {
+                    model.IsLike = lstVotes.Where(temp => temp.ImageId == model.Id).Sum(temp => temp.IsLike) == 1;
+                }
+
                 indexOfPage++;
             }
 
@@ -297,6 +328,17 @@
             {
                 return this.PartialView("_ImageListPartial", data);
             }
+        }
+
+        private void SetIsLikeFlags(string userId, ImagePreviewViewModel previewImage)
+        {
+            List<Vote> lstVotes = this.votesService.GetByImage<Vote>(previewImage.Id).ToList();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                previewImage.IsLike = lstVotes.Where(t => t.AuthorId == userId && t.IsLike == 1).Any();
+            }
+
+            previewImage.LikeCount = lstVotes.Sum(t => t.IsLike);
         }
 
         private bool ImageExists(string id)

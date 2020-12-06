@@ -3,6 +3,7 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Web.ViewModels.Votes;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using System.Threading.Tasks;
@@ -25,6 +26,7 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<ActionResult<VoteResponseModel>> Index(VoteInputModel input)
         {
             if (this.ModelState.IsValid)

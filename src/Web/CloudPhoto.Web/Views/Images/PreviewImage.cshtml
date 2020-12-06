@@ -3,10 +3,20 @@
 
 
 @{
-    int preview = @Model.ImageIndex - 1;
+    int preview = Model.ImageIndex - 1;
     int next = Model.ImageIndex + 1;
+    int userVode = Model.IsLike ? 0 : 1;
+
+    string likeIconColor = string.Empty;
+    if (Model.IsLike)
+    {
+        likeIconColor = "red";
+    }
 }
-<div class="row container m-image-container">
+
+<form id="keyForm" method="post"></form>
+
+<div class="row container">
     @if (Model.ImageIndex > 1)
     {
         <div id="leftArrow" class="my-auto">
@@ -15,7 +25,7 @@
             </a>
         </div>
     }
-    <div class="col-10">
+    <div class="col-10 justify-content-center">
         <img src=@Model.ImageUrl class="img-fluid">
     </div>
     @if (!Model.IsEndedImage)
@@ -28,11 +38,29 @@
     }
 </div>
 
+<div class="row container">
+    <div id="authorSection" class="col-md-6">
+        <div id="authorName" class="align-content-start">
+            <label>@Model.AuthorUserName</label>
+        </div>
+    </div>
+    <div id="imageActionSection" class="col-md-6">
+        <div>
+            <button id="likeButton" type="button" class="btn btn-outline-dark" 
+                    onclick="sendVote(this, '@Model.Id', @Model.LikeCount); return false;">
+                <i id=@Model.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
+                @Model.LikeCount likes
+            </button>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     <script>
         var preview = @preview;
         var next = @next;
+        var userVode = @userVode;
 
         $(document).ready(
             function () {
@@ -54,6 +82,60 @@
                         break;
                 }
             });
+        }
+
+        function sendVote(button, imageId, likeCounts) {
+            var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+
+            var formData = new FormData();
+            formData.append("imageId", imageId);
+
+            let style = document.getElementById(imageId).getAttribute('style');
+            if (style.includes("red")) {
+                formData.append("isLike", false);
+            }
+            else {
+                formData.append("isLike", true);
+            }
+
+            $.ajax(
+                {
+                    url: "/api/votes",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    headers: { 'X-CSRF-TOKEN': token },
+                    complete: function () {
+                        return false;
+                    },
+                    success: function (data) {
+                        if (data.result == true) {
+                            textNode = button.lastChild;
+                            if (style.includes("red")) {
+                                document.getElementById(imageId).setAttribute("style", "color:");
+                                if (userVode == 0) {
+                                    textNode.nodeValue = " " + (likeCounts - 1) + " likes";
+                                }
+                                else {
+                                    textNode.nodeValue = " " + (likeCounts) + " likes";
+                                }
+                            }
+                            else {
+                                document.getElementById(imageId).setAttribute("style", "color:red");
+                                if (userVode == 0) {
+                                    textNode.nodeValue = " " + (likeCounts) + " likes";
+                                }
+                                else {
+                                    textNode.nodeValue = " " + (likeCounts + 1) + " likes";
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+
+            return false;
         }
     </script>
 }
