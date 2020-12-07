@@ -24,6 +24,8 @@ namespace CloudPhoto.Web.ViewModels.Images
 
         public int LikeCount { get; set; } = 0;
 
+        public string AuthorId { get; set; }
+
         public string AuthorUserName { get; set; }
     }
 }

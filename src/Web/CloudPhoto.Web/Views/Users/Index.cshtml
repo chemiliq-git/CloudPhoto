@@ -1,0 +1,210 @@
+﻿@using CloudPhoto.Web.ViewModels.Users
+@model UserPreviewViewModel
+
+
+<div>
+    <div class="row container-fluid">
+        <div id="userAvatar" class="col-md-5">
+        </div>
+        <div id="UserDescription" class="col-md-7">
+            <div class="row container">
+                <div class="col-md-5">
+                    <label>@Model.UserName</label>
+                </div>
+                <div class="col-md-7">
+                    <input type="button" value="Follow" />
+                </div>
+            </div>
+            <div>
+                <label>User descriptions</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="keyForm" method="post"></form>
+<form id="voteForm" method="post"></form>
+
+<div class="row container-fluid">
+    <a class="nav-link" href="#" onclick="getUploadImages()">
+        Upload Images
+    </a>
+    <a class="nav-link" href="#" onclick="getLikeImages()">
+        Like Images
+    </a>
+</div>
+
+<div id="containerImages" class="col-md-12">
+    <div id="partialView" class="row">
+        <partial name="_ImageListPartial" model="@Model.UploadImages" data="@Model.UploadImages">
+    </div>
+</div>
+
+<div id="progress" class="text-center" style="display: none;">
+    <div class="spinner-border a" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        var userId = '@Model.Id';
+
+        var pagingData = new Object();
+        pagingData.pageSize = 6;
+        pagingData.pageIndex = 0;
+        pagingData.type = "uploads";
+
+        var hasAnoutherPages = true;
+        var hasStartRequest = false;
+
+        $(document).ready(
+            function () {
+                startPaging();
+            });
+
+        $(window).scroll(function () {
+            if ($(window).scrollTop() ==
+                $(document).height() - $(window).height()) {
+                if (!hasStartRequest) {
+                    GetPagingData();
+                }
+            }
+        });
+
+        function getUploadImages() {
+            pagingData.type = "uploads";
+            startPaging();
+        }
+
+        function getLikeImages() {
+            pagingData.type = "likes";
+            startPaging();
+        }
+
+
+        function readPagingData() {
+            var txtSearchData = $.cookie("pagingData");
+            if (txtSearchData) {
+                var tempSearchData = JSON.parse(txtSearchData);
+                return tempSearchData;
+            }
+            else {
+                return pagingData;
+            }
+        }
+
+        function savePagingData(pagingData) {
+            var txtSearchData = JSON.stringify(pagingData);
+            $.cookie("pagingData", txtSearchData, { path: "/" });
+        }
+
+        function clearPagingData() {
+            $.cookie("pagingData", "", { path: "/" });
+        }
+
+        function startPaging() {
+            var partialView = $('#partialView');
+            partialView.html("");
+
+            pagingData.pageIndex = 1;
+            savePagingData(pagingData);
+
+            hasAnoutherPages = true;
+            GetPagingData();
+        }
+
+        function GetPagingData() {
+            hasStartRequest = true;
+
+            if (!hasAnoutherPages) {
+                return;
+            }
+
+            var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+
+            $.ajax({
+                url: '/users/GetPagingData/' + userId,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                headers: { 'X-CSRF-TOKEN': token },
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (data) {
+                    var partialView = $('#partialView');
+                    if (data != '') {
+                        partialView.append(data);
+                        if (pagingData.pageIndex == 1) {
+                            $('html, body').animate({ scrollTop: 0 }, 'slow');
+                        }
+                        pagingData.pageIndex++;
+                        savePagingData(pagingData);
+                    }
+                    else {
+                        hasAnoutherPages = false;
+                        if (pagingData.pageIndex == 1) {
+                            partialView.html("");
+                        }
+                    }
+                },
+                beforeSend: function () {
+                    $("#progress").show();
+                },
+                complete: function () {
+                    $("#progress").hide();
+                    hasStartRequest = false;
+                },
+                error: function () {
+                    alert("Error while retrieving data!");
+                    $("#progress").hide();
+                    hasStartRequest = false;
+                }
+            });
+        }
+
+        function sendVote(imageId) {
+            var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+
+            var formData = new FormData();
+            formData.append("imageId", imageId);
+
+            let style = document.getElementById(imageId).getAttribute('style');
+            if (style.includes("red")) {
+                formData.append("isLike", false);
+            }
+            else {
+                formData.append("isLike", true);
+            }
+
+            $.ajax(
+                {
+                    url: "/api/votes",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    headers: { 'X-CSRF-TOKEN': token },
+                    complete: function () {
+                        return false;
+                    },
+                    success: function (data) {
+                        if (data.result == true) {
+                            if (style.includes("red")) {
+                                document.getElementById(imageId).setAttribute("style", "color:");
+                            }
+                            else {
+                                document.getElementById(imageId).setAttribute("style", "color:red");
+                            }
+                        }
+                    }
+                }
+            );
+
+            return false;
+        }
+
+    </script>
+}

@@ -18,6 +18,6 @@
 
         public string AuthorId { get; set; }
 
-        public string UserId { get; set; }
+        public string LikeByUser { get; set; }
     }
 }

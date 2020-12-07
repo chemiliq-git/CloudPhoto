@@ -261,6 +261,11 @@
                 query = query.Where(img => img.ImageTags.Where(i => searchData.FilterTags.Contains(i.TagId)).Count() > 0);
             }
 
+            if (!string.IsNullOrEmpty(searchData.LikeByUser))
+            {
+                query = query.Where(img => img.Votes.Where(i => i.AuthorId == searchData.LikeByUser).Count() > 0);
+            }
+
             return query;
         }
     }

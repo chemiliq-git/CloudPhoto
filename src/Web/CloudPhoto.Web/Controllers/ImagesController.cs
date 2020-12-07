@@ -139,7 +139,6 @@
                 if (this.User.Identity.IsAuthenticated)
                 {
                     user = await this.userManager.GetUserAsync(this.User);
-                    //localSearchData.AuthorId = user.Id;
                 }
 
                 var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
@@ -154,7 +153,7 @@
                         ImagePreviewViewModel previewImage = data.First();
                         previewImage.ImageIndex = id - 1;
                         previewImage.IsEndedImage = true;
-                        this.SetIsLikeFlags(user.Id, previewImage);
+                        this.SetIsLikeFlags(user, previewImage);
 
                         return this.View(previewImage);
                     }
@@ -165,7 +164,7 @@
                 {
                     ImagePreviewViewModel previewImage = data.First();
                     previewImage.ImageIndex = id;
-                    this.SetIsLikeFlags(user.Id, previewImage);
+                    this.SetIsLikeFlags(user, previewImage);
 
                     return this.View(previewImage);
                 }
@@ -292,7 +291,6 @@
             if (this.User.Identity.IsAuthenticated)
             {
                 user = await this.userManager.GetUserAsync(this.User);
-                //localSearchData.AuthorId = user.Id;
             }
 
             var data = this.imagesService.GetByFilter<ListImageViewModel>(
@@ -330,12 +328,12 @@
             }
         }
 
-        private void SetIsLikeFlags(string userId, ImagePreviewViewModel previewImage)
+        private void SetIsLikeFlags(ApplicationUser user, ImagePreviewViewModel previewImage)
         {
             List<Vote> lstVotes = this.votesService.GetByImage<Vote>(previewImage.Id).ToList();
-            if (!string.IsNullOrEmpty(userId))
+            if (user != null)
             {
-                previewImage.IsLike = lstVotes.Where(t => t.AuthorId == userId && t.IsLike == 1).Any();
+                previewImage.IsLike = lstVotes.Where(t => t.AuthorId == user.Id && t.IsLike == 1).Any();
             }
 
             previewImage.LikeCount = lstVotes.Sum(t => t.IsLike);

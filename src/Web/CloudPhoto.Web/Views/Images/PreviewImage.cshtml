@@ -41,7 +41,9 @@
 <div class="row container">
     <div id="authorSection" class="col-md-6">
         <div id="authorName" class="align-content-start">
-            <label>@Model.AuthorUserName</label>
+            <a class="nav-link" asp-controller="Users" asp-action="Index" asp-route-id=@Model.AuthorId >
+                @Model.AuthorUserName
+            </a>
         </div>
     </div>
     <div id="imageActionSection" class="col-md-6">
