@@ -199,7 +199,12 @@
                                 document.getElementById(imageId).setAttribute("style", "color:red");
                             }
                         }
-                    }
+                    },
+                    error: function (e, xhr) {
+                        if (e.status == 401) {
+                            window.location = '/Identity/Account/Login';
+                        }
+                    } 
                 }
             );
 
