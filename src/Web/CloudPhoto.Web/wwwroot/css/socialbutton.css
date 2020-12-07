@@ -1,0 +1,20 @@
+﻿button.btn.facebook::before {
+    font-family: 'Font Awesome 5 Brands';
+    content: "\f39e";
+    font-size: 20px;
+    float: left;
+}
+
+button.btn.google::before {
+    font-family: 'Font Awesome 5 Brands';
+    content: "\f1a0";
+    font-size: 20px;
+    float: left;
+}
+
+button.btn.login::before {
+    font-family: 'Font Awesome 5 Free';
+    content: "\f4fc";
+    font-size: 20px;
+    float: left;
+}

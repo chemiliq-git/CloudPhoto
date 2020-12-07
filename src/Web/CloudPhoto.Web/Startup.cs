@@ -62,7 +62,6 @@
                 facebookOptions.AppId = facebookAuthNSection["AppId"];
                 facebookOptions.AppSecret = facebookAuthNSection["AppSecret"];
                 facebookOptions.Fields.Add("picture");
-
                 facebookOptions.Events.OnCreatingTicket = ctx =>
                 {
                     List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();

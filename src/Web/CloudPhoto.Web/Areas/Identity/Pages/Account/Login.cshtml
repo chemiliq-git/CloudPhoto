@@ -1,0 +1,67 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Welcome Back";
+}
+
+<h1 class="text-center">@ViewData["Title"]</h1>
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 ">
+        <section>
+            <div>
+                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                    <div>
+                        <p>
+                            @foreach (var provider in Model.ExternalLogins)
+                            {
+                                <button type="submit"
+                                        class="btn @provider.Name.ToLower() btn-primary form-control m-1"
+                                        name="provider"
+                                        value="@provider.Name"
+                                        title="Log in using your @provider.DisplayName account">
+                                    @provider.DisplayName
+                                </button>
+                                <br />
+                            }
+                        </p>
+                    </div>
+                </form>
+            </div>
+            <p class="text-center">OR</p>
+
+            <form id="account" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <input asp-for="Input.Email" class="form-control" placeholder="Email" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input asp-for="Input.Password" class="form-control" placeholder="Password" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="Input.RememberMe">
+                            <input asp-for="Input.RememberMe" />
+                            @Html.DisplayNameFor(m => m.Input.RememberMe)
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn login btn-primary form-control">Log in</button>
+                </div>
+                <div class="form-group">
+                    <p>
+                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                    </p>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
