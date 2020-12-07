@@ -2,9 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Security.Claims;
     using System.Text.Json;
     using System.Threading.Tasks;
-
+    using CloudPhoto.Common;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.VotesService;
@@ -40,15 +41,19 @@
             }
 
             ApplicationUser user = await this.UserManager.FindByIdAsync(id);
+
             if (user == null)
             {
                 return this.BadRequest();
             }
 
+            IList<Claim> lstClaims = await this.UserManager.GetClaimsAsync(user);
+
             UserPreviewViewModel model = new UserPreviewViewModel
             {
                 Id = user.Id,
                 UserName = user.UserName,
+                UserAvatar = lstClaims?.FirstOrDefault(temp => temp.Type == GlobalConstants.ExternalClaimAvatar)?.Value,
             };
 
             return this.View(model);
@@ -99,7 +104,6 @@
 
             var data = this.ImagesService.GetByFilter<ListImageViewModel>(
                     localSearchData, cookieSearchData.PageSize, cookieSearchData.PageIndex);
-
 
             List<Vote> lstVotes = null;
             if (loginUser != null)

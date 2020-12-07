@@ -1,7 +1,12 @@
 ﻿namespace CloudPhoto.Web
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
-
+    using System.Security.Claims;
+    using System.Threading.Tasks;
+    using CloudPhoto.Common;
     using CloudPhoto.Data;
     using CloudPhoto.Data.Common;
     using CloudPhoto.Data.Common.Repositories;
@@ -20,7 +25,7 @@
     using CloudPhoto.Services.Messaging;
     using CloudPhoto.Services.RemoteStorage;
     using CloudPhoto.Web.ViewModels;
-
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
@@ -48,6 +53,66 @@
 
             services.AddDefaultIdentity<ApplicationUser>(IdentityOptionsProvider.GetIdentityOptions)
                 .AddRoles<ApplicationRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddAuthentication().AddFacebook(facebookOptions =>
+            {
+                IConfigurationSection facebookAuthNSection =
+                this.configuration.GetSection("Authentication:Facebook");
+
+                facebookOptions.AppId = facebookAuthNSection["AppId"];
+                facebookOptions.AppSecret = facebookAuthNSection["AppSecret"];
+                facebookOptions.Fields.Add("picture");
+
+                facebookOptions.Events.OnCreatingTicket = ctx =>
+                {
+                    List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
+
+                    var identity = (ClaimsIdentity)ctx.Principal.Identity;
+
+                    var profileImg = ctx.User.GetProperty("picture").GetProperty("data").GetProperty("url").ToString();
+                    ctx.Identity.AddClaim(new Claim(GlobalConstants.ExternalClaimAvatar, profileImg));
+
+                    tokens.Add(new AuthenticationToken()
+                    {
+                        Name = "TicketCreated",
+                        Value = DateTime.UtcNow.ToString(),
+                    });
+
+                    ctx.Properties.StoreTokens(tokens);
+
+                    return Task.CompletedTask;
+                };
+            });
+
+            services.AddAuthentication().AddGoogle(options =>
+            {
+                IConfigurationSection googleAuthNSection =
+                this.configuration.GetSection("Authentication:Google");
+
+                // Provide the Google Client ID
+                options.ClientId = googleAuthNSection["ClientId"];
+
+                // Provide the Google Client Secret
+                options.ClientSecret = googleAuthNSection["ClientSecret"];
+
+                options.ClaimActions.MapJsonKey(GlobalConstants.ExternalClaimAvatar, "picture", "url");
+                options.SaveTokens = true;
+
+                options.Events.OnCreatingTicket = ctx =>
+                {
+                    List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
+
+                    tokens.Add(new AuthenticationToken()
+                    {
+                        Name = "TicketCreated",
+                        Value = DateTime.UtcNow.ToString(),
+                    });
+
+                    ctx.Properties.StoreTokens(tokens);
+
+                    return Task.CompletedTask;
+                };
+            });
 
             services.Configure<CookiePolicyOptions>(
                 options =>
