@@ -1,0 +1,123 @@
+﻿@using CloudPhoto.Web.ViewModels.Images
+@model ImagePreviewViewModel
+
+
+@{
+    int preview = Model.ImageIndex - 1;
+    int next = Model.ImageIndex + 1;
+    int userVode = Model.IsLike ? 0 : 1;
+
+    string likeIconColor = string.Empty;
+    if (Model.IsLike)
+    {
+        likeIconColor = "red";
+    }
+}
+
+<form id="keyForm" method="post"></form>
+
+<div class="row container">
+    @if (Model.ImageIndex > 1)
+    {
+        <div id="leftArrow" class="my-auto">
+            <a asp-controller="Users" asp-action="PreviewImage" asp-route-id=@preview>
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </div>
+    }
+    <div class="col-10 justify-content-center">
+        <img src=@Model.ImageUrl class="img-fluid">
+    </div>
+    @if (!Model.IsEndedImage)
+    {
+        <div id="rightArrow" class="my-auto">
+            <a asp-controller="Users" asp-action="PreviewImage" asp-route-id=@next>
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        var preview = @preview;
+        var next = @next;
+        var userVode = @userVode;
+
+        $(document).ready(
+            function () {
+                hookToArrowKey();
+            });
+
+        function hookToArrowKey() {
+            document.addEventListener('keydown', function (e) {
+                switch (e.keyCode) {
+                    case 37:
+                        if ($("#leftArrow").length) {
+                            window.location.href = "/users/PreviewImage/" + preview;
+                        }
+                        break;
+                    case 39:
+                        if ($("#rightArrow").length) {
+                            window.location.href = "/users/PreviewImage/" + next;
+                        }
+                        break;
+                }
+            });
+        }
+
+        function sendVote(button, imageId, likeCounts) {
+            var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+
+            var formData = new FormData();
+            formData.append("imageId", imageId);
+
+            let style = document.getElementById(imageId).getAttribute('style');
+            if (style.includes("red")) {
+                formData.append("isLike", false);
+            }
+            else {
+                formData.append("isLike", true);
+            }
+
+            $.ajax(
+                {
+                    url: "/api/votes",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    type: "POST",
+                    headers: { 'X-CSRF-TOKEN': token },
+                    complete: function () {
+                        return false;
+                    },
+                    success: function (data) {
+                        if (data.result == true) {
+                            textNode = button.lastChild;
+                            if (style.includes("red")) {
+                                document.getElementById(imageId).setAttribute("style", "color:");
+                                if (userVode == 0) {
+                                    textNode.nodeValue = " " + (likeCounts - 1) + " likes";
+                                }
+                                else {
+                                    textNode.nodeValue = " " + (likeCounts) + " likes";
+                                }
+                            }
+                            else {
+                                document.getElementById(imageId).setAttribute("style", "color:red");
+                                if (userVode == 0) {
+                                    textNode.nodeValue = " " + (likeCounts) + " likes";
+                                }
+                                else {
+                                    textNode.nodeValue = " " + (likeCounts + 1) + " likes";
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+
+            return false;
+        }
+    </script>
+}

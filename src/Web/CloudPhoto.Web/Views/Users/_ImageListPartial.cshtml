@@ -1,0 +1,24 @@
+﻿@using CloudPhoto.Web.ViewModels.Images
+@model IEnumerable<ListImageViewModel>
+
+
+@if (@Model != null)
+{
+    foreach (var item in @Model)
+    {
+        string likeIconColor = string.Empty;
+        if (item.IsLike)
+        {
+            likeIconColor = "red";
+        }
+
+        <div class="col-md-4 mb-2 m-image-container">
+            <a asp-controller="Users" asp-action="PreviewImage" asp-route-id=@item.ImageIndex>
+                <img src=@item.ThumbnailImageUrl class="img-fluid">
+            </a>
+            <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
+                <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
+            </a>
+        </div>
+    }
+}

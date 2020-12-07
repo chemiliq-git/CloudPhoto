@@ -49,9 +49,8 @@
 @section Scripts {
     <script>
 
-        var userId = '@Model.Id';
-
         var pagingData = new Object();
+        pagingData.userId = '@Model.Id';
         pagingData.pageSize = 6;
         pagingData.pageIndex = 0;
         pagingData.type = "uploads";
@@ -125,7 +124,7 @@
             var token = $("#keyForm input[name=__RequestVerificationToken]").val();
 
             $.ajax({
-                url: '/users/GetPagingData/' + userId,
+                url: '/users/GetPagingData',
                 processData: false,
                 contentType: false,
                 type: "POST",

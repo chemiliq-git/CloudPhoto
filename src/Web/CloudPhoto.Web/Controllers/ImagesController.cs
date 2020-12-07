@@ -121,57 +121,55 @@
 
         public async Task<IActionResult> PreviewImage(int id)
         {
-            if (this.Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
+            if (!this.Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
             {
-                var options = new JsonSerializerOptions
+                return this.BadRequest();
+            }
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+            SeachCookieData cookieSearchData = JsonSerializer.Deserialize<SeachCookieData>(readSearchDataCookie, options);
+
+            SearchImageData localSearchData = new SearchImageData
+            {
+                FilterByTag = cookieSearchData.SearchText,
+                FilterCategory = cookieSearchData.SelectCategory,
+            };
+
+            ApplicationUser user = null;
+            if (this.User.Identity.IsAuthenticated)
+            {
+                user = await this.userManager.GetUserAsync(this.User);
+            }
+
+            var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
+                    localSearchData, 1, id);
+
+            if (!data.Any())
+            {
+                if (id > 1)
                 {
-                    PropertyNameCaseInsensitive = true,
-                };
-                SeachCookieData cookieSearchData = JsonSerializer.Deserialize<SeachCookieData>(readSearchDataCookie, options);
-
-                SearchImageData localSearchData = new SearchImageData
-                {
-                    FilterByTag = cookieSearchData.SearchText,
-                    FilterCategory = cookieSearchData.SelectCategory,
-                };
-
-                ApplicationUser user = null;
-                if (this.User.Identity.IsAuthenticated)
-                {
-                    user = await this.userManager.GetUserAsync(this.User);
-                }
-
-                var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
-                        localSearchData, 1, id);
-
-                if (!data.Any())
-                {
-                    if (id > 1)
-                    {
-                        data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
-                            localSearchData, 1, id - 1);
-                        ImagePreviewViewModel previewImage = data.First();
-                        previewImage.ImageIndex = id - 1;
-                        previewImage.IsEndedImage = true;
-                        this.SetIsLikeFlags(user, previewImage);
-
-                        return this.View(previewImage);
-                    }
-
-                    return this.Json(string.Empty);
-                }
-                else
-                {
+                    data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
+                        localSearchData, 1, id - 1);
                     ImagePreviewViewModel previewImage = data.First();
-                    previewImage.ImageIndex = id;
+                    previewImage.ImageIndex = id - 1;
+                    previewImage.IsEndedImage = true;
                     this.SetIsLikeFlags(user, previewImage);
 
                     return this.View(previewImage);
                 }
+
+                return this.Json(string.Empty);
             }
             else
             {
-                return this.BadRequest();
+                ImagePreviewViewModel previewImage = data.First();
+                previewImage.ImageIndex = id;
+                this.SetIsLikeFlags(user, previewImage);
+
+                return this.View(previewImage);
             }
         }
 

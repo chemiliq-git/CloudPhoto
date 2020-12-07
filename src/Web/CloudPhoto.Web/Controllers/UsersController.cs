@@ -34,7 +34,16 @@
 
         public async Task<IActionResult> Index(string id)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                return this.BadRequest();
+            }
+
             ApplicationUser user = await this.UserManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return this.BadRequest();
+            }
 
             UserPreviewViewModel model = new UserPreviewViewModel
             {
@@ -47,15 +56,9 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> GetPagingData(string id)
+        public async Task<ActionResult> GetPagingData()
         {
             if (!this.Request.Cookies.TryGetValue("pagingData", out string readPagingDataCookie))
-            {
-                return this.BadRequest();
-            }
-
-            ApplicationUser user = await this.UserManager.FindByIdAsync(id);
-            if (user == null)
             {
                 return this.BadRequest();
             }
@@ -66,6 +69,11 @@
             };
             PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
 
+            ApplicationUser user = await this.UserManager.FindByIdAsync(cookieSearchData.UserId);
+            if (user == null)
+            {
+                return this.BadRequest();
+            }
 
             ApplicationUser loginUser = null;
             if (this.User.Identity.IsAuthenticated)
@@ -123,6 +131,87 @@
             {
                 return this.PartialView("_ImageListPartial", data);
             }
+        }
+
+        public async Task<IActionResult> PreviewImage(int id)
+        {
+            if (!this.Request.Cookies.TryGetValue("pagingData", out string readPagingDataCookie))
+            {
+                return this.BadRequest();
+            }
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+            PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
+
+            ApplicationUser userPreviewProfil = await this.UserManager.FindByIdAsync(cookieSearchData.UserId);
+            if (userPreviewProfil == null)
+            {
+                return this.BadRequest();
+            }
+
+            ApplicationUser loginUser = null;
+            if (this.User.Identity.IsAuthenticated)
+            {
+                loginUser = await this.UserManager.GetUserAsync(this.User);
+            }
+
+            SearchImageData localSearchData = null;
+            if (cookieSearchData.Type == "uploads")
+            {
+                localSearchData = new SearchImageData
+                {
+                    AuthorId = userPreviewProfil.Id,
+                };
+            }
+            else if (cookieSearchData.Type == "likes")
+            {
+                localSearchData = new SearchImageData
+                {
+                    LikeByUser = userPreviewProfil.Id,
+                };
+            }
+
+            var data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
+                    localSearchData, 1, id);
+
+            if (!data.Any())
+            {
+                if (id > 1)
+                {
+                    data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
+                        localSearchData, 1, id - 1);
+                    ImagePreviewViewModel previewImage = data.First();
+                    previewImage.ImageIndex = id - 1;
+                    previewImage.IsEndedImage = true;
+                    this.SetIsLikeFlags(loginUser, previewImage);
+
+                    return this.View(previewImage);
+                }
+
+                return this.Json(string.Empty);
+            }
+            else
+            {
+                ImagePreviewViewModel previewImage = data.First();
+                previewImage.ImageIndex = id;
+                this.SetIsLikeFlags(loginUser, previewImage);
+
+                return this.View(previewImage);
+            }
+        }
+
+        private void SetIsLikeFlags(ApplicationUser user, ImagePreviewViewModel previewImage)
+        {
+            List<Vote> lstVotes = this.VotesService.GetByImage<Vote>(previewImage.Id).ToList();
+            if (user != null)
+            {
+                previewImage.IsLike = lstVotes.Where(t => t.AuthorId == user.Id && t.IsLike == 1).Any();
+            }
+
+            previewImage.LikeCount = lstVotes.Sum(t => t.IsLike);
         }
     }
 }

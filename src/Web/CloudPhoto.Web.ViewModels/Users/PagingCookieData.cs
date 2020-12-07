@@ -8,6 +8,8 @@ namespace CloudPhoto.Web.ViewModels.Users
 {
     public class PagingCookieData
     {
+        public string UserId { get; set; }
+
         public int PageSize { get; set; }
 
         public int PageIndex { get; set; }

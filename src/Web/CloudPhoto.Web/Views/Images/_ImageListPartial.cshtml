@@ -16,9 +16,6 @@
             <a asp-controller="Images" asp-action="PreviewImage" asp-route-id=@item.ImageIndex>
                 <img src=@item.ThumbnailImageUrl class="img-fluid">
             </a>
-            @*<a href="#" class="nav-link" onclick="onSelectImage('@item.ImageIndex'); return false">
-                <img src=@item.ThumbnailImageUrl class="img-fluid">
-            </a>*@
             <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
                 <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
             </a>
