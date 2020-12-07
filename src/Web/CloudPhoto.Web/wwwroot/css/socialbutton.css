@@ -18,3 +18,8 @@ button.btn.login::before {
     font-size: 20px;
     float: left;
 }
+
+.navbar.navigation-color {
+    background-color: #32578c !important;
+}
+

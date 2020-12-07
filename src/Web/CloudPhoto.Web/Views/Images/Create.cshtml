@@ -1,20 +1,18 @@
 ﻿@using CloudPhoto.Web.ViewModels.Images
 @model CreateImageViewModel
 
+
 @{
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-<h4>Image</h4>
-<hr />
+<h1 class="text-center">Upload Photo</h1>
 
 <div class="row">
     <div class="col-12 ml-2">
         <form id="dragFileForm" method="post" enctype="multipart/form-data">
             <div id="dragAndDropArea" class="text-truncate drag-and-drop-area">
-                Drag and drop a file into this area
+                Browse or Drag & drop a file into this area
                 <input id="file" class="custom-file-input" name="file" value="" type="file" size="1" onchange="uploadControlFile('file');" />
             </div>
         </form>
@@ -74,14 +72,10 @@
                 <input id="image-id" asp-for="ImageId" class="form-control" />
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-success btn-lg" />
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
@@ -188,7 +182,7 @@
             
             var btntag = document.createElement("button");
             btntag.id = newTag;
-            btntag.className = "btn-primary btn-lg rounded m-1";
+            btntag.className = "btn-success rounded m-1";
             btntag.onclick = function () {
                 var data = document.getElementById("added-tags").value
                 var js = JSON.parse(data);

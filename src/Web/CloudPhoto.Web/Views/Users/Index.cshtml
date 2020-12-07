@@ -5,19 +5,26 @@
 <div>
     <div class="row container-fluid">
         <div id="userAvatar" class="col-md-5">
-            <img src=@Model.UserAvatar class="rounded float-right" alt=@Model.UserName>
+            @if (string.IsNullOrEmpty(Model.UserAvatar))
+            {
+                <img src="/icon/emptyAvatar.png" width="60" height="60" class="rounded-circle float-right" alt=@Model.UserName>
+            }
+            else
+            {
+                <img src=@Model.UserAvatar width="60" height="60" class="rounded-circle float-right" alt=@Model.UserName>
+            }
         </div>
         <div id="UserDescription" class="col-md-7">
             <div class="row container">
                 <div class="col-md-5">
-                    <label>@Model.UserName</label>
+                    <p class="text-dark h3">@Model.UserName</p>
                 </div>
                 <div class="col-md-7">
-                    <input type="button" value="Follow" />
+                    <input class="btn btn-success" type="button" value="Donate" alt="Support this photographer with a PayPal donation" />
                 </div>
             </div>
             <div>
-                <label>User descriptions</label>
+                <p class="h5">User descriptions</p>
             </div>
         </div>
     </div>
@@ -27,13 +34,28 @@
 <form id="voteForm" method="post"></form>
 
 <div class="row container-fluid">
-    <a class="nav-link" href="#" onclick="getUploadImages()">
-        Upload Images
+    @*<a class="nav-link" href="#" onclick="getUploadImages()">
+        <p><u>Upload Images</u></p>
     </a>
     <a class="nav-link" href="#" onclick="getLikeImages()">
         Like Images
-    </a>
+    </a>*@
+
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item">
+            <a id="uploadTab" class="nav-link active" href="#" data-toggle="tab" role="tab" onclick="getUploadImages(this)">
+                Upload Images
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="likeTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="getLikeImages(this)">
+                Like Images
+            </a>
+        </li>
+    </ul>
 </div>
+
+<br>
 
 <div id="containerImages" class="col-md-12">
     <div id="partialView" class="row">
@@ -73,13 +95,17 @@
             }
         });
 
-        function getUploadImages() {
+        function getUploadImages(control) {
             pagingData.type = "uploads";
+            control.setAttribute("class", "nav-link");
+            document.getElementById("likeTab").setAttribute("class", "nav-link active");
             startPaging();
         }
 
-        function getLikeImages() {
+        function getLikeImages(control) {
             pagingData.type = "likes";
+            control.setAttribute("class", "nav-link");
+            document.getElementById("uploadTab").setAttribute("class", "nav-link active");
             startPaging();
         }
 
@@ -204,7 +230,7 @@
                         if (e.status == 401) {
                             window.location = '/Identity/Account/Login';
                         }
-                    } 
+                    }
                 }
             );
 
