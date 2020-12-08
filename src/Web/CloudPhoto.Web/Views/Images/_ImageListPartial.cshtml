@@ -16,8 +16,8 @@
     <a asp-controller="Images" asp-action="PreviewImage" asp-route-id=@item.ImageIndex>
         <img src=@item.ThumbnailImageUrl class="img-fluid">
     </a>
-    <a href="#" class="my-like-icon-right" onclick="return false">
-        dasdas
+    <a class="my-icon-left" asp-controller="Users" asp-action="Index" asp-route-id=@item.AuthorId>
+        <img src=@item.AuthorAvatarUrl  width="30" height="30" class="rounded-circle">
     </a>
     <a href="#" class="my-like-icon-right" onclick="sendVote('@item.Id'); return false">
         <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>

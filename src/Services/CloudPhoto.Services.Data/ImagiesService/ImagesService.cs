@@ -117,7 +117,7 @@
             sqlSelect.Append(
                 @"SELECT 
                     i.*,
-                    c.ClaimValue AS UserAvatar,
+                    c.ClaimValue AS AuthorAvatarUrl,
 				    (CASE
                     WHEN v.IsLike IS NULL THEN 0
                     WHEN v.IsLike = 1 THEN 1

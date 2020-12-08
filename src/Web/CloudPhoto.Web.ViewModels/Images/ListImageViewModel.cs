@@ -22,6 +22,6 @@ namespace CloudPhoto.Web.ViewModels.Images
 
         public string AuthorId { get; set; }
 
-        public string AuthorUserName { get; set; }
+        public string AuthorAvatarUrl { get; set; }
     }
 }

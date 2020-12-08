@@ -54,12 +54,12 @@
                 switch (e.keyCode) {
                     case 37:
                         if ($("#leftArrow").length) {
-                            window.location.href = "/users/PreviewImage/" + preview;
+                            window.location.href = "/users/PreviewImage?id=" + preview;
                         }
                         break;
                     case 39:
                         if ($("#rightArrow").length) {
-                            window.location.href = "/users/PreviewImage/" + next;
+                            window.location.href = "/users/PreviewImage?id=" + next;
                         }
                         break;
                 }
