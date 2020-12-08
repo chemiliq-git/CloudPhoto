@@ -10,18 +10,16 @@ namespace CloudPhoto.Web.ViewModels.Users
     {
         public UserPreviewViewModel()
         {
-            this.UploadImages = new List<ListImageViewModel>();
-            this.LikeImages = new List<ListImageViewModel>();
         }
 
         public string Id { get; set; }
 
         public string UserName { get; set; }
 
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
         public string UserAvatar { get; set; }
-
-        public IEnumerable<ListImageViewModel> UploadImages { get; set; }
-
-        public IEnumerable<ListImageViewModel> LikeImages { get; set; }
     }
 }

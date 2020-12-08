@@ -19,5 +19,7 @@
         public string AuthorId { get; set; }
 
         public string LikeByUser { get; set; }
+
+        public string LikeForUserId { get; set; }
     }
 }

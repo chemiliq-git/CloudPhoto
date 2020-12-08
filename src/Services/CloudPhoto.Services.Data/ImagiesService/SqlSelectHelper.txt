@@ -1,0 +1,40 @@
+﻿---Use when test sql query which execute on ImagesService.GetByFilter
+
+DECLARE @ClaimType NVARCHAR(50)
+DECLARE @LikeForUserId NVARCHAR(50)
+DECLARE @AuthorId NVARCHAR(50)
+DECLARE @FilterCategory NVARCHAR(50)
+DECLARE @FilterTags NVARCHAR(50)
+DECLARE @FilterTag NVARCHAR(50)
+DECLARE @LikeByUser NVARCHAR(50)
+
+SET @ClaimType= 'useravatar'
+SET @LikeForUserId = '1bc1c5fb-405a-46ba-b065-7152158df20d'
+SET @AuthorId = '1bc1c5fb-405a-46ba-b065-7152158df20d'
+SET @FilterCategory = 'd2938152-aa72-417a-8282-41cad07e83b6'
+SET @FilterTags = '40aa9a20-bfac-478b-8b85-ff7b0826eb8c'
+SET @FilterTag = 'people'
+SET @LikeByUser = '1bc1c5fb-405a-46ba-b065-7152158df20d'
+
+SELECT 
+                    i.*,
+                    c.ClaimValue AS UserAvatar, v.IsLike
+                    FROM Images AS i
+                    LEFT JOIN AspNetUserClaims AS c On i.AuthorId = c.UserId AND c.ClaimType = @ClaimType
+                    LEFT JOIN Votes AS v ON v.AuthorId = @LikeForUserId AND v.ImageId = i.Id AND v.IsLike = 1
+					--Categories
+					--JOIN ImageCategories AS ic ON ic.ImageId = i.Id AND ic.CategoryId in (@FilterCategory)
+					--tags
+					--JOIN ImageTags AS it ON it.ImageId = i.Id AND it.TagId in (@FilterTags)
+
+					JOIN Votes AS vt ON vt.ImageId = i.Id AND vt.AuthorId = @LikeByUser AND vt.IsLike = 1
+					WHERE (1=1)
+					--AuthorId
+					--i.AuthorId = @AuthorId
+					--AND 
+					--Tag
+					--i.Id in(SELECT ImageId FROM ImageTags
+					--		JOIN Tags ON Tags.Id = ImageTags.TagId
+					--		WHERE Tags.Name like '%'+ @FilterTag+'%')
+					 ORDER BY i.Id
+					

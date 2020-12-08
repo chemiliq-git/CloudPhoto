@@ -142,6 +142,7 @@
             if (this.User.Identity.IsAuthenticated)
             {
                 user = await this.userManager.GetUserAsync(this.User);
+                localSearchData.LikeForUserId = user.Id;
             }
 
             var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
@@ -156,7 +157,6 @@
                     ImagePreviewViewModel previewImage = data.First();
                     previewImage.ImageIndex = id - 1;
                     previewImage.IsEndedImage = true;
-                    this.SetIsLikeFlags(user, previewImage);
 
                     return this.View(previewImage);
                 }
@@ -167,7 +167,6 @@
             {
                 ImagePreviewViewModel previewImage = data.First();
                 previewImage.ImageIndex = id;
-                this.SetIsLikeFlags(user, previewImage);
 
                 return this.View(previewImage);
             }
@@ -289,30 +288,16 @@
             if (this.User.Identity.IsAuthenticated)
             {
                 user = await this.userManager.GetUserAsync(this.User);
+                localSearchData.LikeForUserId = user.Id;
             }
 
             var data = this.imagesService.GetByFilter<ListImageViewModel>(
                 localSearchData, perPage, page);
 
-            List<Vote> lstVotes = null;
-            if (user != null)
-            {
-                lstVotes = this.votesService.GetByUser<Vote>(user.Id).ToList();
-            }
-
             int indexOfPage = 1;
             foreach (ListImageViewModel model in data)
             {
                 model.ImageIndex = ((page - 1) * perPage) + indexOfPage;
-                if (user == null)
-                {
-                    model.IsLike = false;
-                }
-                else
-                {
-                    model.IsLike = lstVotes.Where(temp => temp.ImageId == model.Id).Sum(temp => temp.IsLike) == 1;
-                }
-
                 indexOfPage++;
             }
 
@@ -324,17 +309,6 @@
             {
                 return this.PartialView("_ImageListPartial", data);
             }
-        }
-
-        private void SetIsLikeFlags(ApplicationUser user, ImagePreviewViewModel previewImage)
-        {
-            List<Vote> lstVotes = this.votesService.GetByImage<Vote>(previewImage.Id).ToList();
-            if (user != null)
-            {
-                previewImage.IsLike = lstVotes.Where(t => t.AuthorId == user.Id && t.IsLike == 1).Any();
-            }
-
-            previewImage.LikeCount = lstVotes.Sum(t => t.IsLike);
         }
 
         private bool ImageExists(string id)

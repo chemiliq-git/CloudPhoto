@@ -6,6 +6,7 @@
     using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
+
     using CloudPhoto.Common;
     using CloudPhoto.Data;
     using CloudPhoto.Data.Common;
@@ -15,6 +16,7 @@
     using CloudPhoto.Data.Seeding;
     using CloudPhoto.Services.Data;
     using CloudPhoto.Services.Data.CategoriesService;
+    using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.UsersServices;
@@ -31,7 +33,6 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.RazorPages;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -151,6 +152,7 @@
             services.AddTransient<IVotesService, VotesService>();
             services.AddTransient<IUsersServices, UsersServices>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
+            services.AddTransient<IDapperService, CloudPhoto.Services.Data.DapperService.DapperService>();
 
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();

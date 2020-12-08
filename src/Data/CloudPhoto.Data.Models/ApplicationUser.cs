@@ -24,6 +24,21 @@ namespace CloudPhoto.Data.Models
 
         public string PayPalEmail { get; set; }
 
+        public virtual string FullName
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(this.FirstName))
+                {
+                    return this.FirstName + " " + this.LastName;
+                }
+                else
+                {
+                    return this.UserName;
+                }
+            }
+        }
+
         // Audit info
         public DateTime CreatedOn { get; set; }
 

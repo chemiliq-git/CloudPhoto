@@ -69,14 +69,6 @@
     color: white;
 }
 
-.m-image-container .my-icon-middle {
-    position: absolute;
-    right: 25%;
-    bottom: 2%;
-    font-size: 30px;
-    color: white;
-}
-
 .m-image-container .my-icon-left {
     position: absolute;
     left: 10%;

@@ -2,16 +2,19 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
 
+    using CloudPhoto.Common;
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
+    using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.ImageManipulationProvider;
-    using CloudPhoto.Services.Mapping;
     using CloudPhoto.Services.RemoteStorage;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
@@ -23,6 +26,7 @@
             IDeletableEntityRepository<Image> imageRepository,
             ICategoriesService categoriesService,
             ITagsService tagsService,
+            IDapperService dapperService,
             IRemoteStorageService storageService,
             IImageManipulationProvider imageManipulation,
             IConfiguration configuration)
@@ -31,6 +35,7 @@
             this.ImageRepository = imageRepository;
             this.CategoriesService = categoriesService;
             this.TagsService = tagsService;
+            this.DapperService = dapperService;
             this.ImageManipulation = imageManipulation;
             this.Configuration = configuration;
             this.StorageService = storageService;
@@ -43,6 +48,8 @@
         public ICategoriesService CategoriesService { get; }
 
         public ITagsService TagsService { get; }
+
+        public IDapperService DapperService { get; }
 
         public IImageManipulationProvider ImageManipulation { get; }
 
@@ -91,37 +98,76 @@
             int perPage,
             int page = 1)
         {
-            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out bool hasAvailableItems);
-
-            if (!hasAvailableItems)
+            var parameters = new
             {
-                return new List<T>();
+                Skip = (page - 1) * perPage,
+                Take = perPage,
+                ClaimType = GlobalConstants.ExternalClaimAvatar,
+                LikeForUserId = searchData.LikeForUserId,
+                @AuthorId = searchData.AuthorId,
+                @FilterCategory = searchData.FilterCategory.ToArray(),
+                @FilterTag = searchData.FilterByTag,
+                @FilterTags = searchData.FilterTags,
+                @LikeByUser = searchData.LikeByUser,
+            };
+
+            StringBuilder sqlSelect = new StringBuilder();
+
+            // add head select
+            sqlSelect.Append(
+                @"SELECT 
+                    i.*,
+                    c.ClaimValue AS UserAvatar,
+				    (CASE
+                    WHEN v.IsLike IS NULL THEN 0
+                    WHEN v.IsLike = 1 THEN 1
+	                ELSE 0
+                    END) AS IsLike,
+                    (SELECT SUM(IsLike) FROM Votes Where Votes.ImageId = i.Id) AS LikeCount
+                    FROM Images AS i
+                    LEFT JOIN AspNetUserClaims AS c On i.AuthorId = c.UserId AND c.ClaimType = @ClaimType
+                    LEFT JOIN Votes AS v ON v.AuthorId = @LikeForUserId AND v.ImageId = i.Id AND v.IsLike = 1");
+
+            // filter by categories
+            if (searchData.FilterCategory != null
+              && searchData.FilterCategory.Count > 0)
+            {
+                sqlSelect.AppendLine("JOIN ImageCategories AS ic ON ic.ImageId = i.Id AND ic.CategoryId in @FilterCategory");
             }
 
-            return query
-                .OrderBy(i => i.Id)
-                .To<T>()
-                .Skip(perPage * (page - 1))
-                .Take(perPage).ToList();
-        }
-
-        public int GetCountByFilter<T>(SearchImageData searchData)
-        {
-            IQueryable<Image> query = this.GenerateFilterQuery(searchData, out bool hasAvailableItems);
-
-            if (!hasAvailableItems)
+            // filter by tag
+            if (searchData.FilterTags != null
+                && searchData.FilterTags.Count > 0)
             {
-                return 0;
+                sqlSelect.AppendLine("JOIN ImageTags AS it ON it.ImageId = i.Id AND it.TagId in @FilterTags");
             }
 
-            return query
-                .OrderBy(i => i.Id)
-                .Count();
-        }
+            // filter images which like by user
+            if (!string.IsNullOrEmpty(searchData.LikeByUser))
+            {
+                sqlSelect.AppendLine("JOIN Votes AS vt ON vt.ImageId = i.Id AND vt.AuthorId = @LikeByUser AND vt.IsLike = 1");
+            }
 
-        public Task<bool> UpdateAsync(string id, string name, string description)
-        {
-            throw new System.NotImplementedException();
+            sqlSelect.AppendLine("WHERE (1=1)");
+
+            // get images upload by user
+            if (!string.IsNullOrEmpty(searchData.AuthorId))
+            {
+                sqlSelect.AppendLine("AND i.AuthorId = @AuthorId");
+            }
+
+            // filter images by text tag
+            if (!string.IsNullOrEmpty(searchData.FilterByTag))
+            {
+                sqlSelect.AppendLine(@"AND i.Id in(SELECT ImageId FROM ImageTags
+                          JOIN Tags ON Tags.Id = ImageTags.TagId
+                          WHERE Tags.Name like '%' + @FilterTag + '%')");
+            }
+
+            sqlSelect.AppendLine("ORDER BY i.ID OFFSET @Skip ROWS ");
+            sqlSelect.AppendLine("FETCH NEXT @Take ROWS ONLY");
+            var d = this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
+            return d;
         }
 
         private async Task<ICollection<ImageTag>> ParseImageTag(Image image, List<string> tags)
@@ -219,51 +265,6 @@
                     "WebPictures",
                     string.Empty));
             return storeFile.FileAddress;
-        }
-
-        private IQueryable<Image> GenerateFilterQuery(SearchImageData searchData, out bool hasAvailableItem)
-        {
-            hasAvailableItem = true;
-            IQueryable<Image> query =
-                            this.ImageRepository.All();
-
-            if (!string.IsNullOrEmpty(searchData.AuthorId))
-            {
-                query = query.Where(img => img.AuthorId == searchData.AuthorId);
-            }
-
-            if (searchData.FilterCategory != null
-                && searchData.FilterCategory.Count > 0)
-            {
-                query = query.Where(img => img.ImageCategories.Where(i => searchData.FilterCategory.Contains(i.CategoryId)).Count() > 0);
-            }
-
-            if (!string.IsNullOrEmpty(searchData.FilterByTag))
-            {
-                var foundTags = this.TagsService.FiterTagsByNames<Tag>(searchData.FilterByTag);
-                if (!foundTags.Any())
-                {
-                    hasAvailableItem = false;
-                }
-
-                foreach (Tag tag in foundTags)
-                {
-                    searchData.FilterTags.Add(tag.Id);
-                }
-            }
-
-            if (searchData.FilterTags != null
-                && searchData.FilterTags.Count > 0)
-            {
-                query = query.Where(img => img.ImageTags.Where(i => searchData.FilterTags.Contains(i.TagId)).Count() > 0);
-            }
-
-            if (!string.IsNullOrEmpty(searchData.LikeByUser))
-            {
-                query = query.Where(img => img.Votes.Where(i => i.AuthorId == searchData.LikeByUser).Count() > 0);
-            }
-
-            return query;
         }
     }
 }

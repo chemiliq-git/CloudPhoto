@@ -79,6 +79,8 @@
 
         function clearSearchData() {
             $.cookie("searchData", "", { path: "/" });
+            searchData.selectCategory = [];
+            searchData.searchText = "";
         }
 
         $(window).scroll(function () {

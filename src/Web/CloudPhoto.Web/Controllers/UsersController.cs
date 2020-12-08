@@ -64,7 +64,7 @@
             UserPreviewViewModel model = new UserPreviewViewModel
             {
                 Id = user.Id,
-                UserName = user.UserName,
+                UserName = user.FullName,
                 UserAvatar = lstClaims?.FirstOrDefault(temp => temp.Type == GlobalConstants.ExternalClaimAvatar)?.Value,
             };
 
@@ -92,12 +92,6 @@
                 return this.BadRequest();
             }
 
-            ApplicationUser loginUser = null;
-            if (this.User.Identity.IsAuthenticated)
-            {
-                loginUser = await this.UserManager.GetUserAsync(this.User);
-            }
-
             SearchImageData localSearchData = null;
             if (cookieSearchData.Type == "uploads")
             {
@@ -114,28 +108,20 @@
                 };
             }
 
+            ApplicationUser loginUser = null;
+            if (this.User.Identity.IsAuthenticated)
+            {
+                loginUser = await this.UserManager.GetUserAsync(this.User);
+                localSearchData.LikeForUserId = loginUser.Id;
+            }
+
             var data = this.ImagesService.GetByFilter<ListImageViewModel>(
                     localSearchData, cookieSearchData.PageSize, cookieSearchData.PageIndex);
-
-            List<Vote> lstVotes = null;
-            if (loginUser != null)
-            {
-                lstVotes = this.VotesService.GetByUser<Vote>(loginUser.Id).ToList();
-            }
 
             int indexOfPage = 1;
             foreach (ListImageViewModel model in data)
             {
                 model.ImageIndex = ((cookieSearchData.PageIndex - 1) * cookieSearchData.PageSize) + indexOfPage;
-                if (loginUser == null)
-                {
-                    model.IsLike = false;
-                }
-                else
-                {
-                    model.IsLike = lstVotes.Where(temp => temp.ImageId == model.Id).Sum(temp => temp.IsLike) == 1;
-                }
-
                 indexOfPage++;
             }
 
@@ -169,12 +155,6 @@
                 return this.BadRequest();
             }
 
-            ApplicationUser loginUser = null;
-            if (this.User.Identity.IsAuthenticated)
-            {
-                loginUser = await this.UserManager.GetUserAsync(this.User);
-            }
-
             SearchImageData localSearchData = null;
             if (cookieSearchData.Type == "uploads")
             {
@@ -191,6 +171,13 @@
                 };
             }
 
+            ApplicationUser loginUser = null;
+            if (this.User.Identity.IsAuthenticated)
+            {
+                loginUser = await this.UserManager.GetUserAsync(this.User);
+                localSearchData.LikeForUserId = loginUser.Id;
+            }
+
             var data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
                     localSearchData, 1, id);
 
@@ -203,7 +190,6 @@
                     ImagePreviewViewModel previewImage = data.First();
                     previewImage.ImageIndex = id - 1;
                     previewImage.IsEndedImage = true;
-                    this.SetIsLikeFlags(loginUser, previewImage);
 
                     return this.View(previewImage);
                 }
@@ -214,7 +200,6 @@
             {
                 ImagePreviewViewModel previewImage = data.First();
                 previewImage.ImageIndex = id;
-                this.SetIsLikeFlags(loginUser, previewImage);
 
                 return this.View(previewImage);
             }
@@ -241,17 +226,6 @@
             }
 
             return this.Json(await this.UsersServices.ChangeAvatar(userId, avatarUrl));
-        }
-
-        private void SetIsLikeFlags(ApplicationUser user, ImagePreviewViewModel previewImage)
-        {
-            List<Vote> lstVotes = this.VotesService.GetByImage<Vote>(previewImage.Id).ToList();
-            if (user != null)
-            {
-                previewImage.IsLike = lstVotes.Where(t => t.AuthorId == user.Id && t.IsLike == 1).Any();
-            }
-
-            previewImage.LikeCount = lstVotes.Sum(t => t.IsLike);
         }
     }
 }
