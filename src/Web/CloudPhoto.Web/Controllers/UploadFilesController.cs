@@ -4,12 +4,14 @@
     using System.IO;
     using System.Threading.Tasks;
 
+    using CloudPhoto.Data.Models;
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.RemoteStorage;
     using CloudPhoto.Web.ViewModels.Files;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
 
@@ -20,12 +22,14 @@
             ILocalStorageServices localStorageService,
             IRemoteStorageService remoteStorageService,
             IImageValidatorService imageValidator,
+            UserManager<ApplicationUser> userManager,
             IWebHostEnvironment env,
             IConfiguration configuration)
         {
             this.LocalStorageService = localStorageService;
             this.RemoteStorageService = remoteStorageService;
             this.ImageValidator = imageValidator;
+            this.UserManager = userManager;
             this.Env = env;
             this.Configuration = configuration;
         }
@@ -36,13 +40,15 @@
 
         public IImageValidatorService ImageValidator { get; }
 
+        public UserManager<ApplicationUser> UserManager { get; }
+
         public IWebHostEnvironment Env { get; }
 
         public IConfiguration Configuration { get; }
 
-        [HttpPost]
+        [HttpPost("UploadImage")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Post(IFormFile file)
+        public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (this.ModelState.IsValid)
             {
@@ -75,16 +81,57 @@
                         ErrorMessage = "Error uploading file to storage",
                     });
                 }
+            }
+            else
+            {
+                return this.BadRequest();
+            }
+        }
 
-                //StoreFileInfo info = await this.RemoteStorageService.UploadFile(new UploadDataInfo(file, "WebPictures", string.Empty));
-                //if (info.BoolResult)
-                //{
-                //    return this.Json(new ResponseUploadFileController() { Result = true, ImageUrl = info.FileAddress });
-                //}
-                //else
-                //{
-                //    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
-                //}
+        [HttpPost("UploadAvatart")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadAvatart(IFormFile file, string userId)
+        {
+            if (this.ModelState.IsValid)
+            {
+                if (file == null)
+                {
+                    return this.BadRequest();
+                }
+
+                ApplicationUser user = await this.UserManager.GetUserAsync(this.User);
+                if (user.Id != userId)
+                {
+                    return this.BadRequest();
+                }
+
+                ImageValidateResult result = this.ImageValidator.ValidateImageFile(file);
+                if (!result.IsValid)
+                {
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Not valid image format" });
+                }
+
+                StoreFileInfo info;
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    file.CopyTo(memory);
+                    memory.Position = 0;
+
+                    info = await this.RemoteStorageService.UploadFile(new UploadDataInfo(
+                                file.FileName,
+                                memory,
+                                "WebPictures",
+                                string.Empty));
+                }
+
+                if (info.BoolResult)
+                {
+                    return this.Json(new ResponseUploadFileController() { Result = true, ImageUrl = info.FileAddress });
+                }
+                else
+                {
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
+                }
             }
             else
             {

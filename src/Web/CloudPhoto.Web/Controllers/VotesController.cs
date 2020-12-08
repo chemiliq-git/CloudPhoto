@@ -1,12 +1,13 @@
 ﻿namespace CloudPhoto.Web.Controllers
 {
+    using System.Threading.Tasks;
+
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Web.ViewModels.Votes;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using System.Threading.Tasks;
 
     [Route("api/[controller]")]
     public class VotesController : Controller

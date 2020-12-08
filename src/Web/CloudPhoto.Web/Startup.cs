@@ -17,6 +17,7 @@
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
+    using CloudPhoto.Services.Data.UsersServices;
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Services.ImageManipulationProvider;
     using CloudPhoto.Services.ImageValidate;
@@ -148,6 +149,7 @@
             services.AddTransient<IImagesService, ImagesService>();
             services.AddTransient<ITagsService, Services.Data.TagsService.TagService>();
             services.AddTransient<IVotesService, VotesService>();
+            services.AddTransient<IUsersServices, UsersServices>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
 
             // Application services

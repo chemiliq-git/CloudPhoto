@@ -6,17 +6,14 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Common;
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.TagsService;
-    using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Services.ImageManipulationProvider;
     using CloudPhoto.Services.Mapping;
     using CloudPhoto.Services.RemoteStorage;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
 
     public class ImagesService : IImagesService
