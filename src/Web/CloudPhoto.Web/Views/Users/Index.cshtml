@@ -1,7 +1,8 @@
 ﻿@using CloudPhoto.Web.ViewModels.Users
 @model UserPreviewViewModel
 
-<div id="containerUploadMessage">
+@*use to show alets (myAlerts.js)*@
+<div id="myMessageContainer">
 </div>
 
 <div>
@@ -18,7 +19,7 @@
                     {
                         avatarUrl = @Model.UserAvatar;
                     }
-                    <img id="avatarImage" src=@avatarUrl width="60" height="60" 
+                    <img id="avatarImage" src=@avatarUrl width="60" height="60"
                          class="rounded-circle float-lg-right float-xl-right" alt=@Model.UserName>
                     <input id="file" class="custom-file-input" name="file" value="" type="file" size="1"
                            onchange="uploadAvatar('file');" />
@@ -71,14 +72,6 @@
 
 @section Scripts {
     <script>
-
-        var messageHtmElement =`<div id="uploadMessage" class="alert alert-warning alert-dismissible fade show" role="alert" style="display:none">
-                 <p class="text-center">Avatart Updated. Change must commit after logut</p>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>`;
-
         var pagingData = new Object();
         pagingData.userId = '@Model.Id';
         pagingData.pageSize = 6;
@@ -91,7 +84,6 @@
         $(document).ready(
             function () {
                 startPaging();
-                addMessageElement();
             });
 
         $(window).scroll(function () {
@@ -102,12 +94,6 @@
                 }
             }
         });
-
-        function addMessageElement() {
-            var hideSearchBox = document.getElementById("containerUploadMessage");
-            hideSearchBox.innerHTML = messageHtmElement;
-            $('#uploadMessage').on('closed.bs.alert', addMessageElement);
-        }
 
         function getUploadImages(control) {
             pagingData.type = "uploads";
@@ -286,7 +272,8 @@
                             updateAvatar(data.imageUrl);
                         }
                         else {
-                            alert(data.errorMessage);
+                            // show message (myAlets.js) 
+                            myShowErrorMessage(data.errorMessage);
                         }
                     }
                 }
@@ -316,8 +303,8 @@
                     },
                     success: function (data) {
                         if (data == true) {
-                            var hideMessageBox = document.getElementById("uploadMessage");
-                            hideMessageBox.style.display = "block";
+                            // show message (myAlets.js) 
+                            myShowSuccessMessage("Avatar updated. Change must applied after logout.");
                         }
                     }
                 }

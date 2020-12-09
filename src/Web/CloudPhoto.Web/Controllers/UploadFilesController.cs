@@ -66,7 +66,13 @@
                 ImageValidateResult result = this.ImageValidator.ValidateImageFile(file);
                 if (!result.IsValid)
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Not valid image format" });
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
+                }
+
+                string errMessage;
+                if (!this.IsCorrectImageSize(file, out errMessage))
+                {
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errMessage });
                 }
 
                 StoreFileInfo info = await this.UploadFileToLocalFolder(file);
@@ -120,7 +126,13 @@
                 ImageValidateResult result = this.ImageValidator.ValidateImageFile(file);
                 if (!result.IsValid)
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Not valid image format" });
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
+                }
+
+                string errorMessage;
+                if (!this.IsCorrectAcatarSize(file, out errorMessage))
+                {
+                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errorMessage });
                 }
 
                 StoreFileInfo info;
@@ -170,6 +182,52 @@
             info.FileId = fileId;
             info.FileAddress = info.FileAddress.Replace(this.Env.WebRootPath, "");
             return info;
+        }
+
+        private bool IsCorrectImageSize(IFormFile file, out string errMessage)
+        {
+            string strSettingSize = this.Configuration.GetSection("Images:MinimumImageSizeMB")?.Value;
+            int intSettingSize;
+            if (!int.TryParse(strSettingSize, out intSettingSize))
+            {
+                intSettingSize = 2;
+            }
+
+            int minimumSize = intSettingSize * 1048576;
+
+            if (file.Length < minimumSize)
+            {
+                errMessage = $"Upload file must great by {intSettingSize} MB";
+                return false;
+            }
+            else
+            {
+                errMessage = string.Empty;
+                return true;
+            }
+        }
+
+        private bool IsCorrectAcatarSize(IFormFile file, out string errMessage)
+        {
+            string strSettingSize = this.Configuration.GetSection("Images:MaxAvatarSizeKB")?.Value;
+            int intSettingSize;
+            if (!int.TryParse(strSettingSize, out intSettingSize))
+            {
+                intSettingSize = 50;
+            }
+
+            int maxSize = intSettingSize * 1000;
+
+            if (file.Length >= maxSize)
+            {
+                errMessage = $"Avatar must be smaller by {intSettingSize} KB";
+                return false;
+            }
+            else
+            {
+                errMessage = string.Empty;
+                return true;
+            }
         }
     }
 }

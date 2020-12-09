@@ -8,6 +8,10 @@
 
 <h1 class="text-center">Upload Photo</h1>
 
+@*use to show alets (myAlerts.js)*@
+<div id="myMessageContainer">
+</div>
+
 <div class="row">
     <div class="col-12 ml-2">
         <form id="dragFileForm" method="post" enctype="multipart/form-data">
@@ -120,7 +124,8 @@
                             $("#main-form").collapse('show');
                         }
                         else {
-                            alert(data.errorMessage);
+                            // show error (myAlets.js) 
+                            myShowErrorMessage(data.errorMessage);
                         }
                     }
                 }
@@ -179,7 +184,7 @@
                 js = new Array(newTag);
             }
 
-            
+
             var btntag = document.createElement("button");
             btntag.id = newTag;
             btntag.className = "btn-success rounded m-1";
@@ -209,7 +214,7 @@
             //add btntag on document
             var element = document.getElementById("newElements");
             element.appendChild(btntag);
-            
+
             document.getElementById("added-tags").value = JSON.stringify(js);
         }
 
