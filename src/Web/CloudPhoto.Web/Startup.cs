@@ -15,10 +15,14 @@
     using CloudPhoto.Data.Repositories;
     using CloudPhoto.Data.Seeding;
     using CloudPhoto.Services.Data;
+    using CloudPhoto.Services.Data.BackgroundServices;
+    using CloudPhoto.Services.Data.BackgroundServices.BackgroundQueue;
+    using CloudPhoto.Services.Data.BackgroundServices.ImageHelper;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
+    using CloudPhoto.Services.Data.TempCloudImageService;
     using CloudPhoto.Services.Data.UsersServices;
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Services.ImageManipulationProvider;
@@ -153,6 +157,12 @@
             services.AddTransient<IUsersServices, UsersServices>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
             services.AddTransient<IDapperService, CloudPhoto.Services.Data.DapperService.DapperService>();
+            services.AddTransient<ITempCloudImageService, TempCloudImageService>();
+
+            services
+                .AddHostedService<BackgroundWorker>()
+                .AddSingleton<IBackgroundQueue<ImageInfoParams>, BackgroundQueue<ImageInfoParams>>();
+            services.AddScoped<IImageHelper, ImageHelper>();
 
             // Application services
             services.AddTransient<IEmailSender, NullMessageSender>();

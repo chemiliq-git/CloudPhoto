@@ -10,6 +10,5 @@
         public List<T> FiterTagsByNames<T>(string searchText);
 
         public Task<string> CreateAsync(string name, string description, string userId);
-
     }
 }

@@ -5,6 +5,8 @@
     using System.Threading.Tasks;
 
     using CloudPhoto.Data.Models;
+    using CloudPhoto.Services.Data.BackgroundServices;
+    using CloudPhoto.Services.Data.BackgroundServices.BackgroundQueue;
     using CloudPhoto.Services.ImageValidate;
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.RemoteStorage;
@@ -24,7 +26,8 @@
             IImageValidatorService imageValidator,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment env,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IBackgroundQueue<ImageInfoParams> queue)
         {
             this.LocalStorageService = localStorageService;
             this.RemoteStorageService = remoteStorageService;
@@ -32,6 +35,7 @@
             this.UserManager = userManager;
             this.Env = env;
             this.Configuration = configuration;
+            this.Queue = queue;
         }
 
         public ILocalStorageServices LocalStorageService { get; }
@@ -45,6 +49,8 @@
         public IWebHostEnvironment Env { get; }
 
         public IConfiguration Configuration { get; }
+
+        public IBackgroundQueue<ImageInfoParams> Queue { get; }
 
         [HttpPost("UploadImage")]
         [ValidateAntiForgeryToken]
@@ -64,8 +70,14 @@
                 }
 
                 StoreFileInfo info = await this.UploadFileToLocalFolder(file);
+
                 if (info.BoolResult)
                 {
+                    string filePath = this.Env.WebRootPath + info.FileAddress;
+
+                    // start backgroun process
+                    this.Queue.Enqueue(new ImageInfoParams() { ImageId = info.FileId, ImagePath = filePath });
+
                     return this.Json(new ResponseUploadFileController()
                     {
                         Result = true,

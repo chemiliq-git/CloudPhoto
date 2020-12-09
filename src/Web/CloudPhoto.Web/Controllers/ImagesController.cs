@@ -99,7 +99,7 @@
 
                 List<string> lstImageTag = JsonSerializer.Deserialize<List<string>>(image.ImageTags);
 
-                await this.imagesService.CreateAsync(
+                string newId = await this.imagesService.CreateAsync(
                     this.env.WebRootPath,
                     new CreateImageModelData()
                     {
@@ -112,7 +112,15 @@
                         Tags = lstImageTag,
                     });
 
-                return this.RedirectToAction(nameof(this.Index));
+                if (string.IsNullOrEmpty(newId))
+                {
+                    image.Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>();
+                    return this.View(image);
+                }
+                else
+                {
+                    return this.RedirectToAction(nameof(this.Index));
+                }
             }
 
             image.Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>();
@@ -138,10 +146,9 @@
                 FilterCategory = cookieSearchData.SelectCategory,
             };
 
-            ApplicationUser user = null;
             if (this.User.Identity.IsAuthenticated)
             {
-                user = await this.userManager.GetUserAsync(this.User);
+                ApplicationUser user = await this.userManager.GetUserAsync(this.User);
                 localSearchData.LikeForUserId = user.Id;
             }
 
@@ -284,10 +291,9 @@
                 return this.BadRequest();
             }
 
-            ApplicationUser user = null;
             if (this.User.Identity.IsAuthenticated)
             {
-                user = await this.userManager.GetUserAsync(this.User);
+                ApplicationUser user = await this.userManager.GetUserAsync(this.User);
                 localSearchData.LikeForUserId = user.Id;
             }
 
