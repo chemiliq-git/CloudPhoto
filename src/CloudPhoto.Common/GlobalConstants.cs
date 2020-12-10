@@ -11,5 +11,7 @@
         public const string DefaultAdministratorPassword = "34Dsad34!:";
 
         public const string ExternalClaimAvatar = "useravatar";
+
+        public const int ImagePerPage = 6;
     }
 }

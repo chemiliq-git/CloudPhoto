@@ -1,5 +1,11 @@
 ﻿@using CloudPhoto.Web.ViewModels.Users
+@using CloudPhoto.Common;
 @model UserPreviewViewModel
+
+@{
+    int imagePerPage = GlobalConstants.ImagePerPage;
+}
+
 @*use to show alets (myAlerts.js)*@
 <div id="myMessageContainer">
 </div>
@@ -72,7 +78,7 @@
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
     <script>
         var pagingData = new Object();
-        pagingData.pageSize = 6;
+        pagingData.pageSize = @imagePerPage;
         pagingData.pageIndex = 0;
         pagingData.userId = '@Model.Id';
         pagingData.type = "uploads";

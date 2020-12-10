@@ -1,8 +1,14 @@
 ﻿@using CloudPhoto.Web.ViewModels.Images
+@using CloudPhoto.Common;
 @model IEnumerable<ListImageViewModel>
 
 @{
     ViewData["Title"] = "Index";
+
+}
+
+@{
+    int imagePerPage = GlobalConstants.ImagePerPage;
 }
 
 <form id="keyForm" method="post"></form>
@@ -33,145 +39,145 @@
 
 
 @section Scripts {
-    <script type="text/javascript" src="~/js/myFloatPaging.js"></script>    
+    <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
     <script>
 
-        var searchData = new Object();
-        searchData.pageSize = 6;
-        searchData.pageIndex = 0;
-        searchData.selectCategory = [];
-        searchData.searchText = "";
-
-        var hasAnoutherPages = true;
-        var hasStartRequest = false;
-
-        $(document).ready(
-            function () {
-                hookToCloseSideMenu();
-                hookToClearAllFilter();
-
-                configPage();
-                configAutoCompleteTags(onStartAutoCompleteSearch, onStartAutoCompleteSearch);
-
-                RegisterFloatPaging(readSearchData, saveSearchData, '/images/GetSearchingData');
-                startSearchData();
-            });
-
-        // execute when selected element on tag search control
-        function onStartAutoCompleteSearch() {
-            searchData = readSearchData();
-            searchData.searchText = $('#searchImageTag').val();
-            saveSearchData(searchData);
-        }
-
-        function readSearchData() {
-            var txtSearchData = $.cookie("searchData");
-            if (txtSearchData) {
-                var tempSearchData = JSON.parse(txtSearchData);
-                return tempSearchData;
-            }
-            else {
-                return searchData;
-            }
-        }
-
-        function saveSearchData(searchData) {
-            var txtSearchData = JSON.stringify(searchData);
-            $.cookie("searchData", txtSearchData, { path: "/" });
-        }
-
-        function clearSearchData() {
-            $.cookie("searchData", "", { path: "/" });
+            var searchData = new Object();
+            searchData.pageSize = @imagePerPage;
+            searchData.pageIndex = 0;
             searchData.selectCategory = [];
             searchData.searchText = "";
-        }
 
-        function checkUncheckCategory(checkBox) {
-            searchData = readSearchData();
+            var hasAnoutherPages = true;
+            var hasStartRequest = false;
 
-            if (checkBox.checked == true) {
-                searchData.selectCategory.push(checkBox.id);
-            }
-            else {
-                var filtered = searchData.selectCategory.filter(function (value, index, arr) {
-                    return value != checkBox.id;
-                });
-                searchData.selectCategory = filtered;
-            }
-            saveSearchData(searchData);
-            startSearchData();
-        }
+            $(document).ready(
+                function () {
+                    hookToCloseSideMenu();
+                    hookToClearAllFilter();
 
-        function configPage() {
-            var showSearchBar = $.cookie("show-search-bar");
-            if (showSearchBar != null) {
-                toggleMenu();
-            }
+                    configPage();
+                    configAutoCompleteTags(onStartAutoCompleteSearch, onStartAutoCompleteSearch);
 
-            searchData = readSearchData();
-
-            showCheckedCategory(searchData.selectCategory);
-
-            $('#searchImageTag').val(searchData.searchText);
-        }
-
-        function showCheckedCategory(arraySelectCategories) {
-            arraySelectCategories.forEach(element =>
-                document.getElementById(element).checked = true);
-        }
-
-        function onclickShowSearcBar() {
-            $.cookie("show-search-bar", "true", { path: "/Images" });
-            toggleMenu();
-        }
-
-        function hookToCloseSideMenu() {
-            const node = document.getElementById("sideCloseBtn");
-            node.addEventListener("click", function (event) {
-                $.cookie("show-search-bar", "false", { path: "/Images" });
-                toggleMenu();
-            });
-        }
-
-        function hookToClearAllFilter() {
-            const node = document.getElementById("clearFilter");
-            node.addEventListener("click", function (event) {
-                clearSearchData();
-                $('#groupCheckBox input:checked').each(function () {
-                    this.checked = false;
+                    RegisterFloatPaging(readSearchData, saveSearchData, '/images/GetSearchingData');
+                    startSearchData();
                 });
 
-                $('#searchImageTag').val(null);
+            // execute when selected element on tag search control
+            function onStartAutoCompleteSearch() {
+                searchData = readSearchData();
+                searchData.searchText = $('#searchImageTag').val();
+                saveSearchData(searchData);
+            }
 
+            function readSearchData() {
+                var txtSearchData = $.cookie("searchData");
+                if (txtSearchData) {
+                    var tempSearchData = JSON.parse(txtSearchData);
+                    return tempSearchData;
+                }
+                else {
+                    return searchData;
+                }
+            }
+
+            function saveSearchData(searchData) {
+                var txtSearchData = JSON.stringify(searchData);
+                $.cookie("searchData", txtSearchData, { path: "/" });
+            }
+
+            function clearSearchData() {
+                $.cookie("searchData", "", { path: "/" });
+                searchData.selectCategory = [];
+                searchData.searchText = "";
+            }
+
+            function checkUncheckCategory(checkBox) {
+                searchData = readSearchData();
+
+                if (checkBox.checked == true) {
+                    searchData.selectCategory.push(checkBox.id);
+                }
+                else {
+                    var filtered = searchData.selectCategory.filter(function (value, index, arr) {
+                        return value != checkBox.id;
+                    });
+                    searchData.selectCategory = filtered;
+                }
+                saveSearchData(searchData);
                 startSearchData();
-            });
-        }
-
-        function toggleMenu() {
-            var show = $.cookie("show-search-bar");
-            var searchBox = document.getElementById("side-search");
-            if (show === "true") {
-                searchBox.style.display = "block";
-            } else {
-                searchBox.style.display = "none";
             }
 
-            var hideSearchBox = document.getElementById("hide-side-search");
-            if (show === "false") {
-                hideSearchBox.style.display = "block";
-            } else {
-                hideSearchBox.style.display = "none";
+            function configPage() {
+                var showSearchBar = $.cookie("show-search-bar");
+                if (showSearchBar != null) {
+                    toggleMenu();
+                }
+
+                searchData = readSearchData();
+
+                showCheckedCategory(searchData.selectCategory);
+
+                $('#searchImageTag').val(searchData.searchText);
             }
 
-            var containerImage = document.getElementById("containerImages");
-            if (show === "false") {
-                containerImage.classList.remove("col-md-10");
-                containerImage.classList.add("col-md-12")
-            } else {
-                containerImage.classList.remove("col-md-12");
-                containerImage.classList.add("col-md-10")
+            function showCheckedCategory(arraySelectCategories) {
+                arraySelectCategories.forEach(element =>
+                    document.getElementById(element).checked = true);
             }
 
-        }
+            function onclickShowSearcBar() {
+                $.cookie("show-search-bar", "true", { path: "/Images" });
+                toggleMenu();
+            }
+
+            function hookToCloseSideMenu() {
+                const node = document.getElementById("sideCloseBtn");
+                node.addEventListener("click", function (event) {
+                    $.cookie("show-search-bar", "false", { path: "/Images" });
+                    toggleMenu();
+                });
+            }
+
+            function hookToClearAllFilter() {
+                const node = document.getElementById("clearFilter");
+                node.addEventListener("click", function (event) {
+                    clearSearchData();
+                    $('#groupCheckBox input:checked').each(function () {
+                        this.checked = false;
+                    });
+
+                    $('#searchImageTag').val(null);
+
+                    startSearchData();
+                });
+            }
+
+            function toggleMenu() {
+                var show = $.cookie("show-search-bar");
+                var searchBox = document.getElementById("side-search");
+                if (show === "true") {
+                    searchBox.style.display = "block";
+                } else {
+                    searchBox.style.display = "none";
+                }
+
+                var hideSearchBox = document.getElementById("hide-side-search");
+                if (show === "false") {
+                    hideSearchBox.style.display = "block";
+                } else {
+                    hideSearchBox.style.display = "none";
+                }
+
+                var containerImage = document.getElementById("containerImages");
+                if (show === "false") {
+                    containerImage.classList.remove("col-md-10");
+                    containerImage.classList.add("col-md-12")
+                } else {
+                    containerImage.classList.remove("col-md-12");
+                    containerImage.classList.add("col-md-10")
+                }
+
+            }
     </script>
 }
