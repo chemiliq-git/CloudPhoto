@@ -180,7 +180,7 @@
                     stream,
                     folderForResize));
             info.FileId = fileId;
-            info.FileAddress = info.FileAddress.Replace(this.Env.WebRootPath, "");
+            info.FileAddress = info.FileAddress.Replace(this.Env.WebRootPath, string.Empty);
             return info;
         }
 

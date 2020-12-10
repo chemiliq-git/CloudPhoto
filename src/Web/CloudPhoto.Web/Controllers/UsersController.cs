@@ -108,10 +108,9 @@
                 };
             }
 
-            ApplicationUser loginUser = null;
             if (this.User.Identity.IsAuthenticated)
             {
-                loginUser = await this.UserManager.GetUserAsync(this.User);
+                ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
                 localSearchData.LikeForUserId = loginUser.Id;
             }
 
@@ -171,10 +170,9 @@
                 };
             }
 
-            ApplicationUser loginUser = null;
             if (this.User.Identity.IsAuthenticated)
             {
-                loginUser = await this.UserManager.GetUserAsync(this.User);
+                ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
                 localSearchData.LikeForUserId = loginUser.Id;
             }
 

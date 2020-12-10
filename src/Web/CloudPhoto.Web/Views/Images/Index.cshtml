@@ -5,7 +5,7 @@
     ViewData["Title"] = "Index";
 }
 
-<form id="voteForm" method="post"></form>
+<form id="keyForm" method="post"></form>
 
 <div class="row container-fluid">
     <div id="side-search" class="col-md-2" style="display:none">
@@ -50,9 +50,15 @@
                 hookToClearAllFilter();
 
                 configPage();
-                configAutoCompleteTags();
+                configAutoCompleteTags(onStartAutoCompleteSearch, undefined);
                 startSearchData();
             });
+
+        function onStartAutoCompleteSearch() {
+            searchData = readSearchData();
+            searchData.searchText = $('#searchImageTag').val();
+            saveSearchData();
+        }
 
         function readSearchData() {
             var txtSearchData = $.cookie("searchData");
@@ -122,7 +128,7 @@
 
             showCheckedCategory(searchData.selectCategory);
 
-            $('#searchImageText').val(searchData.searchText);
+            $('#searchImageTag').val(searchData.searchText);
         }
 
         function showCheckedCategory(arraySelectCategories) {
@@ -151,7 +157,7 @@
                     this.checked = false;
                 });
 
-                $('#searchImageText').val(null);
+                $('#searchImageTag').val(null);
 
                 startSearchData();
             });
@@ -191,7 +197,7 @@
                 return;
             }
 
-            var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+            var token = $("#keyForm input[name=__RequestVerificationToken]").val();
 
             searchData = readSearchData();
 
@@ -240,57 +246,6 @@
                 error: function () {
                     alert("Error while retrieving data!");
                 }
-            });
-        }
-
-        function configAutoCompleteTags() {
-            $('#searchImageText').keyup(function (event) {
-                var token = $("#voteForm input[name=__RequestVerificationToken]").val();
-
-                searchData = readSearchData();
-                searchData.searchText = $('#searchImageText').val();
-                saveSearchData();
-
-                var formData = new FormData();
-                formData.append("searchData", searchData.searchText);
-                if (searchData.selectCategory != null) {
-                    formData.append("filterByCategories", searchData.selectCategory);
-                }
-
-                $('#searchImageText').autocomplete(
-                    {
-                        scroll: true,
-                        selectFirst: false,
-                        autoFocus: false,
-                        source: function (request, response) {
-                            $.ajax(
-                                {
-                                    type: "POST",
-                                    data: formData,
-                                    url: "/tags/autocompletesearch",
-                                    processData: false,
-                                    contentType: false,
-                                    headers: { 'X-CSRF-TOKEN': token },
-                                    success: function (data) {
-                                        response($.map(data, function (item) {
-                                            return {
-                                                label: item.name,
-                                                val: item.id
-                                            }
-                                        }));
-                                    },
-                                    error: function (result) { }
-                                });
-                        },
-                        minLength: 2,
-                        select: function (event, ui) {
-                            $('#searchImageText').val(ui.item.value);
-                            event.returnValue = false;
-                            event.cancel = true;
-
-                            return false;
-                        }
-                    });
             });
         }
     </script>

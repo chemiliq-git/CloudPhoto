@@ -4,7 +4,7 @@
 // Write your JavaScript code.
 
 function mySendImageVote(imageId) {
-    var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+    var token = $("#keyForm input[name=__RequestVerificationToken]").val();
 
     var formData = new FormData();
     formData.append("imageId", imageId);
@@ -50,7 +50,7 @@ function mySendImageVote(imageId) {
 }
 
 function mySendImageVoteOnPreviewForm(button, imageId, likeCounts) {
-    var token = $("#voteForm input[name=__RequestVerificationToken]").val();
+    var token = $("#keyForm input[name=__RequestVerificationToken]").val();
 
     var formData = new FormData();
     formData.append("imageId", imageId);
