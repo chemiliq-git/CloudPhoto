@@ -73,34 +73,27 @@
 
         [HttpPost("GetPagingData")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetPagingData()
+        public async Task<IActionResult> GetPagingData(
+            int pageIndex,
+            int pageSize,
+            string userId,
+            string type)
         {
-            if (!this.Request.Cookies.TryGetValue("pagingData", out string readPagingDataCookie))
-            {
-                return this.BadRequest();
-            }
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-            PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
-
-            ApplicationUser user = await this.UserManager.FindByIdAsync(cookieSearchData.UserId);
+            ApplicationUser user = await this.UserManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return this.BadRequest();
             }
 
             SearchImageData localSearchData = null;
-            if (cookieSearchData.Type == "uploads")
+            if (type == "uploads")
             {
                 localSearchData = new SearchImageData
                 {
                     AuthorId = user.Id,
                 };
             }
-            else if (cookieSearchData.Type == "likes")
+            else if (type == "likes")
             {
                 localSearchData = new SearchImageData
                 {
@@ -115,12 +108,12 @@
             }
 
             var data = this.ImagesService.GetByFilter<ListImageViewModel>(
-                    localSearchData, cookieSearchData.PageSize, cookieSearchData.PageIndex);
+                    localSearchData, pageSize, pageIndex);
 
             int indexOfPage = 1;
             foreach (ListImageViewModel model in data)
             {
-                model.ImageIndex = ((cookieSearchData.PageIndex - 1) * cookieSearchData.PageSize) + indexOfPage;
+                model.ImageIndex = ((pageIndex - 1) * pageSize) + indexOfPage;
                 indexOfPage++;
             }
 

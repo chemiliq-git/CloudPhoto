@@ -267,26 +267,26 @@
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> GetSearchingData(
-            int page,
-            int perPage,
+            int pageIndex,
+            int pageSize,
             string searchText,
-            string filterByCategories)
+            string selectCategory)
         {
             SearchImageData localSearchData = new SearchImageData
             {
                 FilterByTag = searchText,
             };
-            if (!string.IsNullOrEmpty(filterByCategories))
+            if (!string.IsNullOrEmpty(selectCategory))
             {
-                localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(filterByCategories);
+                localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(selectCategory);
             }
 
-            if (perPage == 0)
+            if (pageSize == 0)
             {
                 return this.BadRequest();
             }
 
-            if (page == 0)
+            if (pageIndex == 0)
             {
                 return this.BadRequest();
             }
@@ -298,12 +298,12 @@
             }
 
             var data = this.imagesService.GetByFilter<ListImageViewModel>(
-                localSearchData, perPage, page);
+                localSearchData, pageSize, pageIndex);
 
             int indexOfPage = 1;
             foreach (ListImageViewModel model in data)
             {
-                model.ImageIndex = ((page - 1) * perPage) + indexOfPage;
+                model.ImageIndex = ((pageIndex - 1) * pageSize) + indexOfPage;
                 indexOfPage++;
             }
 

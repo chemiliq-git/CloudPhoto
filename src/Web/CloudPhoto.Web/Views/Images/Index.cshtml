@@ -33,6 +33,7 @@
 
 
 @section Scripts {
+    <script type="text/javascript" src="~/js/myFloatPaging.js"></script>    
     <script>
 
         var searchData = new Object();
@@ -50,14 +51,17 @@
                 hookToClearAllFilter();
 
                 configPage();
-                configAutoCompleteTags(onStartAutoCompleteSearch, undefined);
+                configAutoCompleteTags(onStartAutoCompleteSearch, onStartAutoCompleteSearch);
+
+                RegisterFloatPaging(readSearchData, saveSearchData, '/images/GetSearchingData');
                 startSearchData();
             });
 
+        // execute when selected element on tag search control
         function onStartAutoCompleteSearch() {
             searchData = readSearchData();
             searchData.searchText = $('#searchImageTag').val();
-            saveSearchData();
+            saveSearchData(searchData);
         }
 
         function readSearchData() {
@@ -82,15 +86,6 @@
             searchData.searchText = "";
         }
 
-        $(window).scroll(function () {
-            if ($(window).scrollTop() ==
-                $(document).height() - $(window).height()) {
-                if (!hasStartRequest) {
-                    GetData();
-                }
-            }
-        });
-
         function checkUncheckCategory(checkBox) {
             searchData = readSearchData();
 
@@ -105,17 +100,6 @@
             }
             saveSearchData(searchData);
             startSearchData();
-        }
-
-        function startSearchData() {
-            var partialView = $('#partialView');
-            partialView.html("");
-
-            searchData.pageIndex = 1;
-            saveSearchData(searchData);
-
-            hasAnoutherPages = true;
-            GetData();
         }
 
         function configPage() {
@@ -188,65 +172,6 @@
                 containerImage.classList.add("col-md-10")
             }
 
-        }
-
-        function GetData() {
-            hasStartRequest = true;
-
-            if (!hasAnoutherPages) {
-                return;
-            }
-
-            var token = $("#keyForm input[name=__RequestVerificationToken]").val();
-
-            searchData = readSearchData();
-
-            var formData = new FormData();
-            formData.append("page", searchData.pageIndex);
-            formData.append("perPage", searchData.pageSize);
-            formData.append("searchText", searchData.searchText);
-            if (searchData.selectCategory != null) {
-                formData.append("filterByCategories", JSON.stringify(searchData.selectCategory));
-            }
-
-            $.ajax({
-                url: '/images/GetSearchingData',
-                data: formData,
-                processData: false,
-                contentType: false,
-                type: "POST",
-                headers: { 'X-CSRF-TOKEN': token },
-                xhrFields: {
-                    withCredentials: true
-                },
-                success: function (data) {
-                    var partialView = $('#partialView');
-                    if (data != '') {
-                        partialView.append(data);
-                        if (searchData.pageIndex == 1) {
-                            $('html, body').animate({ scrollTop: 0 }, 'slow');
-                        }
-                        searchData.pageIndex++;
-                        saveSearchData(searchData);
-                    }
-                    else {
-                        hasAnoutherPages = false;
-                        if (searchData.pageIndex == 1) {
-                            partialView.html("");
-                        }
-                    }
-                },
-                beforeSend: function () {
-                    $("#progress").show();
-                },
-                complete: function () {
-                    $("#progress").hide();
-                    hasStartRequest = false;
-                },
-                error: function () {
-                    alert("Error while retrieving data!");
-                }
-            });
         }
     </script>
 }

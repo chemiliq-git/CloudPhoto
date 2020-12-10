@@ -1,6 +1,5 @@
 ﻿@using CloudPhoto.Web.ViewModels.Users
 @model UserPreviewViewModel
-
 @*use to show alets (myAlerts.js)*@
 <div id="myMessageContainer">
 </div>
@@ -40,7 +39,6 @@
 </div>
 
 <form id="keyForm" method="post"></form>
-<form id="voteForm" method="post"></form>
 
 <div class="row container-fluid">
     <ul class="nav nav-tabs" role="tablist">
@@ -71,42 +69,34 @@
 </div>
 
 @section Scripts {
+    <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
     <script>
         var pagingData = new Object();
-        pagingData.userId = '@Model.Id';
         pagingData.pageSize = 6;
         pagingData.pageIndex = 0;
+        pagingData.userId = '@Model.Id';
         pagingData.type = "uploads";
-
-        var hasAnoutherPages = true;
-        var hasStartRequest = false;
 
         $(document).ready(
             function () {
-                startPaging();
+                RegisterFloatPaging(readPagingData, savePagingData, '/Users/GetPagingData');
+                startSearchData();
             });
-
-        $(window).scroll(function () {
-            if ($(window).scrollTop() ==
-                $(document).height() - $(window).height()) {
-                if (!hasStartRequest) {
-                    GetPagingData();
-                }
-            }
-        });
 
         function getUploadImages(control) {
             pagingData.type = "uploads";
             control.setAttribute("class", "nav-link");
             document.getElementById("likeTab").setAttribute("class", "nav-link active");
-            startPaging();
+            savePagingData(pagingData);
+            startSearchData();
         }
 
         function getLikeImages(control) {
             pagingData.type = "likes";
             control.setAttribute("class", "nav-link");
             document.getElementById("uploadTab").setAttribute("class", "nav-link active");
-            startPaging();
+            savePagingData(pagingData);
+            startSearchData();
         }
 
         function readPagingData() {
@@ -127,67 +117,6 @@
 
         function clearPagingData() {
             $.cookie("pagingData", "", { path: "/" });
-        }
-
-        function startPaging() {
-            var partialView = $('#partialView');
-            partialView.html("");
-
-            pagingData.pageIndex = 1;
-            savePagingData(pagingData);
-
-            hasAnoutherPages = true;
-            GetPagingData();
-        }
-
-        function GetPagingData() {
-            hasStartRequest = true;
-
-            if (!hasAnoutherPages) {
-                return;
-            }
-
-            var token = $("#keyForm input[name=__RequestVerificationToken]").val();
-
-            $.ajax({
-                url: '/Users/GetPagingData',
-                processData: false,
-                contentType: false,
-                type: "POST",
-                headers: { 'X-CSRF-TOKEN': token },
-                xhrFields: {
-                    withCredentials: true
-                },
-                success: function (data) {
-                    var partialView = $('#partialView');
-                    if (data != '') {
-                        partialView.append(data);
-                        if (pagingData.pageIndex == 1) {
-                            $('html, body').animate({ scrollTop: 0 }, 'slow');
-                        }
-                        pagingData.pageIndex++;
-                        savePagingData(pagingData);
-                    }
-                    else {
-                        hasAnoutherPages = false;
-                        if (pagingData.pageIndex == 1) {
-                            partialView.html("");
-                        }
-                    }
-                },
-                beforeSend: function () {
-                    $("#progress").show();
-                },
-                complete: function () {
-                    $("#progress").hide();
-                    hasStartRequest = false;
-                },
-                error: function () {
-                    alert("Error while retrieving data!");
-                    $("#progress").hide();
-                    hasStartRequest = false;
-                }
-            });
         }
 
         function uploadAvatar(inputId) {
@@ -226,7 +155,7 @@
                             updateAvatar(data.imageUrl);
                         }
                         else {
-                            // show message (myAlets.js) 
+                            // show message (myAlets.js)
                             myShowErrorMessage(data.errorMessage);
                         }
                     }
@@ -257,15 +186,13 @@
                     },
                     success: function (data) {
                         if (data == true) {
-                            // show message (myAlets.js) 
+                            // show message (myAlets.js)
                             myShowSuccessMessage("Avatar updated. Change must applied after logout.");
                         }
                     }
                 }
             );
         }
-
-
 
     </script>
 }
