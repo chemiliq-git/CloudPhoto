@@ -1,0 +1,89 @@
+﻿@using CloudPhoto.Web.ViewModels.Images
+@model ImagePreviewViewModel
+
+
+<style>
+    .fullscreen:-webkit-full-screen {
+        width: auto !important;
+        height: auto !important;
+        margin: auto !important;
+    }
+
+    .fullscreen:-moz-full-screen {
+        width: auto !important;
+        height: auto !important;
+        margin: auto !important;
+    }
+
+    .fullscreen:-ms-fullscreen {
+        width: auto !important;
+        height: auto !important;
+        margin: auto !important;
+    }
+</style>
+
+@{
+    string likeIconId = Model.Id + "likeIconId";
+    int userIsLike = Model.IsLike ? 0 : 1;
+
+    string likeIconColor = string.Empty;
+    if (Model.IsLike)
+    {
+        likeIconColor = "red";
+    }
+}
+
+<div class="row container">
+    <div id="authorSection" class="col-md-6">
+        <div class="row container">
+            <div class="col-2 row-cols-2">
+                <a class="nav-link" asp-controller="Users" asp-action="Index" asp-route-id=@Model.AuthorId>
+                    <img src=@Model.AuthorAvatarUrl width="60" height="60"
+                         class="rounded-circle">
+                </a>
+            </div>
+            <div class="col-md-8">
+                <div class="col-md-12">
+                    <a class="nav-link" asp-controller="Users" asp-action="Index" asp-route-id=@Model.AuthorId>
+                        @Model.AuthorName
+                    </a>
+                </div>
+                <div class="col-md-12">
+                    <p class="text-truncate">@Model.AuthorEmail</p>
+                </div>
+            </div>
+            <div class="col-md-2 align-content-center">
+                <input type="button" class="btn btn-outline-dark" value="Donate" />
+            </div>
+        </div>
+    </div>
+    <div id="imageActionSection" class="align-content-lg-end align-content-md-start align-content-sm-start col-md-5">
+        <div>
+            <button id="likeButton" type="button" class="btn btn-outline-dark float-right"
+                    onclick="mySendImageVoteOnPreviewForm(this, '@likeIconId', '@Model.Id', @Model.LikeCount, @userIsLike); return false;">
+                <i id=@likeIconId class="fas fa-heart" style="color:@likeIconColor;"></i>
+                @Model.LikeCount likes
+            </button>
+        </div>
+    </div>
+</div>
+<div class="justify-content-center m-preview-container">
+    <img id="thumbnailImage" class="img-fluid mx-auto d-block "
+         src=@Model.ThumbnailImageUrl>
+
+    @{if (Model.ImageIndex != 1)
+        { <a id="leftArrow" href="#" class="my-left-arrow" onclick="navigationToLeft(); return false">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        }
+    }
+
+    @{if (!Model.IsEndedImage)
+        {
+            <a id="rightArrow" href="#" class="my-right-arrow" onclick="navigationToRigth(); return false">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        }
+    }
+
+</div>

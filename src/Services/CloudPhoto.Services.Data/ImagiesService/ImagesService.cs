@@ -120,6 +120,8 @@
             sqlSelect.Append(
                 @"SELECT 
                     i.*,
+                    aspu.FirstName + ' ' + aspu.LastName AS AuthorFullName,
+                    aspu.Email As AuthorEmail, 
                     c.ClaimValue AS AuthorAvatarUrl,
 				    (CASE
                     WHEN v.IsLike IS NULL THEN 0
@@ -128,6 +130,7 @@
                     END) AS IsLike,
                     (SELECT SUM(IsLike) FROM Votes Where Votes.ImageId = i.Id) AS LikeCount
                     FROM Images AS i
+                    JOIN AspNetUsers AS aspu ON aspu.Id = i.AuthorId 
                     LEFT JOIN AspNetUserClaims AS c On i.AuthorId = c.UserId AND c.ClaimType = @ClaimType
                     LEFT JOIN Votes AS v ON v.AuthorId = @LikeForUserId AND v.ImageId = i.Id AND v.IsLike = 1");
 

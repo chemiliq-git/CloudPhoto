@@ -21,7 +21,6 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
 
-
     public class ImagesController : Controller
     {
         private readonly ApplicationDbContext context;
@@ -127,6 +126,7 @@
             return this.View(image);
         }
 
+        [HttpPost(Name = "PreviewImage")]
         public async Task<IActionResult> PreviewImage(int id)
         {
             if (!this.Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
@@ -157,17 +157,6 @@
 
             if (!data.Any())
             {
-                if (id > 1)
-                {
-                    data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
-                        localSearchData, 1, id - 1);
-                    ImagePreviewViewModel previewImage = data.First();
-                    previewImage.ImageIndex = id - 1;
-                    previewImage.IsEndedImage = true;
-
-                    return this.View(previewImage);
-                }
-
                 return this.Json(string.Empty);
             }
             else
@@ -175,7 +164,7 @@
                 ImagePreviewViewModel previewImage = data.First();
                 previewImage.ImageIndex = id;
 
-                return this.View(previewImage);
+                return this.PartialView("_PreviewImagePartial", previewImage);
             }
         }
 
@@ -315,6 +304,21 @@
             {
                 return this.PartialView("_ImageListPartial", data);
             }
+        }
+
+        public IActionResult PhotoSwipe()
+        {
+            return this.View();
+        }
+
+        public IActionResult Fotorama()
+        {
+            return this.View();
+        }
+
+        public IActionResult Modal()
+        {
+            return this.View();
         }
 
         private bool ImageExists(string id)

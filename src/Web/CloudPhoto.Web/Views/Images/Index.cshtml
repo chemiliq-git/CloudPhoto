@@ -37,6 +37,18 @@
     </div>
 </div>
 
+<div class="modal modal-full fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="modalPartialView">
+                    @*here must show _PreviewImagePartial*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
@@ -51,10 +63,15 @@
             var hasAnoutherPages = true;
             var hasStartRequest = false;
 
+        var maxImageIndex;
+        var currentSelectImage;
+        var userVode;
+
             $(document).ready(
                 function () {
                     hookToCloseSideMenu();
                     hookToClearAllFilter();
+                    hookToArrowKey();
 
                     configPage();
                     configAutoCompleteTags(onStartAutoCompleteSearch, onStartAutoCompleteSearch);
@@ -62,6 +79,72 @@
                     RegisterFloatPaging(readSearchData, saveSearchData, '/images/GetSearchingData');
                     startSearchData();
                 });
+
+        function showModalImage(imageIndex) {
+            currentSelectImage = imageIndex;
+            $('#myModal').modal('show');
+            GetPreviewImageData(currentSelectImage);
+        }
+
+        function hookToArrowKey() {
+            document.addEventListener('keydown', function (e) {
+                switch (e.keyCode) {
+                    case 37:
+                        navigationToLeft();
+                        break;
+                    case 39:
+                        navigationToRigth();
+                        break;
+                }
+            });
+        }
+
+        function navigationToLeft() {
+            if (currentSelectImage > 1) {
+                currentSelectImage = currentSelectImage - 1;
+                GetPreviewImageData(currentSelectImage);
+            }
+        }
+
+        function navigationToRigth() {
+            if (!maxImageIndex
+                || maxImageIndex - 1 >= currentSelectImage) {
+                currentSelectImage = currentSelectImage + 1;
+                GetPreviewImageData(currentSelectImage);
+            }
+        }
+
+        function GetPreviewImageData(index) {
+            var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+            var formData = new FormData();
+            formData.append("id", index);
+            $.ajax({
+                url: '/images/PreviewImage',
+                data: formData,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                headers: { 'X-CSRF-TOKEN': token },
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function (data) {
+                    var pageContainer = $('#modalPartialView');
+                    if (data != ''
+                        && pageContainer) {
+                        pageContainer.html("");
+                        pageContainer.append(data);
+                    }
+                    else {
+                        currentSelectImage = currentSelectImage - 1;
+                        maxImageIndex = currentSelectImage;
+                    }
+                },
+                error: function () {
+                    alert("Error while retrieving data!");
+                }
+            });
+        }
 
             // execute when selected element on tag search control
             function onStartAutoCompleteSearch() {
