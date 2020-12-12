@@ -14,8 +14,7 @@
     {
         public VotesController(
             UserManager<ApplicationUser> userManager,
-            IVotesService votesService
-            )
+            IVotesService votesService)
         {
            this.UserManager = userManager;
            this.VotesService = votesService;

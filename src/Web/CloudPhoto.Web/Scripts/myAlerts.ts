@@ -1,8 +1,15 @@
-var myAlertHelper = /** @class */ (function () {
-    function myAlertHelper() {
-        this.messageHtmElement = "<div id=\"messageBody\" class=\"alert alert-dismissible fade show\" role=\"alert\" style=\"display:none\">\n       <p id=\"textMessage\" class=\"text-center\">Your message must show here</p>\n          <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\">\n             <span aria-hidden=\"true\">&times;</span>\n          </button>\n     </div>";
-    }
-    myAlertHelper.prototype.myShowErrorMessage = function (errorText) {
+﻿class myAlertHelper {
+    
+    messageHtmElement: string =
+    `<div id="messageBody" class="alert alert-dismissible fade show" role="alert" style="display:none">
+       <p id="textMessage" class="text-center">Your message must show here</p>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+             <span aria-hidden="true">&times;</span>
+          </button>
+     </div>`;
+    
+
+    myShowErrorMessage(errorText: string): void {
         var messageBody = document.getElementById("messageBody");
         if (messageBody) {
             messageBody.classList.add("alert-danger");
@@ -10,8 +17,9 @@ var myAlertHelper = /** @class */ (function () {
             txtMessage.innerHTML = errorText;
             messageBody.style.display = "block";
         }
-    };
-    myAlertHelper.prototype.myShowInfoMessage = function (infoText) {
+    }
+
+    myShowInfoMessage(infoText: string): void {
         var messageBody = document.getElementById("messageBody");
         if (messageBody) {
             messageBody.classList.add("alert-info");
@@ -19,8 +27,9 @@ var myAlertHelper = /** @class */ (function () {
             txtMessage.innerHTML = infoText;
             messageBody.style.display = "block";
         }
-    };
-    myAlertHelper.prototype.myShowSuccessMessage = function (successText) {
+    }
+
+    myShowSuccessMessage(successText: string): void {
         var messageBody = document.getElementById("messageBody");
         if (messageBody) {
             messageBody.classList.add("alert-success");
@@ -28,13 +37,18 @@ var myAlertHelper = /** @class */ (function () {
             txtMessage.innerHTML = successText;
             messageBody.style.display = "block";
         }
-    };
-    return myAlertHelper;
-}());
-var myAllertHelper = new myAlertHelper();
-$(document).ready(function () {
-    addMessageElement();
-});
+    }
+}
+
+
+let myAllertHelper = new myAlertHelper();
+
+$(document).ready(
+    function () {
+        addMessageElement();
+    }
+);
+
 function addMessageElement() {
     var messageContainer = document.getElementById("myMessageContainer");
     if (messageContainer) {
@@ -42,4 +56,3 @@ function addMessageElement() {
         $('#messageBody').on('closed.bs.alert', addMessageElement);
     }
 }
-//# sourceMappingURL=myAlerts.js.map

@@ -69,8 +69,7 @@
                     return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
                 }
 
-                string errMessage;
-                if (!this.IsCorrectImageSize(file, out errMessage))
+                if (!this.IsCorrectImageSize(file, out string errMessage))
                 {
                     return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errMessage });
                 }
@@ -129,8 +128,7 @@
                     return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
                 }
 
-                string errorMessage;
-                if (!this.IsCorrectAcatarSize(file, out errorMessage))
+                if (!this.IsCorrectAcatarSize(file, out string errorMessage))
                 {
                     return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errorMessage });
                 }
@@ -187,8 +185,7 @@
         private bool IsCorrectImageSize(IFormFile file, out string errMessage)
         {
             string strSettingSize = this.Configuration.GetSection("Images:MinimumImageSizeMB")?.Value;
-            int intSettingSize;
-            if (!int.TryParse(strSettingSize, out intSettingSize))
+            if (!int.TryParse(strSettingSize, out int intSettingSize))
             {
                 intSettingSize = 2;
             }
@@ -210,8 +207,7 @@
         private bool IsCorrectAcatarSize(IFormFile file, out string errMessage)
         {
             string strSettingSize = this.Configuration.GetSection("Images:MaxAvatarSizeKB")?.Value;
-            int intSettingSize;
-            if (!int.TryParse(strSettingSize, out intSettingSize))
+            if (!int.TryParse(strSettingSize, out int intSettingSize))
             {
                 intSettingSize = 50;
             }
