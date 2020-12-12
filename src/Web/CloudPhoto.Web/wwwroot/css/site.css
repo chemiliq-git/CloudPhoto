@@ -24,6 +24,18 @@ a {
     border-color: #1861ac;
 }
 
+.my-nav-color {
+    background-color: #32578c !important;
+}
+
+.myHeader {
+    width: 100%;
+    height: 70vh;
+    /*background: url(https://wallpaper.wiki/wp-content/uploads/2017/05/wallpaper.wiki-Beautiful-Full-HD-Wallpaper-Download-Free-PIC-WPE0010098.jpg) no-repeat 50% 50%;*/
+    background: url("../site-image/StikyNavBar.jpg") no-repeat 50% 50%;
+    background-size: cover;
+}
+
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
@@ -61,6 +73,7 @@ html {
 }
 
 body {
+    /*margin-top: 60px;*/
     /* Margin bottom by footer height */
     margin-bottom: 60px;
 }

@@ -16,38 +16,40 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-light navigation-color border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="/icon/Logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
-                    @GlobalConstants.SystemName
-                </a>
-                <form class="form-inline">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon1">
-                                <i class="fas fa-search"></i>
-                            </span>
+        <div id="myDivHeader">
+            <nav class="navbar navbar-expand-sm navbar-light navigation-color box-shadow mb-3 my-nav-color">
+                <div class="container">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="/icon/Logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+                        @GlobalConstants.SystemName
+                    </a>
+                    <form class="form-inline">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                            <input class="form-control mr-sm-4" type="search" placeholder="Search" aria-label="Search">
                         </div>
-                        <input class="form-control mr-sm-4" type="search" placeholder="Search" aria-label="Search">
-                    </div>
-                   
-                </form>
 
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <partial name="_LoginPartial" />
-                    <ul class="navbar-nav">
-                    </ul>
+                    </form>
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                        <partial name="_LoginPartial" />
+                        <ul class="navbar-nav">
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
     </header>
 
-    <div class="container">
+    <div id="myPageContainer" class="container">
         <partial name="_CookieConsentPartial" />
         <main role="main" class="pb-3">
             @this.RenderBody()
