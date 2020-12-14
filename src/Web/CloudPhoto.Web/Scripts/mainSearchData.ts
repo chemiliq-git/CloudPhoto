@@ -6,6 +6,10 @@
     searchText: string;
 }
 
+interface pagingData {
+
+}
+
 class mainCookieHelper {
 
     mainCookieName: string = "searchData";
