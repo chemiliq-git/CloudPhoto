@@ -1,4 +1,5 @@
 ﻿class siteHelper {
+    searchControlName: string = '#headerSearchControl';
     searchData: mainCookieHelper;
 
     constructor() {
@@ -9,18 +10,38 @@
         var autoCompleateHelper: myAutocompleteHelper = new myAutocompleteHelper();
         autoCompleateHelper.configAutoCompleteTags(
             this.onStartAutoCompleteSearch.bind(this),
-            this.onStartAutoCompleteSearch.bind(this),
-            '#headerSearchControl');
+            this.seachImageByInputData.bind(this),
+            this.searchControlName);
+
+        let searchHTLElement: HTMLInputElement = <HTMLInputElement>document.getElementById(this.searchControlName);
+        searchHTLElement.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                if (searchHTLElement.value
+                    && searchHTLElement.value.length >= 2) {
+                    this.seachImageByInputData();
+                }
+            }
+        }.bind(this));
     }
 
     onStartAutoCompleteSearch() {
         this.searchData.readSearchData();
-        var searchValue = $('#headerSearchControl').val();
+        var searchValue = $(this.searchControlName).val();
         if (searchValue) {
-            this.searchData.mainSearchData.searchText = $('#headerSearchControl').val().toString();
+            this.searchData.mainSearchData.searchText = $(this.searchControlName).val().toString();
+            this.searchData.saveSearchData();
+        }
+    }
+
+    seachImageByInputData() {
+        this.searchData.readSearchData();
+        var searchValue = $(this.searchControlName).val();
+        if (searchValue) {
+            this.searchData.clearSearchData();
+            this.searchData.mainSearchData.searchText = $(this.searchControlName).val().toString();
             this.searchData.saveSearchData();
 
-            var data1 = this.searchData.readSearchData();
+            window.location.href = '/Images/Index'; var data1 = this.searchData.readSearchData();
         }
     }
 }
