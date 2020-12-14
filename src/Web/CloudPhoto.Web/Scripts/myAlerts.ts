@@ -7,7 +7,30 @@
              <span aria-hidden="true">&times;</span>
           </button>
      </div>`;
-    
+
+    controlName: string;
+
+    constructor(controlName: string) {
+        this.controlName = controlName;
+        var selfI = this;
+
+        $(document).ready(
+            function () {
+                selfI.addMessageElement();
+            }
+        );
+    }
+
+    addMessageElement(this: myAlertHelper): void {
+        var messageContainer = document.getElementById(this.controlName);
+        if (messageContainer) {
+            messageContainer.innerHTML = this.messageHtmElement;
+            var selfI = this;
+            $('#messageBody').on('closed.bs.alert', function () {
+                selfI.addMessageElement();
+            });
+        }
+    }
 
     myShowErrorMessage(errorText: string): void {
         var messageBody = document.getElementById("messageBody");
@@ -37,22 +60,5 @@
             txtMessage.innerHTML = successText;
             messageBody.style.display = "block";
         }
-    }
-}
-
-
-let myAllertHelper = new myAlertHelper();
-
-$(document).ready(
-    function () {
-        addMessageElement();
-    }
-);
-
-function addMessageElement() {
-    var messageContainer = document.getElementById("myMessageContainer");
-    if (messageContainer) {
-        messageContainer.innerHTML = myAllertHelper.messageHtmElement;
-        $('#messageBody').on('closed.bs.alert', addMessageElement);
     }
 }

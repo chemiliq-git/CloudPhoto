@@ -1,19 +1,34 @@
-var myAutocompleteHelper = /** @class */ (function () {
-    function myAutocompleteHelper() {
+﻿interface SearchData {
+    id: string;
+    name: string;
+}
+
+class myAutocompleteHelper {
+
+    constructor() {
+
     }
-    myAutocompleteHelper.prototype.configAutoCompleteTags = function (startSearchCallback, selectResultCallback, autoCompleteControlName) {
-        if (autoCompleteControlName === void 0) { autoCompleteControlName = '#searchImageTag'; }
+
+    configAutoCompleteTags(
+        startSearchCallback,
+        selectResultCallback,
+        autoCompleteControlName: string = '#searchImageTag') {
+
         $(autoCompleteControlName).keyup(function (event) {
             var token = $("#keyForm input[name=__RequestVerificationToken]").val();
-            var searchText = $(autoCompleteControlName).val().toString();
+
+            let searchText = $(autoCompleteControlName).val().toString()
             if (searchText.length < 2) {
                 return;
             }
+
             var formData = new FormData();
             formData.append("searchData", searchText);
+
             if (startSearchCallback) {
                 startSearchCallback(searchText);
             }
+
             $.ajax({
                 url: '/tags/AutoCompleteSearch',
                 data: formData,
@@ -23,9 +38,9 @@ var myAutocompleteHelper = /** @class */ (function () {
                 headers: {
                     'X-CSRF-TOKEN': token.toString(),
                 },
-                success: function (data) {
+                success: function (data: Array<SearchData>) {
                     var availableData = [];
-                    data.forEach(function (element) {
+                    data.forEach((element) => {
                         availableData.push({ id: element.id, label: element.name });
                     });
                     $(autoCompleteControlName).autocomplete({
@@ -45,7 +60,5 @@ var myAutocompleteHelper = /** @class */ (function () {
                 }
             });
         });
-    };
-    return myAutocompleteHelper;
-}());
-//# sourceMappingURL=myAutoComplete.js.map
+    }
+}

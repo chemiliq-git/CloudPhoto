@@ -1,16 +1,21 @@
-var mPagingContainer = '#partialView';
-var mPagingProgress = '#progress';
+﻿var mPagingContainer = '#partialView'
+var mPagingProgress = '#progress'
 var mPaginData;
+
 var mPagingUrl;
 var mReadPagingData;
 var mSavePagingData;
+
 var mHasAnoutherPages = true;
 var mHasStartRequest = false;
-function RegisterFloatPaging(pReadPagingData, pSavePaginData, pSearchUrl) {
+
+function RegisterFloatPaging(
+    pReadPagingData, pSavePaginData, pSearchUrl) {
     mReadPagingData = pReadPagingData;
     mSavePagingData = pSavePaginData;
     mPagingUrl = pSearchUrl;
 }
+
 $(window).scroll(function () {
     if ($(window).scrollTop() ==
         $(document).height() - $(window).height()) {
@@ -19,22 +24,30 @@ $(window).scroll(function () {
         }
     }
 });
+
 function startSearchData() {
     var pagingView = $(mPagingContainer);
     pagingView.html("");
+
     mPaginData = mReadPagingData();
     mPaginData.pageIndex = 1;
     mSavePagingData(mPaginData);
+
     mHasAnoutherPages = true;
     GetData();
 }
+
 function GetData() {
     mHasStartRequest = true;
+
     if (!mHasAnoutherPages) {
         return;
     }
+
     var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+
     mPaginData = mReadPagingData();
+
     var formData = new FormData();
     Object.keys(mPaginData).forEach(function (key, index) {
         // key: the name of the object key
@@ -46,6 +59,7 @@ function GetData() {
             formData.append(key, mPaginData[key]);
         }
     });
+
     $.ajax({
         url: mPagingUrl,
         data: formData,
@@ -85,4 +99,3 @@ function GetData() {
         }
     });
 }
-//# sourceMappingURL=myFloatPaging.js.map

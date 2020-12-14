@@ -11,6 +11,7 @@
     using CloudPhoto.Services.LocalStorage;
     using CloudPhoto.Services.RemoteStorage;
     using CloudPhoto.Web.ViewModels.Files;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
@@ -54,6 +55,7 @@
 
         [HttpPost("UploadImage")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (this.ModelState.IsValid)
@@ -107,6 +109,7 @@
 
         [HttpPost("UploadAvatart")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> UploadAvatart(IFormFile file, string userId)
         {
             if (this.ModelState.IsValid)

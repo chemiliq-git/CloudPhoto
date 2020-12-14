@@ -50,4 +50,10 @@
     <ProjectReference Include="..\CloudPhoto.Web.Infrastructure\CloudPhoto.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\CloudPhoto.Web.ViewModels\CloudPhoto.Web.ViewModels.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\js\site - Copy.js.map">
+      <DependentUpon>site.js.map</DependentUpon>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -4,6 +4,6 @@
     {
         public string ImageId { get; set; }
 
-        public bool IsLike{ get; set; }
+        public bool IsLike { get; set; }
     }
 }

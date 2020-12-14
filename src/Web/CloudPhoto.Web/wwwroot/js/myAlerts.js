@@ -1,7 +1,22 @@
 var myAlertHelper = /** @class */ (function () {
-    function myAlertHelper() {
+    function myAlertHelper(controlName) {
         this.messageHtmElement = "<div id=\"messageBody\" class=\"alert alert-dismissible fade show\" role=\"alert\" style=\"display:none\">\n       <p id=\"textMessage\" class=\"text-center\">Your message must show here</p>\n          <button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\">\n             <span aria-hidden=\"true\">&times;</span>\n          </button>\n     </div>";
+        this.controlName = controlName;
+        var selfI = this;
+        $(document).ready(function () {
+            selfI.addMessageElement();
+        });
     }
+    myAlertHelper.prototype.addMessageElement = function () {
+        var messageContainer = document.getElementById(this.controlName);
+        if (messageContainer) {
+            messageContainer.innerHTML = this.messageHtmElement;
+            var selfI = this;
+            $('#messageBody').on('closed.bs.alert', function () {
+                selfI.addMessageElement();
+            });
+        }
+    };
     myAlertHelper.prototype.myShowErrorMessage = function (errorText) {
         var messageBody = document.getElementById("messageBody");
         if (messageBody) {
@@ -31,15 +46,4 @@ var myAlertHelper = /** @class */ (function () {
     };
     return myAlertHelper;
 }());
-var myAllertHelper = new myAlertHelper();
-$(document).ready(function () {
-    addMessageElement();
-});
-function addMessageElement() {
-    var messageContainer = document.getElementById("myMessageContainer");
-    if (messageContainer) {
-        messageContainer.innerHTML = myAllertHelper.messageHtmElement;
-        $('#messageBody').on('closed.bs.alert', addMessageElement);
-    }
-}
 //# sourceMappingURL=myAlerts.js.map
