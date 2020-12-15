@@ -49,12 +49,12 @@
 <div class="row container-fluid">
     <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item">
-            <a id="uploadTab" class="nav-link active" href="#" data-toggle="tab" role="tab" onclick="getUploadImages(this)">
+            <a id="uploadTab" class="nav-link active" href="#" data-toggle="tab" role="tab" onclick="helper.getUploadImages(this);">
                 Upload Images
             </a>
         </li>
         <li class="nav-item">
-            <a id="likeTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="getLikeImages(this)">
+            <a id="likeTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getLikeImages(this);">
                 Like Images
             </a>
         </li>
@@ -76,131 +76,10 @@
 
 @section Scripts {
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
+    <script type="text/javascript" src="~/js/userSearchData.js"></script>    
+    <script type="text/javascript" src="~/js/userIndexView.js"></script>
     <script>
-        myAllertHelper = new myAlertHelper("myMessageContainer");
-
-        var pagingData = new Object();
-        pagingData.pageSize = @imagePerPage;
-        pagingData.pageIndex = 0;
-        pagingData.userId = '@Model.Id';
-        pagingData.type = "uploads";
-
-        $(document).ready(
-            function () {
-                RegisterFloatPaging(readPagingData, savePagingData, '/Users/GetPagingData');
-                startSearchData();
-            });
-
-        function getUploadImages(control) {
-            pagingData.type = "uploads";
-            control.setAttribute("class", "nav-link");
-            document.getElementById("likeTab").setAttribute("class", "nav-link active");
-            savePagingData(pagingData);
-            startSearchData();
-        }
-
-        function getLikeImages(control) {
-            pagingData.type = "likes";
-            control.setAttribute("class", "nav-link");
-            document.getElementById("uploadTab").setAttribute("class", "nav-link active");
-            savePagingData(pagingData);
-            startSearchData();
-        }
-
-        function readPagingData() {
-            var txtSearchData = $.cookie("pagingData");
-            if (txtSearchData) {
-                var tempSearchData = JSON.parse(txtSearchData);
-                return tempSearchData;
-            }
-            else {
-                return pagingData;
-            }
-        }
-
-        function savePagingData(pagingData) {
-            var txtSearchData = JSON.stringify(pagingData);
-            $.cookie("pagingData", txtSearchData, { path: "/" });
-        }
-
-        function clearPagingData() {
-            $.cookie("pagingData", "", { path: "/" });
-        }
-
-        function uploadAvatar(inputId) {
-            var input = document.getElementById(inputId);
-            var files = input.files;
-            var formData = new FormData();
-
-            for (var i = 0; i != files.length; i++) {
-                formData.append("file", files[i]);
-            }
-            uploadFile(formData);
-        }
-
-        function uploadFile(formData) {
-
-            formData.append("userId", pagingData.userId);
-            var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
-            $.ajax(
-                {
-                    url: "/api/uploadfiles/UploadAvatart",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    type: "POST",
-                    headers: { 'X-CSRF-TOKEN': token },
-                    beforeSend: function () {
-                        $('#loader').show();
-                    },
-                    complete: function () {
-                        $('#loader').hide();
-                    },
-                    success: function (data) {
-                        if (data.result == true) {
-                            //set image source on image control
-                            $("#avatarImage").attr("src", data.imageUrl);
-                            updateAvatar(data.imageUrl);
-                        }
-                        else {
-                            // show message (myAlets.js)
-                            myAllertHelper.myShowErrorMessage(data.errorMessage);
-                        }
-                    }
-                }
-            );
-        }
-
-        function updateAvatar(avatarUrl) {
-            var formData = new FormData();
-
-            formData.append("userId", pagingData.userId);
-            formData.append("avatarUrl", avatarUrl);
-
-            var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
-            $.ajax(
-                {
-                    url: "/Users/UpdateAvatar",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    type: "POST",
-                    headers: { 'X-CSRF-TOKEN': token },
-                    beforeSend: function () {
-                        $('#loader').show();
-                    },
-                    complete: function () {
-                        $('#loader').hide();
-                    },
-                    success: function (data) {
-                        if (data == true) {
-                            // show message (myAlets.js)
-                            myShowSuccessMessage("Avatar updated. Change must applied after logout.");
-                        }
-                    }
-                }
-            );
-        }
-
+        var pagingData = new userCookieHelper(@imagePerPage, '@Model.Id',"uploads");
+        var helper = new UserIndexViewHelper(pagingData);
     </script>
 }

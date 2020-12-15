@@ -13,7 +13,7 @@
             this.seachImageByInputData.bind(this),
             this.searchControlName);
 
-        let searchHTLElement: HTMLInputElement = <HTMLInputElement>document.getElementById(this.searchControlName);
+        let searchHTLElement: HTMLInputElement = <HTMLInputElement>document.getElementById(this.searchControlName.substring(1));
         searchHTLElement.addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
                 if (searchHTLElement.value
