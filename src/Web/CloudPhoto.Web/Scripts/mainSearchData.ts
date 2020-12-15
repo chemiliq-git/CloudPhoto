@@ -19,6 +19,7 @@ class mainCookieHelper {
         this.mainSearchData = new IMainSearchData();
         this.mainSearchData.pageSize = imagePerPage;
         this.mainSearchData.pageIndex = 0;
+        this.mainSearchData.currentSelectImage = 0;
         this.mainSearchData.selectCategory = new Array<string>();
         this.mainSearchData.searchText = "";
     }

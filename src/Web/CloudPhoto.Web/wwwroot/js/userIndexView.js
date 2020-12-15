@@ -6,6 +6,7 @@ var UserIndexViewHelper = /** @class */ (function () {
         $(document).ready(function () {
             RegisterFloatPaging(context.pagingData.readSearchData.bind(context.pagingData), context.pagingData.saveSearchData.bind(context.pagingData), '/Users/GetPagingData');
             startSearchData();
+            context.hookToArrowKey();
         });
     }
     UserIndexViewHelper.prototype.getUploadImages = function (control) {
@@ -85,6 +86,68 @@ var UserIndexViewHelper = /** @class */ (function () {
                 }
             }
         });
+    };
+    UserIndexViewHelper.prototype.showModalImage = function (imageIndex) {
+        this.pagingData.userSearchData.currentSelectImage = imageIndex;
+        $('#myModal').modal('show');
+        this.GetPreviewImageData(this.pagingData.userSearchData.currentSelectImage);
+    };
+    UserIndexViewHelper.prototype.GetPreviewImageData = function (index) {
+        var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+        var formData = new FormData();
+        formData.append("id", index);
+        var context = this;
+        $.ajax({
+            url: '/users/PreviewImage',
+            data: formData,
+            processData: false,
+            contentType: false,
+            type: "POST",
+            headers: { 'X-CSRF-TOKEN': token.toString() },
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function (data) {
+                var pageContainer = $('#modalPartialView');
+                if (data != ''
+                    && pageContainer) {
+                    pageContainer.html("");
+                    pageContainer.append(data);
+                }
+                else {
+                    context.pagingData.userSearchData.currentSelectImage = context.pagingData.userSearchData.currentSelectImage - 1;
+                    context.maxImageIndex = context.pagingData.userSearchData.currentSelectImage;
+                }
+            },
+            error: function () {
+                alert("Error while retrieving data!");
+            }
+        });
+    };
+    UserIndexViewHelper.prototype.hookToArrowKey = function () {
+        document.addEventListener('keydown', function (e) {
+            switch (e.keyCode) {
+                case 37:
+                    this.navigationToLeft();
+                    break;
+                case 39:
+                    this.navigationToRigth();
+                    break;
+            }
+        }.bind(this));
+    };
+    UserIndexViewHelper.prototype.navigationToLeft = function () {
+        if (this.pagingData.userSearchData.currentSelectImage > 1) {
+            this.pagingData.userSearchData.currentSelectImage = this.pagingData.userSearchData.currentSelectImage - 1;
+            this.GetPreviewImageData(this.pagingData.userSearchData.currentSelectImage);
+        }
+    };
+    UserIndexViewHelper.prototype.navigationToRigth = function () {
+        if (!this.maxImageIndex
+            || this.maxImageIndex - 1 >= this.pagingData.userSearchData.currentSelectImage) {
+            this.pagingData.userSearchData.currentSelectImage = this.pagingData.userSearchData.currentSelectImage + 1;
+            this.GetPreviewImageData(this.pagingData.userSearchData.currentSelectImage);
+        }
     };
     return UserIndexViewHelper;
 }());

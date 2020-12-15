@@ -24,7 +24,7 @@
                 for (int i = 0; i < Model.Category.Count; i++)
                 {
                     <div class="form-group">
-                        <input id="@Model.Category[i].Id" type="checkbox" name="checkBoxValue" asp-for="@Model.Category[i].Check" onchange="checkUncheckCategory(this)" />
+                        <input id="@Model.Category[i].Id" type="checkbox" name="checkBoxValue" asp-for="@Model.Category[i].Check" onchange="helper.checkUncheckCategory(this)" />
                         <label asp-for="@Model.Category[i].Name">@Model.Category[i].Name</label>
                     </div>
                 }

@@ -9,6 +9,7 @@ var mainCookieHelper = /** @class */ (function () {
         this.mainSearchData = new IMainSearchData();
         this.mainSearchData.pageSize = imagePerPage;
         this.mainSearchData.pageIndex = 0;
+        this.mainSearchData.currentSelectImage = 0;
         this.mainSearchData.selectCategory = new Array();
         this.mainSearchData.searchText = "";
     }

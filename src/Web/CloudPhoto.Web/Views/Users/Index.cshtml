@@ -10,6 +10,18 @@
 <div id="myMessageContainer">
 </div>
 
+<div class="modal modal-full fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div id="modalPartialView">
+                    @*here must show _PreviewImagePartial*@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div>
     <div class="row container-fluid">
         <div id="userAvatar" class="col-md-5">
@@ -76,7 +88,7 @@
 
 @section Scripts {
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
-    <script type="text/javascript" src="~/js/userSearchData.js"></script>    
+    <script type="text/javascript" src="~/js/userSearchData.js"></script>
     <script type="text/javascript" src="~/js/userIndexView.js"></script>
     <script>
         var pagingData = new userCookieHelper(@imagePerPage, '@Model.Id',"uploads");

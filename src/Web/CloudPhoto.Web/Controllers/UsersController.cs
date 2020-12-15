@@ -127,7 +127,7 @@
             }
         }
 
-        [HttpGet("PreviewImage")]
+        [HttpPost("PreviewImage")]
         public async Task<IActionResult> PreviewImage(int id)
         {
             if (!this.Request.Cookies.TryGetValue("pagingData", out string readPagingDataCookie))
@@ -170,21 +170,10 @@
             }
 
             var data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
-                    localSearchData, 1, id);
+                  localSearchData, 1, id);
 
             if (!data.Any())
             {
-                if (id > 1)
-                {
-                    data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
-                        localSearchData, 1, id - 1);
-                    ImagePreviewViewModel previewImage = data.First();
-                    previewImage.ImageIndex = id - 1;
-                    previewImage.IsEndedImage = true;
-
-                    return this.View(previewImage);
-                }
-
                 return this.Json(string.Empty);
             }
             else
@@ -192,7 +181,7 @@
                 ImagePreviewViewModel previewImage = data.First();
                 previewImage.ImageIndex = id;
 
-                return this.View(previewImage);
+                return this.PartialView("_PreviewImagePartial", previewImage);
             }
         }
 

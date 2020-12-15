@@ -19,7 +19,7 @@
         @await Component.InvokeAsync("FilterBar")
     </div>
     <div id="hide-side-search" @*style="display:none"*@>
-        <a href="#" onclick="onclickShowSearcBar();">
+        <a href="#" onclick="helper.onclickShowSearcBar();">
             <i class="fas fa-search"></i>
             Show search
         </a>
@@ -53,4 +53,8 @@
 @section Scripts {
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
     <script type="text/javascript" src="~/js/imageIndexView.js"></script>
+    <script>
+        var searchData = new mainCookieHelper(@imagePerPage);
+        var helper = new ImageIndexViewHelper(searchData);
+    </script>
 }
