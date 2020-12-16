@@ -25,6 +25,7 @@ class mainCookieHelper {
         this.mainSearchData.currentSelectImage = 0;
         this.mainSearchData.selectCategory = new Array<string>();
         this.mainSearchData.searchText = "";
+        this.saveSearchData();
     }
 
     readSearchData(): IMainSearchData {

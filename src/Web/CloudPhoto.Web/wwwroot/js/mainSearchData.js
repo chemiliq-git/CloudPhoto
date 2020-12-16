@@ -14,6 +14,7 @@ var mainCookieHelper = /** @class */ (function () {
         this.mainSearchData.currentSelectImage = 0;
         this.mainSearchData.selectCategory = new Array();
         this.mainSearchData.searchText = "";
+        this.saveSearchData();
     };
     mainCookieHelper.prototype.readSearchData = function () {
         var txtSearchData = $.cookie(this.mainCookieName);

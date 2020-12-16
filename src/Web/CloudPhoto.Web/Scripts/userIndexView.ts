@@ -2,6 +2,7 @@
 class UserIndexViewHelper {
     constructor(pPagingData: userCookieHelper) {
         this.pagingData = pPagingData;
+        this.pagingData.saveSearchData();
 
         var context = this;
         $(document).ready(
@@ -26,6 +27,7 @@ class UserIndexViewHelper {
         control.setAttribute("class", "nav-link");
         document.getElementById("likeTab").setAttribute("class", "nav-link active");
         this.pagingData.saveSearchData();
+        this.maxImageIndex = undefined;
         startSearchData();
     }
 
@@ -34,6 +36,7 @@ class UserIndexViewHelper {
         control.setAttribute("class", "nav-link");
         document.getElementById("uploadTab").setAttribute("class", "nav-link active");
         this.pagingData.saveSearchData();
+        this.maxImageIndex = undefined;
         startSearchData();
     }
 

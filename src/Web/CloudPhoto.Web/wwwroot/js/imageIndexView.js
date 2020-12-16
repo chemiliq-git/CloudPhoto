@@ -13,6 +13,7 @@ var ImageIndexViewHelper = /** @class */ (function () {
             var autoCompleateHelper = new myAutocompleteHelper();
             autoCompleateHelper.configAutoCompleteTags(context.onStartAutoCompleteSearch.bind(context), context.onStartAutoCompleteSearch.bind(context));
             RegisterFloatPaging(context.searchData.readSearchData.bind(context.searchData), context.searchData.saveSearchData.bind(context.searchData), '/images/GetSearchingData');
+            context.maxImageIndex = undefined;
             startSearchData();
         });
     }
@@ -95,6 +96,7 @@ var ImageIndexViewHelper = /** @class */ (function () {
             this.searchData.mainSearchData.selectCategory = filtered;
         }
         this.searchData.saveSearchData();
+        this.maxImageIndex = undefined;
         startSearchData();
     };
     ImageIndexViewHelper.prototype.configPage = function () {
@@ -124,12 +126,14 @@ var ImageIndexViewHelper = /** @class */ (function () {
     };
     ImageIndexViewHelper.prototype.hookToClearAllFilter = function () {
         var node = document.getElementById("clearFilter");
+        var context = this;
         node.addEventListener("click", function (event) {
-            this.searchData.clearSearchData();
+            context.searchData.clearSearchData();
             $('#groupCheckBox input:checked').each(function () {
                 this.checked = false;
             });
             $('#searchImageTag').val(null);
+            context.maxImageIndex = undefined;
             startSearchData();
         }.bind(this));
     };

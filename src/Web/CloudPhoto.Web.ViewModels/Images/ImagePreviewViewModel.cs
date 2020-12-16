@@ -32,6 +32,8 @@ namespace CloudPhoto.Web.ViewModels.Images
 
         public string AuthorEmail { get; set; }
 
+        public string PayPalEmail { get; set; }
+
         public string AuthorFullName { get; set; }
 
         public virtual string AuthorName

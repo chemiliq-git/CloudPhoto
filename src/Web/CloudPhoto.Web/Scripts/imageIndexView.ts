@@ -31,6 +31,8 @@
                     context.searchData.readSearchData.bind(context.searchData),
                     context.searchData.saveSearchData.bind(context.searchData),
                     '/images/GetSearchingData');
+
+                context.maxImageIndex = undefined;
                 startSearchData();
             });
     }
@@ -121,6 +123,7 @@
             this.searchData.mainSearchData.selectCategory = filtered;
         }
         this.searchData.saveSearchData();
+        this.maxImageIndex = undefined;
         startSearchData();
     }
 
@@ -157,14 +160,16 @@
 
     hookToClearAllFilter() {
         const node = document.getElementById("clearFilter");
+        let context = this;
         node.addEventListener("click", function (event) {
-            this.searchData.clearSearchData();
+            context.searchData.clearSearchData();
             $('#groupCheckBox input:checked').each(function () {
                 (<any>this).checked = false;
             });
 
             $('#searchImageTag').val(null);
 
+            context.maxImageIndex = undefined;
             startSearchData();
         }.bind(this));
     }

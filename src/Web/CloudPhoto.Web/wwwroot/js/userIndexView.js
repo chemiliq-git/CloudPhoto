@@ -2,6 +2,7 @@ var UserIndexViewHelper = /** @class */ (function () {
     function UserIndexViewHelper(pPagingData) {
         this.myAllertHelper = new myAlertHelper("myMessageContainer");
         this.pagingData = pPagingData;
+        this.pagingData.saveSearchData();
         var context = this;
         $(document).ready(function () {
             RegisterFloatPaging(context.pagingData.readSearchData.bind(context.pagingData), context.pagingData.saveSearchData.bind(context.pagingData), '/Users/GetPagingData');
@@ -14,6 +15,7 @@ var UserIndexViewHelper = /** @class */ (function () {
         control.setAttribute("class", "nav-link");
         document.getElementById("likeTab").setAttribute("class", "nav-link active");
         this.pagingData.saveSearchData();
+        this.maxImageIndex = undefined;
         startSearchData();
     };
     UserIndexViewHelper.prototype.getLikeImages = function (control) {
@@ -21,6 +23,7 @@ var UserIndexViewHelper = /** @class */ (function () {
         control.setAttribute("class", "nav-link");
         document.getElementById("uploadTab").setAttribute("class", "nav-link active");
         this.pagingData.saveSearchData();
+        this.maxImageIndex = undefined;
         startSearchData();
     };
     UserIndexViewHelper.prototype.uploadAvatar = function (inputId) {

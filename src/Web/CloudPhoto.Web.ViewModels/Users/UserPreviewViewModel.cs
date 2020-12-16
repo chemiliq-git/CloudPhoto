@@ -21,5 +21,7 @@ namespace CloudPhoto.Web.ViewModels.Users
         public string LastName { get; set; }
 
         public string UserAvatar { get; set; }
+
+        public string PayPalEmail { get; set; }
     }
 }

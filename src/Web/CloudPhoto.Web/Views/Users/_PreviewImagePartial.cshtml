@@ -35,7 +35,13 @@
         </div>
     </div>
     <div id="imageActionSection" class="col-md-6 justify-content-center">
-        <input type="button" class="btn btn-outline-dark float-left m-1" value="Donate" />
+        @{if (!string.IsNullOrEmpty(Model.PayPalEmail))
+            {
+                <form method="post" asp-controller="users" asp-action="donate" asp-route-id=@Model.AuthorId>
+                    <input type="submit" class="btn btn-outline-dark float-left m-1" value="Donate" alt="Support this photographer with a PayPal donation">
+                </form>
+            }
+        }
         <input type="button" class="btn btn-outline-dark float-left m-1" value="Follow" />
 
         <button id="likeButton" type="button" class="btn btn-outline-dark float-right m-1"
@@ -47,6 +53,7 @@
             <i id=@likeIconId class="fas fa-download"></i>
             Download
         </button>
+
     </div>
 </div>
 <div class="justify-content-center m-preview-container">

@@ -131,6 +131,7 @@
                     i.*,
                     aspu.FirstName + ' ' + aspu.LastName AS AuthorFullName,
                     aspu.Email As AuthorEmail, 
+                    aspu.PayPalEmail,
                     c.ClaimValue AS AuthorAvatarUrl,
 				    (CASE
                     WHEN v.IsLike IS NULL THEN 0

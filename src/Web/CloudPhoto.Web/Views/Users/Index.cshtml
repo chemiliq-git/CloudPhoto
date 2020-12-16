@@ -49,7 +49,12 @@
                     <p class="text-dark h3">@Model.UserName</p>
                 </div>
                 <div class="justify-content-end">
-                    <input class="btn btn-success" type="button" value="Donate" alt="Support this photographer with a PayPal donation" />
+                    @if (!string.IsNullOrEmpty(Model.PayPalEmail))
+                    {
+                        <form method="post" asp-controller="users" asp-action="donate" asp-route-id=@Model.Id>
+                            <input type="submit" class="btn btn-success" value="Donate" alt="Support this photographer with a PayPal donation">
+                        </form>
+                    }
                 </div>
             </div>
         </div>

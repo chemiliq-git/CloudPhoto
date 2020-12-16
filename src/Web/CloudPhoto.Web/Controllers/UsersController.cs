@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Claims;
+    using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
 
@@ -206,6 +207,47 @@
             }
 
             return this.Json(await this.UsersServices.ChangeAvatar(userId, avatarUrl));
+        }
+
+        [HttpPost("Donate")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Donate(string id)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.BadRequest();
+            }
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return this.BadRequest();
+            }
+
+            ApplicationUser dbUser = await this.UserManager.FindByIdAsync(id);
+            if (dbUser == null)
+            {
+                return this.BadRequest();
+            }
+
+            if (string.IsNullOrEmpty(dbUser.PayPalEmail))
+            {
+                return this.BadRequest();
+            }
+
+            string donateUrl = GenerateDonateUrl(dbUser, "/users/index/" + dbUser.Id.ToString());
+
+            return this.Redirect(donateUrl);
+        }
+
+        private static string GenerateDonateUrl(ApplicationUser user, string returnToUrl)
+        {
+            StringBuilder donateUrl = new StringBuilder();
+            donateUrl.Append("https://www.paypal.com/cgi-bin/webscr?cmd=_donations");
+            donateUrl.Append($"&business={user.PayPalEmail}");
+            donateUrl.Append($"&item_name=Donate {user.UserName} {GlobalConstants.SystemName}");
+            donateUrl.Append($"&currency_code=USD");
+            donateUrl.Append($"&return={returnToUrl}");
+            return donateUrl.ToString();
         }
     }
 }
