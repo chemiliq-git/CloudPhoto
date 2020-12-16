@@ -2,7 +2,8 @@
 {
     using System.Linq;
     using System.Threading.Tasks;
-
+    
+    using CloudPhoto.Common;
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
@@ -13,6 +14,8 @@
     using Microsoft.AspNetCore.Mvc.Rendering;
     using Microsoft.EntityFrameworkCore;
 
+    [Authorize(Roles = GlobalConstants.AdministratorRoleName)]
+    [Area("Administration")]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext context;
@@ -34,23 +37,6 @@
         {
             var categories = this.categoriesService.GetAll<ListCategoryViewModel>();
             return this.View(categories);
-        }
-
-        // GET: Categories/Details/5
-        public IActionResult Details(string id)
-        {
-            if (id == null)
-            {
-                return this.NotFound();
-            }
-
-            var category = this.categoriesService.GetByCategoryId<ReadonlyCategoryViewMode>(id);
-            if (category == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.View(category);
         }
 
         // GET: Categories/Create

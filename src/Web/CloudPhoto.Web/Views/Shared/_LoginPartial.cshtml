@@ -9,10 +9,19 @@
     {
         if (this.User.IsInRole(GlobalConstants.AdministratorRoleName))
         {
-            <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="Administration" asp-controller="Dashboard" asp-action="Index" title="Admin">Admin</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarAdminDropdown" role="button"
+                   data-display="static" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Admin
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg-right" aria-labelledby="navbarAdminDropdown">
+                    <a class="nav-link text-dark" asp-area="Administration" asp-controller="Categories" asp-action="Index" title="Categories">Categories</a>
+                    <a class="nav-link text-dark" asp-area="Administration" asp-controller="Dashboard" asp-action="Index" title="Admin">Admin</a>
+                </div>
             </li>
         }
+
+
         string avatar = this.User.Claims?.FirstOrDefault(temp => temp.Type == GlobalConstants.ExternalClaimAvatar)?.Value;
         ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
 

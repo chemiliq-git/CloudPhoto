@@ -13,6 +13,8 @@ namespace CloudPhoto.Web.ViewModels.Categories
 
         public virtual ApplicationUser Author { get; set; }
 
+        public virtual string AuthorUserName { get; set; }
+
         public int SortOrder { get; set; }
 
         public DateTime CreatedOn { get; set; }
