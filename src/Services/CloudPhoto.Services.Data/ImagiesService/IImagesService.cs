@@ -11,6 +11,8 @@
 
         public Task<bool> Delete(string id);
 
+        public T GetImageById<T>(string imageId);
+
         public IEnumerable<T> GetByFilter<T>(
             SearchImageData searchData,
             int perPage,

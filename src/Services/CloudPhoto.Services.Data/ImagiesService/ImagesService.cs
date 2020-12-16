@@ -13,6 +13,7 @@
     using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.TempCloudImageService;
+    using CloudPhoto.Services.Mapping;
     using Microsoft.Extensions.Logging;
 
     public class ImagesService : IImagesService
@@ -183,6 +184,15 @@
             sqlSelect.AppendLine("ORDER BY i.ID OFFSET @Skip ROWS ");
             sqlSelect.AppendLine("FETCH NEXT @Take ROWS ONLY");
             return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
+        }
+
+        public T GetImageById<T>(string imageId)
+        {
+            IQueryable<Image> query =
+                this.ImageRepository.All()
+                .Where(c => c.Id == imageId);
+
+            return query.To<T>().FirstOrDefault();
         }
 
         private async Task<ICollection<ImageTag>> ParseImageTag(Image image, List<string> tags)

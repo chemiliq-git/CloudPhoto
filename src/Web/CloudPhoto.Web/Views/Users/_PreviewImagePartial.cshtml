@@ -49,10 +49,19 @@
             <i id=@likeIconId class="fas fa-heart" style="color:@likeIconColor;"></i>
             @Model.LikeCount likes
         </button>
-        <button id="likeButton1" type="button" class="btn btn-outline-dark float-right m-1">
-            <i id=@likeIconId class="fas fa-download"></i>
-            Download
-        </button>
+        <form method="post">
+            @{
+                var parms = new Dictionary<string, string>
+                    {
+                { "imageId", Model.Id },
+            };
+            }
+            <button asp-controller="images" asp-action="DownloadImage" asp-all-route-data="parms"
+                    id="btnDownload" type="submit" class="btn btn-outline-dark float-right m-1">
+                <i class="fas fa-download"></i>
+                Download
+            </button>
+        </form>
 
     </div>
 </div>

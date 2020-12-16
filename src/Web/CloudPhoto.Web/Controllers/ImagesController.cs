@@ -2,9 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+    using System.IO;
     using System.Linq;
+    using System.Net.Http;
     using System.Text.Json;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     using CloudPhoto.Data;
@@ -20,6 +23,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
 
     public class ImagesController : Controller
     {
@@ -30,6 +34,7 @@
         private readonly IVotesService votesService;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IWebHostEnvironment env;
+        private readonly ILogger logger;
 
         public ImagesController(
             ApplicationDbContext context,
@@ -38,7 +43,8 @@
             ICategoriesService categoriesService,
             IVotesService votesService,
             UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            ILogger<ImagesController> logger)
         {
             this.context = context;
             this.configuration = configuration;
@@ -47,6 +53,7 @@
             this.votesService = votesService;
             this.userManager = userManager;
             this.env = env;
+            this.logger = logger;
         }
 
         // GET: Images
@@ -190,7 +197,7 @@
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, Image image)
+        public async Task<IActionResult> Edit(string id, Data.Models.Image image)
         {
             if (id != image.Id)
             {
@@ -306,19 +313,65 @@
             }
         }
 
-        public IActionResult PhotoSwipe()
+        /// <summary>
+        /// Download image
+        /// </summary>
+        /// <param name="id">ImageId.</param>
+        /// <returns>File content that must save to disc.</returns>
+        [HttpPost("DownloadImage")]
+        public async Task<IActionResult> DownloadImage(string imageId)
         {
-            return this.View();
+            if (string.IsNullOrEmpty(imageId))
+            {
+                return this.BadRequest();
+            }
+
+            Data.Models.Image imageInfo = this.imagesService.GetImageById<Data.Models.Image>(imageId);
+            if (imageInfo == null)
+            {
+                return this.BadRequest();
+            }
+
+            using (System.Drawing.Image sourceImage = await this.GetImageFromUrl(imageInfo.ImageUrl))
+            {
+                if (sourceImage != null)
+                {
+                    try
+                    {
+                        Stream outputStream = new MemoryStream();
+
+                        sourceImage.Save(outputStream, sourceImage.RawFormat);
+                        outputStream.Seek(0, SeekOrigin.Begin);
+                        return this.File(outputStream, System.Net.Mime.MediaTypeNames.Image.Jpeg, Path.GetFileName(imageInfo.ImageUrl));
+                    }
+                    catch (Exception e)
+                    {
+                        this.logger.LogError(e, $"Error when send file from url:{imageInfo.ImageUrl}");
+                    }
+                }
+            }
+
+            return this.NotFound();
         }
 
-        public IActionResult Fotorama()
+        private async Task<System.Drawing.Image> GetImageFromUrl(string url)
         {
-            return this.View();
-        }
+            System.Drawing.Image image = null;
 
-        public IActionResult Modal()
-        {
-            return this.View();
+            try
+            {
+                using HttpClient httpClient = new HttpClient();
+                using HttpResponseMessage response = await httpClient.GetAsync(url);
+                using Stream inputStream = await response.Content.ReadAsStreamAsync();
+                using Bitmap temp = new Bitmap(inputStream);
+                image = new Bitmap(temp);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, $"Error when get image by url:{url}");
+            }
+
+            return image;
         }
 
         private bool ImageExists(string id)
