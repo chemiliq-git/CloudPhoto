@@ -17,7 +17,7 @@ function RegisterFloatPaging(
 }
 
 $(window).scroll(function () {
-    if ($(window).scrollTop() ==
+    if ($(window).scrollTop() >=
         $(document).height() - $(window).height()) {
         if (!mHasStartRequest) {
             GetData();
