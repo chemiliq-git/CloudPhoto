@@ -1,9 +1,7 @@
 ﻿namespace CloudPhoto.Services.Data.ImagiesService
 {
-    using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -15,9 +13,6 @@
     using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.TempCloudImageService;
-    using CloudPhoto.Services.ImageManipulationProvider;
-    using CloudPhoto.Services.RemoteStorage;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     public class ImagesService : IImagesService
@@ -91,9 +86,23 @@
             throw new System.NotImplementedException();
         }
 
-        public T GetByCategoryId<T>(string categoryId)
+        public IEnumerable<T> GetMostLikeImageByCategory<T>(string categoryId, int countTopImage)
         {
-            throw new System.NotImplementedException();
+            StringBuilder sqlSelect = new StringBuilder(
+                @"SELECT TOP(@countTopImage) *,
+                (SELECT SUM(v.IsLike) from Votes AS v
+                WHERE i.Id = v.ImageId) AS ImageLikes
+                FROM Images as i
+                JOIN ImageCategories AS ic ON ic.CategoryId =@categoryId ANd ic.ImageId = i.Id
+                WHERE ic.CategoryId = @categoryId
+                ORDER BY ImageLikes Desc");
+            var parameters = new
+            {
+                categoryId,
+                countTopImage,
+            };
+
+            return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
         }
 
         public IEnumerable<T> GetByFilter<T>(
@@ -172,8 +181,7 @@
 
             sqlSelect.AppendLine("ORDER BY i.ID OFFSET @Skip ROWS ");
             sqlSelect.AppendLine("FETCH NEXT @Take ROWS ONLY");
-            var d = this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
-            return d;
+            return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
         }
 
         private async Task<ICollection<ImageTag>> ParseImageTag(Image image, List<string> tags)

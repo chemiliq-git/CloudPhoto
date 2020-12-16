@@ -15,7 +15,10 @@ class mainCookieHelper {
     mainCookieName: string = "searchData";
     mainSearchData: IMainSearchData;
 
-    constructor(imagePerPage: number) {
+    constructor() {
+    }
+
+    initSearchData(imagePerPage: number) {
         this.mainSearchData = new IMainSearchData();
         this.mainSearchData.pageSize = imagePerPage;
         this.mainSearchData.pageIndex = 0;
@@ -41,8 +44,10 @@ class mainCookieHelper {
     }
 
     clearSearchData() {
-        $.cookie(this.mainCookieName, "", { path: "/" });
         this.mainSearchData.selectCategory = new Array<string>();
         this.mainSearchData.searchText = "";
+        this.mainSearchData.currentSelectImage = 0;
+        this.mainSearchData.pageIndex = 0;
+        this.saveSearchData();
     }
 }

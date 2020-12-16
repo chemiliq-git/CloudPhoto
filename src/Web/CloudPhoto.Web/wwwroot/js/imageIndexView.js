@@ -5,7 +5,7 @@ var ImageIndexViewHelper = /** @class */ (function () {
         this.searchData = pSearchData;
         var context = this;
         $(document).ready(function () {
-            context.searchData = new mainCookieHelper(6);
+            context.searchData = new mainCookieHelper();
             context.hookToCloseSideMenu();
             context.hookToClearAllFilter();
             context.hookToArrowKey();

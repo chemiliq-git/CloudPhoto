@@ -3,7 +3,7 @@
     searchData: mainCookieHelper;
 
     constructor() {
-        this.searchData = new mainCookieHelper(6);
+        this.searchData = new mainCookieHelper();
     }
 
     hookToSearchControlEvents() {

@@ -4,15 +4,17 @@ var IMainSearchData = /** @class */ (function () {
     return IMainSearchData;
 }());
 var mainCookieHelper = /** @class */ (function () {
-    function mainCookieHelper(imagePerPage) {
+    function mainCookieHelper() {
         this.mainCookieName = "searchData";
+    }
+    mainCookieHelper.prototype.initSearchData = function (imagePerPage) {
         this.mainSearchData = new IMainSearchData();
         this.mainSearchData.pageSize = imagePerPage;
         this.mainSearchData.pageIndex = 0;
         this.mainSearchData.currentSelectImage = 0;
         this.mainSearchData.selectCategory = new Array();
         this.mainSearchData.searchText = "";
-    }
+    };
     mainCookieHelper.prototype.readSearchData = function () {
         var txtSearchData = $.cookie(this.mainCookieName);
         if (txtSearchData) {
@@ -28,9 +30,11 @@ var mainCookieHelper = /** @class */ (function () {
         $.cookie(this.mainCookieName, txtSearchData, { path: "/" });
     };
     mainCookieHelper.prototype.clearSearchData = function () {
-        $.cookie(this.mainCookieName, "", { path: "/" });
         this.mainSearchData.selectCategory = new Array();
         this.mainSearchData.searchText = "";
+        this.mainSearchData.currentSelectImage = 0;
+        this.mainSearchData.pageIndex = 0;
+        this.saveSearchData();
     };
     return mainCookieHelper;
 }());

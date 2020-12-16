@@ -1,4 +1,5 @@
 ﻿var stickyNavBarHeight;
+var start = false;
 
 $(document).ready(
     function () {
@@ -18,18 +19,26 @@ $(window).on("scroll", function () {
         $('nav').removeClass('fixed-top');
         $('nav').removeClass('navbar-light');
         $('nav').removeClass('my-nav-color');
-
-        //var element = document.getElementById("myDivHeader");
-        //element.classList.add("myHeader");
     }
-
-
 
     if (window.pageYOffset >= stickyNavBarHeight) {
         $('nav').addClass('navbar-light');
         $('nav').addClass('my-nav-color');
-
-        //var element = document.getElementById("myDivHeader");
-        //element.classList.remove("myHeader");
     }
 });
+
+class HomeIndexViewHelper {
+    cookieHelper: mainCookieHelper;
+
+    constructor(imagePerPage: number) {
+        this.cookieHelper = new mainCookieHelper();
+        this.cookieHelper.initSearchData(imagePerPage);
+    }
+
+    clickToCategory(categoryId: string) {
+        this.cookieHelper.clearSearchData();
+        this.cookieHelper.mainSearchData.selectCategory.push(categoryId);
+        this.cookieHelper.saveSearchData();
+        window.location.href = "/images/index";
+    }
+}

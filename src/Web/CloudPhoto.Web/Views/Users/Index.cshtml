@@ -36,10 +36,10 @@
                     {
                         avatarUrl = @Model.UserAvatar;
                     }
-                    <img id="avatarImage" src=@avatarUrl width="60" height="60"
+                    <img id="avatarImage" src=@avatarUrl referrerpolicy="no-referrer" width="60" height="60"
                          class="rounded-circle float-lg-right float-xl-right" alt=@Model.UserName>
                     <input id="file" class="custom-file-input" name="file" value="" type="file" size="1"
-                           onchange="uploadAvatar('file');" />
+                           onchange="helper.uploadAvatar('file');" />
                 </div>
             </form>
         </div>

@@ -30,11 +30,12 @@ var UserIndexViewHelper = /** @class */ (function () {
         for (var i = 0; i != files.length; i++) {
             formData.append("file", files[i]);
         }
-        uploadFile(formData);
+        this.uploadFile(formData);
     };
     UserIndexViewHelper.prototype.uploadFile = function (formData) {
         formData.append("userId", this.pagingData.userSearchData.userId);
         var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
+        var context = this;
         $.ajax({
             url: "/api/uploadfiles/UploadAvatart",
             data: formData,
@@ -52,11 +53,11 @@ var UserIndexViewHelper = /** @class */ (function () {
                 if (data.result == true) {
                     //set image source on image control
                     $("#avatarImage").attr("src", data.imageUrl);
-                    this.updateAvatar(data.imageUrl);
+                    context.updateAvatar(data.imageUrl);
                 }
                 else {
                     // show message (myAlets.js)
-                    myAllertHelper.myShowErrorMessage(data.errorMessage);
+                    context.myAllertHelper.myShowErrorMessage(data.errorMessage);
                 }
             }.bind(this)
         });
@@ -84,7 +85,7 @@ var UserIndexViewHelper = /** @class */ (function () {
                     // show message (myAlets.js)
                     this.myAllertHelper.myShowSuccessMessage("Avatar updated. Change must applied after logout.");
                 }
-            }
+            }.bind(this)
         });
     };
     UserIndexViewHelper.prototype.showModalImage = function (imageIndex) {

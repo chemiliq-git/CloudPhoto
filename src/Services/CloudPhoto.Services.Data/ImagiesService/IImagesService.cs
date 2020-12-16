@@ -11,11 +11,11 @@
 
         public Task<bool> Delete(string id);
 
-        public T GetByCategoryId<T>(string categoryId);
-
         public IEnumerable<T> GetByFilter<T>(
             SearchImageData searchData,
             int perPage,
             int page = 1);
+
+        public IEnumerable<T> GetMostLikeImageByCategory<T>(string categoryId, int countTopImage);
     }
 }

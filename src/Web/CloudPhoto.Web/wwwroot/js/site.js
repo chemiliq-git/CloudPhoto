@@ -1,7 +1,7 @@
 var siteHelper = /** @class */ (function () {
     function siteHelper() {
         this.searchControlName = '#headerSearchControl';
-        this.searchData = new mainCookieHelper(6);
+        this.searchData = new mainCookieHelper();
     }
     siteHelper.prototype.hookToSearchControlEvents = function () {
         var autoCompleateHelper = new myAutocompleteHelper();

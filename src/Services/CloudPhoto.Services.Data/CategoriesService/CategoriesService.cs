@@ -1,21 +1,28 @@
 ﻿namespace CloudPhoto.Services.Data.CategoriesService
 {
     using System.Collections.Generic;
+    using System.Data;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
+    using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Mapping;
 
     public class CategoriesService : ICategoriesService
     {
         private readonly IDeletableEntityRepository<Category> categoriesRepository;
 
+        private readonly IDapperService dapperService;
+
         public CategoriesService(
-            IDeletableEntityRepository<Category> categoriesRepository)
+            IDeletableEntityRepository<Category> categoriesRepository,
+            IDapperService dapperService)
         {
             this.categoriesRepository = categoriesRepository;
+            this.dapperService = dapperService;
         }
 
         public async Task<string> CreateAsync(string name, string description, string userId)
@@ -61,6 +68,23 @@
                 .OrderBy(x => x.SortOrder);
 
             return query.To<T>().FirstOrDefault();
+        }
+
+        public IEnumerable<T> GetMostLikedCategory<T>(int countTopCategory)
+        {
+            StringBuilder sqlSelect = new StringBuilder(
+                @"SELECT TOP(@countTopCategory) *,
+                (SELECT SUM(v.IsLike) from Votes AS v
+                JOIN Images AS i ON i.id = v.ImageId
+                JOIN ImageCategories AS ic ON ic.ImageId = i.Id
+                WHERE ic.CategoryId = c.Id) AS likeCounts
+                FROM Categories AS c
+                ORDER BY likeCounts DESC");
+            var parameters = new
+            {
+                countTopCategory,
+            };
+            return this.dapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
         }
 
         public async Task<bool> UpdateAsync(string id, string name, string description)

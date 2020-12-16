@@ -13,6 +13,8 @@
 
         public IEnumerable<T> GetAll<T>();
 
+        public IEnumerable<T> GetMostLikedCategory<T>(int topCount);
+
         public T GetByCategoryId<T>(string categoryId);
     }
 }

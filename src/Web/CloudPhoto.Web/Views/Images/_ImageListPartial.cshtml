@@ -12,12 +12,22 @@
             likeIconColor = "red";
         }
 
-        <div class="col-md-4 mb-2 m-image-container">
+        <div class="col-md-4 col-sm-6 mb-2 m-image-container">
             <a href="#" onclick="helper.showModalImage(@item.ImageIndex); return false;">
                 <img src=@item.ThumbnailImageUrl class="img-fluid">
             </a>
+
             <a class="my-icon-left" asp-controller="Users" asp-action="Index" asp-route-id=@item.AuthorId>
-                <img src=@item.AuthorAvatarUrl width="30" height="30" class="rounded-circle">
+                @{ string avatarUrl; }
+                @if (string.IsNullOrEmpty(@item.AuthorAvatarUrl))
+                {
+                    avatarUrl = "/icon/emptyAvatar.png";
+                }
+                else
+                {
+                    avatarUrl = @item.AuthorAvatarUrl;
+                }
+                <img src=@avatarUrl width="30" height="30" referrerpolicy="no-referrer" class="rounded-circle">
             </a>
             <a href="#" class="my-like-icon-right" onclick="mySendImageVote('@item.Id'); return false">
                 <i id=@item.Id class="fas fa-heart" style="color:@likeIconColor;"></i>
