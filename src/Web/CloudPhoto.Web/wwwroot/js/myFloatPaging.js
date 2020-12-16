@@ -12,8 +12,6 @@ function RegisterFloatPaging(pReadPagingData, pSavePaginData, pSearchUrl) {
     mPagingUrl = pSearchUrl;
 }
 $(window).scroll(function () {
-    console.log("Scroll top: " + $(window).scrollTop());
-    console.log("h: " + ($(document).height() - $(window).height()));
     if ($(window).scrollTop() >=
         $(document).height() - $(window).height()) {
         if (!mHasStartRequest) {
