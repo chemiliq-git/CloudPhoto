@@ -9,7 +9,7 @@ namespace CloudPhoto.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-              name: "TempCloudImages");
+               name: "TempCloudImages");
 
             migrationBuilder.CreateTable(
                 name: "TempCloudImages",

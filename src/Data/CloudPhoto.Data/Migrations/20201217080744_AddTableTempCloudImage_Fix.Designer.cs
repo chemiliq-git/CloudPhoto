@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CloudPhoto.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201217075300_AddTableTempCloudImage_Fix")]
+    [Migration("20201217080744_AddTableTempCloudImage_Fix")]
     partial class AddTableTempCloudImage_Fix
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
