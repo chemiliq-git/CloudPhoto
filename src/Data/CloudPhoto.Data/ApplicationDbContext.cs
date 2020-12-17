@@ -40,6 +40,7 @@
 
         public DbSet<TempCloudImage> TempCloudImages { get; set; }
 
+        public DbSet<UserSubscribe> UserSubscribes { get; set; }
 
         public override int SaveChanges() => this.SaveChanges(true);
 
