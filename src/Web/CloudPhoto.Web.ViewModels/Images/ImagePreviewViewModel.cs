@@ -22,6 +22,8 @@ namespace CloudPhoto.Web.ViewModels.Images
 
         public string ThumbnailImageUrl { get; set; }
 
+        public bool IsFollow { get; set; }
+
         public bool IsLike { get; set; } = false;
 
         public int LikeCount { get; set; } = 0;

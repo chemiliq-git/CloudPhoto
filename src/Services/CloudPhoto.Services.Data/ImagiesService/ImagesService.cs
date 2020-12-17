@@ -134,7 +134,12 @@
                     aspu.Email As AuthorEmail, 
                     aspu.PayPalEmail,
                     c.ClaimValue AS AuthorAvatarUrl,
-				    (CASE
+                    -- get follow info    
+                    (SELECT Count(*) FROM UserSubscribes AS us
+					WHERE us.UserSubscribedId = @LikeForUserId
+					AND aspu.Id = us.SubscribeToUserId) AS IsFollow,
+				    -- get like counts
+                    (CASE
                     WHEN v.IsLike IS NULL THEN 0
                     WHEN v.IsLike = 1 THEN 1
 	                ELSE 0

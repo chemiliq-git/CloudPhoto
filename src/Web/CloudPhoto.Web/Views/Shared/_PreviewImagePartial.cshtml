@@ -1,4 +1,6 @@
 ﻿@using CloudPhoto.Web.ViewModels.Images
+@using System.Security.Claims;
+
 @model ImagePreviewViewModel
 
 @{
@@ -41,18 +43,37 @@
                     <input type="submit" class="btn btn-outline-dark float-left m-1" value="Donate" alt="Support this photographer with a PayPal donation">
                 </form>
             }
+
+            if (Model.AuthorId != this.User.FindFirst(ClaimTypes.NameIdentifier).Value)
+            {
+                string text;
+                if(Model.IsFollow)
+                {
+                    text = "Following";
+                }
+                else
+                {
+                    text = "Follow";
+                }
+                <button id="followButton" type="button" class="btn btn-outline-dark float-left m-1"
+                        onclick="myInvokeSubscribe(this,'@Model.AuthorId'); return false;">
+                    @text
+                </button>
+            }
         }
-        <input type="button" class="btn btn-outline-dark float-left m-1" value="Follow" />
+
+
 
         <button id="likeButton" type="button" class="btn btn-outline-dark float-right m-1"
                 onclick="mySendImageVoteOnPreviewForm(this, '@likeIconId', '@Model.Id', @Model.LikeCount, @userIsLike); return false;">
             <i id=@likeIconId class="fas fa-heart" style="color:@likeIconColor;"></i>
             @Model.LikeCount likes
         </button>
+
         <form method="post">
             @{
                 var parms = new Dictionary<string, string>
-                    {
+                            {
                 { "imageId", Model.Id },
             };
             }

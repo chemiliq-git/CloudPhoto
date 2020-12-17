@@ -21,6 +21,7 @@
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.ImagiesService;
+    using CloudPhoto.Services.Data.SubscribesService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.TempCloudImageService;
     using CloudPhoto.Services.Data.UsersServices;
@@ -158,6 +159,7 @@
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
             services.AddTransient<IDapperService, CloudPhoto.Services.Data.DapperService.DapperService>();
             services.AddTransient<ITempCloudImageService, TempCloudImageService>();
+            services.AddTransient<ISubscribesService, SubscribesService>();
 
             services
                 .AddHostedService<BackgroundWorker>()
