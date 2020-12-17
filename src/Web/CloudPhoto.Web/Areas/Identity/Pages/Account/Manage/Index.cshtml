@@ -26,6 +26,11 @@
                 <span asp-validation-for="Input.LastName" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Input.Description"></label>
+                <input asp-for="Input.Description" class="form-control" />
+                <span asp-validation-for="Input.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Input.PayPalEmail"></label>
                 <input asp-for="Input.PayPalEmail" class="form-control" />
                 <span asp-validation-for="Input.PayPalEmail" class="text-danger"></span>

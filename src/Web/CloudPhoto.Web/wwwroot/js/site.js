@@ -4,8 +4,7 @@ var siteHelper = /** @class */ (function () {
         this.searchData = new mainCookieHelper();
     }
     siteHelper.prototype.hookToSearchControlEvents = function () {
-        var autoCompleateHelper = new myAutocompleteHelper();
-        autoCompleateHelper.configAutoCompleteTags(this.onStartAutoCompleteSearch.bind(this), this.seachImageByInputData.bind(this), this.searchControlName);
+        new myAutocompleteHelper(this.onStartAutoCompleteSearch.bind(this), this.seachImageByInputData.bind(this), this.searchControlName);
         var searchHTLElement = document.getElementById(this.searchControlName.substring(1));
         searchHTLElement.addEventListener("keydown", function (event) {
             if (event.key === "Enter") {

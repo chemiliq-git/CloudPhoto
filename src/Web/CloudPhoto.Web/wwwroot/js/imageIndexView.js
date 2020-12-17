@@ -10,8 +10,7 @@ var ImageIndexViewHelper = /** @class */ (function () {
             context.hookToClearAllFilter();
             context.hookToArrowKey();
             context.configPage();
-            var autoCompleateHelper = new myAutocompleteHelper();
-            autoCompleateHelper.configAutoCompleteTags(context.onStartAutoCompleteSearch.bind(context), context.onStartAutoCompleteSearch.bind(context));
+            new myAutocompleteHelper(context.onStartAutoCompleteSearch.bind(context), context.onStartAutoCompleteSearch.bind(context));
             RegisterFloatPaging(context.searchData.readSearchData.bind(context.searchData), context.searchData.saveSearchData.bind(context.searchData), '/images/GetSearchingData');
             context.maxImageIndex = undefined;
             startSearchData();

@@ -16,6 +16,10 @@ namespace CloudPhoto.Data.Models
             this.Roles = new HashSet<IdentityUserRole<string>>();
             this.Claims = new HashSet<IdentityUserClaim<string>>();
             this.Logins = new HashSet<IdentityUserLogin<string>>();
+
+            this.Votes = new HashSet<Vote>();
+            this.Images = new HashSet<Image>();
+            this.UserSubscribes = new HashSet<UserSubscribe>();
         }
 
         public string FirstName { get; set; }
@@ -23,6 +27,8 @@ namespace CloudPhoto.Data.Models
         public string LastName { get; set; }
 
         public string PayPalEmail { get; set; }
+
+        public string Description { get; set; }
 
         public virtual string FullName
         {
@@ -54,5 +60,11 @@ namespace CloudPhoto.Data.Models
         public virtual ICollection<IdentityUserClaim<string>> Claims { get; set; }
 
         public virtual ICollection<IdentityUserLogin<string>> Logins { get; set; }
+
+        public virtual ICollection<Image> Images { get; set; }
+
+        public virtual ICollection<Vote> Votes { get; set; }
+
+        public virtual ICollection<UserSubscribe> UserSubscribes { get; set; }
     }
 }

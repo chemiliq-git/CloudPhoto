@@ -1,18 +1,23 @@
 var myAutocompleteHelper = /** @class */ (function () {
-    function myAutocompleteHelper() {
-    }
-    myAutocompleteHelper.prototype.configAutoCompleteTags = function (startSearchCallback, selectResultCallback, autoCompleteControlName) {
+    function myAutocompleteHelper(startSearchCallback, selectResultCallback, autoCompleteControlName) {
         if (autoCompleteControlName === void 0) { autoCompleteControlName = '#searchImageTag'; }
-        $(autoCompleteControlName).keyup(function (event) {
+        this.startSearchCallback = startSearchCallback;
+        this.selectResultCallback = selectResultCallback;
+        this.autoCompleteControlName = autoCompleteControlName;
+        this.configAutoCompleteTags();
+    }
+    myAutocompleteHelper.prototype.configAutoCompleteTags = function () {
+        var context = this;
+        $(this.autoCompleteControlName).keyup(function (event) {
             var token = $("#keyForm input[name=__RequestVerificationToken]").val();
-            var searchText = $(autoCompleteControlName).val().toString();
+            var searchText = $(context.autoCompleteControlName).val().toString();
             if (searchText.length < 2) {
                 return;
             }
             var formData = new FormData();
             formData.append("searchData", searchText);
-            if (startSearchCallback) {
-                startSearchCallback(searchText);
+            if (context.startSearchCallback) {
+                context.startSearchCallback(searchText);
             }
             $.ajax({
                 url: '/tags/AutoCompleteSearch',
@@ -28,12 +33,12 @@ var myAutocompleteHelper = /** @class */ (function () {
                     data.forEach(function (element) {
                         availableData.push({ id: element.id, label: element.name });
                     });
-                    $(autoCompleteControlName).autocomplete({
+                    $(context.autoCompleteControlName).autocomplete({
                         source: availableData,
                         select: function (event, ui) {
-                            $(autoCompleteControlName).val(ui.item.value);
-                            if (selectResultCallback) {
-                                selectResultCallback(ui.item);
+                            $(context.autoCompleteControlName).val(ui.item.value);
+                            if (context.selectResultCallback) {
+                                context.selectResultCallback(ui.item);
                             }
                             event.returnValue = false;
                             return false;

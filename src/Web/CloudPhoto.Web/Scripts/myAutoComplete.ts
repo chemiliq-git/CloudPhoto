@@ -1,23 +1,36 @@
-﻿interface SearchData {
+﻿interface ServerResponseData {
     id: string;
     name: string;
 }
 
+interface AutocompleteParam {
+    id: string;
+    value: string;
+}
+
 class myAutocompleteHelper {
 
-    constructor() {
+    startSearchCallback: (searchText: string) => any;
+    selectResultCallback: (selectData: AutocompleteParam) => any;
+    autoCompleteControlName: string;
 
+    constructor(
+        startSearchCallback: (searchText: string) => any,
+        selectResultCallback: (selectData: AutocompleteParam) => any,
+        autoCompleteControlName: string = '#searchImageTag') {
+        this.startSearchCallback = startSearchCallback;
+        this.selectResultCallback = selectResultCallback;
+        this.autoCompleteControlName = autoCompleteControlName;
+
+        this.configAutoCompleteTags();
     }
 
-    configAutoCompleteTags(
-        startSearchCallback,
-        selectResultCallback,
-        autoCompleteControlName: string = '#searchImageTag') {
-
-        $(autoCompleteControlName).keyup(function (event) {
+    configAutoCompleteTags() {
+        let context: myAutocompleteHelper = this;
+        $(this.autoCompleteControlName).keyup(function (event) {
             var token = $("#keyForm input[name=__RequestVerificationToken]").val();
 
-            let searchText = $(autoCompleteControlName).val().toString()
+            let searchText = $(context.autoCompleteControlName).val().toString()
             if (searchText.length < 2) {
                 return;
             }
@@ -25,8 +38,8 @@ class myAutocompleteHelper {
             var formData = new FormData();
             formData.append("searchData", searchText);
 
-            if (startSearchCallback) {
-                startSearchCallback(searchText);
+            if (context.startSearchCallback) {
+                context.startSearchCallback(searchText);
             }
 
             $.ajax({
@@ -38,17 +51,17 @@ class myAutocompleteHelper {
                 headers: {
                     'X-CSRF-TOKEN': token.toString(),
                 },
-                success: function (data: Array<SearchData>) {
+                success: function (data: Array<ServerResponseData>) {
                     var availableData = [];
                     data.forEach((element) => {
                         availableData.push({ id: element.id, label: element.name });
                     });
-                    $(autoCompleteControlName).autocomplete({
+                    $(context.autoCompleteControlName).autocomplete({
                         source: availableData,
                         select: function (event, ui) {
-                            $(autoCompleteControlName).val(ui.item.value);
-                            if (selectResultCallback) {
-                                selectResultCallback(ui.item);
+                            $(context.autoCompleteControlName).val(ui.item.value);
+                            if (context.selectResultCallback) {
+                                context.selectResultCallback(<AutocompleteParam>ui.item);
                             }
                             event.returnValue = false;
                             return false;

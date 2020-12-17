@@ -82,26 +82,30 @@ function initializeDragAndDropArea() {
     }
 }
 
-function addNewTag(newTag: HTMLInputElement) {
+function selectTag(selectData: AutocompleteParam) {
+    addNewTag(selectData.value);
+}
+
+function addNewTag(newTag: string) {
     //change hide field
     var data = (<HTMLInputElement>document.getElementById("added-tags")).value;
     var js;
     if (data != "") {
         js = JSON.parse(data);
-        if (js.includes(newTag.value)) {
+        if (js.includes(newTag)) {
             (<HTMLInputElement>document.getElementById("inputTag")).value = "";
             return;
         }
 
-        js.push(newTag.value);
+        js.push(newTag);
     }
     else {
-        js = new Array(newTag.value);
+        js = new Array(newTag);
     }
 
 
     var btntag = document.createElement("button");
-    btntag.id = newTag.value;
+    btntag.id = newTag;
     btntag.className = "btn-success rounded m-1";
     btntag.onclick = function () {
         var data = (<HTMLInputElement>document.getElementById("added-tags")).value
@@ -124,7 +128,7 @@ function addNewTag(newTag: HTMLInputElement) {
     icon.className = "far fa-times-circle";
     btntag.appendChild(icon);
     //add text
-    var text = document.createTextNode(newTag.value);
+    var text = document.createTextNode(newTag);
     btntag.appendChild(text);
     //add btntag on document
     var element = document.getElementById("newElements");
@@ -140,7 +144,7 @@ function lisiningForAddTag() {
     node.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
             if (node.value) {
-                addNewTag(node);
+                addNewTag(node.value);
                 //delete input data
                 node.value = "";
 
@@ -157,8 +161,8 @@ $(document).ready(
 
         lisiningForAddTag();
 
-        var autoCompleateHelper = new myAutocompleteHelper();
-        autoCompleateHelper.configAutoCompleteTags(undefined, addNewTag, '#inputTag');
+        var autoCompleateHelper = new myAutocompleteHelper(undefined, selectTag, '#inputTag');
+        autoCompleateHelper.configAutoCompleteTags();
     }
 );
 

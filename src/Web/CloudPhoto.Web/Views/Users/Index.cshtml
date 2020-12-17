@@ -1,5 +1,7 @@
 ﻿@using CloudPhoto.Web.ViewModels.Users
 @using CloudPhoto.Common;
+@using System.Security.Claims;
+
 @model UserPreviewViewModel
 
 @{
@@ -22,40 +24,67 @@
     </div>
 </div>
 
+@{
+    string avatarUrl;
+    if (string.IsNullOrEmpty(Model.UserAvatar))
+    {
+        avatarUrl = "/icon/emptyAvatar.png";
+    }
+    else
+    {
+        avatarUrl = @Model.UserAvatar;
+    }
+
+    string followBtnText = "Follow";
+    if (Model.IsFollowCurrentUser)
+    {
+        followBtnText = "Following";
+    }
+    else
+    {
+        followBtnText = "Follow";
+    }
+}
+
 <div>
     <div class="row container-fluid">
-        <div id="userAvatar" class="col-md-5">
+        <div id="userAvatar" class="h-100 col-lg-5 col-xl-5 col-md-5 col-sm-12 d-flex justify-content-lg-end justify-content-xl-end justify-content-md-end justify-content-sm-center justify-content-center">
             <form id="dragFileForm" method="post" enctype="multipart/form-data">
-                <div id="dragAndDropArea" class="text-truncate">
-                    @{ string avatarUrl; }
-                    @if (string.IsNullOrEmpty(Model.UserAvatar))
-                    {
-                        avatarUrl = "/icon/emptyAvatar.png";
-                    }
-                    else
-                    {
-                        avatarUrl = @Model.UserAvatar;
-                    }
-                    <img id="avatarImage" src=@avatarUrl referrerpolicy="no-referrer" width="60" height="60"
-                         class="rounded-circle float-lg-right float-xl-right" alt=@Model.UserName>
-                    <input id="file" class="custom-file-input" name="file" value="" type="file" size="1"
-                           onchange="helper.uploadAvatar('file');" />
-                </div>
+                <img id="avatarImage" src=@avatarUrl referrerpolicy="no-referrer" width="60" height="60"
+                     class="rounded-circle" alt=@Model.DisplayUserName>
             </form>
         </div>
-        <div id="UserDescription" class="col-md-7">
-            <div class="row container">
-                <div class="col-md-auto">
-                    <p class="text-dark h3">@Model.UserName</p>
-                </div>
-                <div class="justify-content-end">
+        <div class="row no-gutters col-xl-7 col-lg-7 col-md-7 col-sm-12 d-flex justify-content-lg-start justify-content-xl-start justify-content-md-center justify-content-sm-center justify-content-center ">
+            <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12 d-flex justify-content-lg-start justify-content-xl-start justify-content-md-center justify-content-sm-center justify-content-center">
+                <p class="text-dark text-truncate h4">@Model.DisplayUserName</p>
+            </div>
+            <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 d-flex justify-content-lg-start justify-content-xl-start justify-content-md-center justify-content-sm-center justify-content-center">
+                @if (Model.Id != this.User.FindFirst(ClaimTypes.NameIdentifier).Value)
+                {
                     @if (!string.IsNullOrEmpty(Model.PayPalEmail))
                     {
                         <form method="post" asp-controller="users" asp-action="donate" asp-route-id=@Model.Id>
-                            <input type="submit" class="btn btn-success" value="Donate" alt="Support this photographer with a PayPal donation">
+                            <input type="submit" class="btn btn-sm btn-outline-dark m-1" value="Donate" alt="Support this photographer with a PayPal donation">
                         </form>
                     }
-                </div>
+
+                    <button id="followButton" type="button" class="btn btn-sm btn-outline-dark m-1"
+                            onclick="myInvokeSubscribe(this, '@Model.Id'); return false;">
+                        @followBtnText
+                    </button>
+                }
+                else
+                {
+                    <form id="dragFileForm" method="post" enctype="multipart/form-data">
+                        <label for="file-upload" class="btn btn-sm btn-outline-dark m-1 custom-file-upload" >
+                            Update avatar
+                        </label>
+                        <input id="file-upload" type="file" style="display: none;" onchange="helper.uploadAvatar('file-upload');" />
+                    </form>
+                }
+            </div>
+            <div class="col-12">
+                <p class="text-center">@Model.Description</p>
             </div>
         </div>
     </div>
@@ -95,6 +124,7 @@
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
     <script type="text/javascript" src="~/js/userSearchData.js"></script>
     <script type="text/javascript" src="~/js/userIndexView.js"></script>
+    <script type="text/javascript" src="~/js/mySubscribe.js"></script>
     <script>
         var pagingData = new userCookieHelper(@imagePerPage, '@Model.Id',"uploads");
         var helper = new UserIndexViewHelper(pagingData);

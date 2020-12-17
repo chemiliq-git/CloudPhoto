@@ -38,6 +38,13 @@
   height: 200px;
 }
 
+.drag-and-drop-small-area {
+    background-color: darkgray;
+    text-align: center;
+    width: 100%;
+    height: 80%;
+}
+
 .drag-and-drop-area-dragging {
   background-color: forestgreen;
 }

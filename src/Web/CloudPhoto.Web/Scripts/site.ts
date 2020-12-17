@@ -7,8 +7,7 @@
     }
 
     hookToSearchControlEvents() {
-        var autoCompleateHelper: myAutocompleteHelper = new myAutocompleteHelper();
-        autoCompleateHelper.configAutoCompleteTags(
+        new myAutocompleteHelper(
             this.onStartAutoCompleteSearch.bind(this),
             this.seachImageByInputData.bind(this),
             this.searchControlName);

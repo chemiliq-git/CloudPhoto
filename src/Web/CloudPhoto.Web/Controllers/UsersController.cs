@@ -53,23 +53,16 @@
                 return this.BadRequest();
             }
 
-            ApplicationUser user = await this.UserManager.FindByIdAsync(id);
+            ApplicationUser loggedUser = await this.UserManager.GetUserAsync(this.User);
 
-            if (user == null)
+            ApplicationUser previewUser = await this.UserManager.FindByIdAsync(id);
+            if (previewUser == null)
             {
                 return this.BadRequest();
             }
 
-            IList<Claim> lstClaims = await this.UserManager.GetClaimsAsync(user);
-
-            UserPreviewViewModel model = new UserPreviewViewModel
-            {
-                Id = user.Id,
-                UserName = user.FullName,
-                UserAvatar = lstClaims?.FirstOrDefault(temp => temp.Type == GlobalConstants.ExternalClaimAvatar)?.Value,
-            };
-
-            return this.View(model);
+            UserPreviewViewModel userInfo = this.UsersServices.GetUserInfo<UserPreviewViewModel>(id, loggedUser?.Id);
+            return this.View(userInfo);
         }
 
         [HttpPost("GetPagingData")]

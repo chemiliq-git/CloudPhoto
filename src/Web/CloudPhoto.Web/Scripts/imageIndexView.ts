@@ -22,8 +22,7 @@
 
                 context.configPage();
 
-                var autoCompleateHelper = new myAutocompleteHelper();
-                autoCompleateHelper.configAutoCompleteTags(
+                new myAutocompleteHelper(
                     context.onStartAutoCompleteSearch.bind(context),
                     context.onStartAutoCompleteSearch.bind(context));
 

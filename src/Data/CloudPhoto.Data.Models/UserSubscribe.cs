@@ -15,11 +15,9 @@
         [Required]
         public string UserSubscribedId { get; set; }
 
-        [Required]
-        public string SubscribeToUserId { get; set; }
-
         public virtual ApplicationUser UserSubscribed { get; set; }
 
-        public virtual ApplicationUser SubscribeToUser { get; set; }
+        [Required]
+        public string SubscribeToUserId { get; set; }
     }
 }

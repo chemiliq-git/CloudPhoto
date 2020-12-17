@@ -49,6 +49,8 @@ namespace CloudPhoto.Web.Areas.Identity.Pages.Account.Manage
             [Display(Name = "PayPal email for donations")]
             [EmailAddress]
             public string PayPalEmail { get; set; }
+
+            public string Description { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -62,6 +64,7 @@ namespace CloudPhoto.Web.Areas.Identity.Pages.Account.Manage
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PayPalEmail = user.PayPalEmail,
+                Description = user.Description,
             };
         }
 
@@ -94,6 +97,7 @@ namespace CloudPhoto.Web.Areas.Identity.Pages.Account.Manage
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
             user.PayPalEmail = Input.PayPalEmail;
+            user.Description = Input.Description;
             IdentityResult updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
