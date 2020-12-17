@@ -62,25 +62,6 @@
             return this.View();
         }
 
-        // GET: Images/Details/5
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null)
-            {
-                return this.NotFound();
-            }
-
-            var image = await this.context.Images
-                .Include(i => i.Author)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (image == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.View(image);
-        }
-
         // GET: Images/Create
         public IActionResult Create()
         {

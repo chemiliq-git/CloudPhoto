@@ -8,6 +8,7 @@ namespace CloudPhoto.Web.Controllers
     {
         // http://localhost:5000/api/test/
         [HttpGet]
+        [IgnoreAntiforgeryToken]
         public IActionResult Getid()
         {
             string id = "0#21312";
@@ -16,6 +17,7 @@ namespace CloudPhoto.Web.Controllers
 
         // http://localhost:5000/api/test/getid
         [HttpGet("getid/", Name = "Getid")]
+        [IgnoreAntiforgeryToken]
         public IActionResult Getid1()
         {
             string id = "1#21312";
@@ -24,38 +26,49 @@ namespace CloudPhoto.Web.Controllers
 
         // http://localhost:5000/api/test/getid1
         [HttpGet("getid1/", Name = "Getid1")]
+        [IgnoreAntiforgeryToken]
         public IActionResult Getid2()
         {
             string id = "2#21312";
             return this.Json(id);
         }
 
+        // http://localhost:5000/api/test/
         [HttpPost]
-        public IActionResult SetId([FromForm] string name)
+        [IgnoreAntiforgeryToken]
+        public IActionResult SetId(
+            [FromBody]string name1,
+            [FromForm] string name2,
+            [FromHeader] string name3,
+            [FromQuery] string name4,
+            [FromRoute] string name5)
         {
-            string id = "0#21312";
+            string id = "0#21312" + name1;
             return this.Json(id);
         }
 
-        //[HttpPost]
-        //public IActionResult SetId(string name)
-        //{
-        //    string id = "0#21312" + name;
-        //    return this.Json(id);
-        //}
+        // http://localhost:5000/api/test/setid
+        [HttpPost("setid/")]
+        [IgnoreAntiforgeryToken]
+        public IActionResult SetId1(string name)
+        {
+            string id = "1#21312" + name;
+            return this.Json(id);
+        }
 
-        //[HttpPost("setid/")]
-        //public IActionResult SetId1(string name)
-        //{
-        //    string id = "1#21312" + name;
-        //    return this.Json(id);
-        //}
-
-        //[HttpPost("setid1/")]
-        //public IActionResult SetId2(string name)
-        //{
-        //    string id = "2#21312" + name;
-        //    return this.Json(id);
-        //}
+        // http://localhost:5000/api/test/setid1
+        [HttpPost("setid1/")]
+        [IgnoreAntiforgeryToken]
+        public IActionResult SetId2(string name)
+        {
+            string id = "2#21312" + name;
+            return this.Json(id);
+        }
     }
+
+    public class PostParameter
+    {
+        public string name { get; set; }
+    }
+
 }
