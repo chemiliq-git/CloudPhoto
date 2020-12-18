@@ -24,14 +24,15 @@ a {
     border-color: #1861ac;
 }
 
+/*navigation menu color*/
 .my-nav-color {
     background-color: #32578c !important;
 }
 
+/*home page sticky baground image*/
 .myHeader {
     width: 100%;
     height: 70vh;
-    /*background: url(https://wallpaper.wiki/wp-content/uploads/2017/05/wallpaper.wiki-Beautiful-Full-HD-Wallpaper-Download-Free-PIC-WPE0010098.jpg) no-repeat 50% 50%;*/
     background: url("../site-image/StikyNavBar.jpg") no-repeat 50% 50%;
     background-size: cover;
 }
@@ -87,3 +88,32 @@ body {
 }
 
 
+/* Home page image style
+---------------------------------------------------------------
+*/
+
+.imgBadge {
+    max-width: 100%;
+    max-height: 100%;
+    display: block; /* remove extra space below image */
+}
+
+.boxBadge {
+    width: 300px;
+}
+
+    .boxBadge.smallBadge {
+        width: 50px;
+    }
+
+.boxHead {
+    cursor: pointer;
+}
+    /*var(--gray) get collor from bootstrap https://getbootstrap.com/docs/4.3/getting-started/theming/#css-variables */
+    .boxHead:hover {
+        background: linear-gradient(130deg, var(--gray) 0%, var(--gray) 100%);
+        box-shadow: none;
+    }
+/* Home page image style
+---------------------------------------------------------------
+*/

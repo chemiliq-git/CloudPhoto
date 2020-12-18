@@ -17,32 +17,49 @@
         <h2>Popular Category</h2>
     </div>
     @{
+        int imageIndex;
         foreach (HomeIndexViewModel categoryInfo in Model)
         {
             if (categoryInfo.CategoryInfo != null
-                && categoryInfo.CategoryImages.Count > 0)
+            && categoryInfo.CategoryImages.Count > 0)
             {
-                <a href="#" onclick="pageHelper.clickToCategory('@categoryInfo.CategoryInfo.Id');">
-                    <div class="col-md-12 container row m-2">
-                        <div id=@categoryInfo.CategoryInfo.Id class="col-md-12 bg-success rounded-sm p-1">
-                            <h3 class="text-center"> @categoryInfo.CategoryInfo.Name</h3>
-                        </div>
-                        @{
-                            foreach (ImageHomeViewModel image in categoryInfo.CategoryImages)
+                imageIndex = 0;
+                <div class="no-gutters col-md-6 pt-2 pb-2 row rounded boxHead" onclick="pageHelper.clickToCategory('@categoryInfo.CategoryInfo.Id');">
+                    @{
+                        foreach (ImageHomeViewModel image in categoryInfo.CategoryImages)
+                        {
+                            imageIndex++;
+                            if (imageIndex == 1)
                             {
-                                <div class="col-md-4 p-1">
-                                    <img src=@image.ThumbnailImageUrl class="img-fluid">
+                                <div class="boxBadge col-12">
+                                    <img class="rounded imgBadge" src=@image.ThumbnailImageUrl>
+                                </div>
+                            }
+                            else if (imageIndex <= 3)
+                            {
+                                <div class="boxBadge smallBadge pt-1 pr-1 col-4">
+                                    <img class="rounded imgBadge" src=@image.ThumbnailImageUrl>
+                                </div>
+                            }
+                            else if (imageIndex == 4)
+                            {
+                                <div class="boxBadge smallBadge pt-1 col-4">
+                                    <img class="rounded imgBadge" src=@image.ThumbnailImageUrl>
                                 </div>
                             }
                         }
 
-                    </div>
-                </a>
-                <div class="m-2"></div>
+                        <div id=@categoryInfo.CategoryInfo.Id class="col-md-12 rounded-sm p-1">
+                            <h5 class="text-center"> @categoryInfo.CategoryInfo.Name</h5>
+                        </div>
+                    }
+
+                </div>
             }
         }
     }
 </div>
+
 
 @section Scripts {
     <script type="text/javascript" src="~/js/homeIndexView.js"></script>
