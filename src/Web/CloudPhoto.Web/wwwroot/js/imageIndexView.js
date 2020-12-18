@@ -1,8 +1,6 @@
 var ImageIndexViewHelper = /** @class */ (function () {
     function ImageIndexViewHelper(pSearchData) {
         this.myPagingHelper = new myFloatPagingHelper();
-        this.hasAnoutherPages = true;
-        this.hasStartRequest = false;
         this.searchData = pSearchData;
         var context = this;
         $(document).ready(function () {
@@ -47,10 +45,10 @@ var ImageIndexViewHelper = /** @class */ (function () {
             this.GetPreviewImageData(this.currentSelectImage);
         }
     };
-    ImageIndexViewHelper.prototype.GetPreviewImageData = function (index) {
+    ImageIndexViewHelper.prototype.GetPreviewImageData = function (imageIndex) {
         var token = $("#keyForm input[name=__RequestVerificationToken]").val();
         var formData = new FormData();
-        formData.append("id", index);
+        formData.append("id", imageIndex.toString());
         $.ajax({
             url: '/images/PreviewImage',
             data: formData,

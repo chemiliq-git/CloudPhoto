@@ -15,7 +15,7 @@ class UserIndexViewHelper {
         $(document).ready(
             function () {
                 context.myPagingHelper.RegisterFloatPaging(
-                    '/Users/GetPagingData',
+                    '/images/GetUserImagesData',
                     context.pagingData);
                 context.myPagingHelper.startSearchData();
 
@@ -154,7 +154,7 @@ class UserIndexViewHelper {
         formData.append("id", index);
         var context = this;
         $.ajax({
-            url: '/users/PreviewImage',
+            url: '/images/PreviewUserImage',
             data: formData,
             processData: false,
             contentType: false,

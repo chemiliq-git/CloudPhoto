@@ -13,7 +13,7 @@ var UserIndexViewHelper = /** @class */ (function () {
         this.pagingData.saveCookieData();
         var context = this;
         $(document).ready(function () {
-            context.myPagingHelper.RegisterFloatPaging('/Users/GetPagingData', context.pagingData);
+            context.myPagingHelper.RegisterFloatPaging('/images/GetUserImagesData', context.pagingData);
             context.myPagingHelper.startSearchData();
             context.hookToArrowKey();
         });
@@ -126,7 +126,7 @@ var UserIndexViewHelper = /** @class */ (function () {
         formData.append("id", index);
         var context = this;
         $.ajax({
-            url: '/users/PreviewImage',
+            url: '/images/PreviewUserImage',
             data: formData,
             processData: false,
             contentType: false,

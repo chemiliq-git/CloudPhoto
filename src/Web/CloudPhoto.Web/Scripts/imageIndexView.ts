@@ -3,13 +3,8 @@
     searchData: mainImageCookieHelper;
     myPagingHelper = new myFloatPagingHelper<mainImageCookieHelper>();
     
-
-    hasAnoutherPages = true;
-    hasStartRequest = false;
-
-    maxImageIndex;
-    currentSelectImage;
-    userVode;
+    maxImageIndex: number;
+    currentSelectImage: number;
 
     constructor(pSearchData: mainImageCookieHelper) {
         this.searchData = pSearchData;
@@ -38,7 +33,7 @@
             });
     }
 
-    showModalImage(imageIndex) {
+    showModalImage(imageIndex: number) {
         this.currentSelectImage = imageIndex;
         (<any>$('#myModal')).modal('show');
         this.GetPreviewImageData(this.currentSelectImage);
@@ -72,10 +67,11 @@
         }
     }
 
-    GetPreviewImageData(index) {
+    GetPreviewImageData(imageIndex: number) {
         var token = $("#keyForm input[name=__RequestVerificationToken]").val();
         var formData = new FormData();
-        formData.append("id", index);
+        formData.append("id", imageIndex.toString());
+
         $.ajax({
             url: '/images/PreviewImage',
             data: formData,

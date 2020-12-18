@@ -65,125 +65,63 @@
             return this.View(userInfo);
         }
 
-        [HttpPost("GetPagingData")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GetPagingData(
-            int pageIndex,
-            int pageSize,
-            string userId,
-            string type)
-        {
-            ApplicationUser user = await this.UserManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return this.BadRequest();
-            }
+        //[HttpPost("PreviewImage")]
+        //public async Task<IActionResult> PreviewImage(int id)
+        //{
+        //    if (!this.Request.Cookies.TryGetValue("imageRelateByUserData", out string readPagingDataCookie))
+        //    {
+        //        return this.BadRequest();
+        //    }
 
-            SearchImageData localSearchData = null;
-            switch (type)
-            {
-                case "uploads":
-                    {
-                        localSearchData = new SearchImageData
-                        {
-                            AuthorId = user.Id,
-                        };
-                        break;
-                    }
+        //    var options = new JsonSerializerOptions
+        //    {
+        //        PropertyNameCaseInsensitive = true,
+        //    };
+        //    PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
 
-                case "likes":
-                    {
-                        localSearchData = new SearchImageData
-                        {
-                            LikeByUser = user.Id,
-                        };
-                        break;
-                    }
-            }
+        //    ApplicationUser userPreviewProfil = await this.UserManager.FindByIdAsync(cookieSearchData.UserId);
+        //    if (userPreviewProfil == null)
+        //    {
+        //        return this.BadRequest();
+        //    }
 
-            if (this.User.Identity.IsAuthenticated)
-            {
-                ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
-                localSearchData.LikeForUserId = loginUser.Id;
-            }
+        //    SearchImageData localSearchData = null;
+        //    if (cookieSearchData.Type == "uploads")
+        //    {
+        //        localSearchData = new SearchImageData
+        //        {
+        //            AuthorId = userPreviewProfil.Id,
+        //        };
+        //    }
+        //    else if (cookieSearchData.Type == "likes")
+        //    {
+        //        localSearchData = new SearchImageData
+        //        {
+        //            LikeByUser = userPreviewProfil.Id,
+        //        };
+        //    }
 
-            var data = this.ImagesService.GetByFilter<ListImageViewModel>(
-                    localSearchData, pageSize, pageIndex);
+        //    if (this.User.Identity.IsAuthenticated)
+        //    {
+        //        ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
+        //        localSearchData.LikeForUserId = loginUser.Id;
+        //    }
 
-            int indexOfPage = 1;
-            foreach (ListImageViewModel model in data)
-            {
-                model.ImageIndex = ((pageIndex - 1) * pageSize) + indexOfPage;
-                indexOfPage++;
-            }
+        //    var data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
+        //          localSearchData, 1, id);
 
-            if (!data.Any())
-            {
-                return this.Json(string.Empty);
-            }
-            else
-            {
-                return this.PartialView("_ImageListPartial", data);
-            }
-        }
+        //    if (!data.Any())
+        //    {
+        //        return this.Json(string.Empty);
+        //    }
+        //    else
+        //    {
+        //        ImagePreviewViewModel previewImage = data.First();
+        //        previewImage.ImageIndex = id;
 
-        [HttpPost("PreviewImage")]
-        public async Task<IActionResult> PreviewImage(int id)
-        {
-            if (!this.Request.Cookies.TryGetValue("imageRelateByUserData", out string readPagingDataCookie))
-            {
-                return this.BadRequest();
-            }
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-            };
-            PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
-
-            ApplicationUser userPreviewProfil = await this.UserManager.FindByIdAsync(cookieSearchData.UserId);
-            if (userPreviewProfil == null)
-            {
-                return this.BadRequest();
-            }
-
-            SearchImageData localSearchData = null;
-            if (cookieSearchData.Type == "uploads")
-            {
-                localSearchData = new SearchImageData
-                {
-                    AuthorId = userPreviewProfil.Id,
-                };
-            }
-            else if (cookieSearchData.Type == "likes")
-            {
-                localSearchData = new SearchImageData
-                {
-                    LikeByUser = userPreviewProfil.Id,
-                };
-            }
-
-            if (this.User.Identity.IsAuthenticated)
-            {
-                ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
-                localSearchData.LikeForUserId = loginUser.Id;
-            }
-
-            var data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
-                  localSearchData, 1, id);
-
-            if (!data.Any())
-            {
-                return this.Json(string.Empty);
-            }
-            else
-            {
-                ImagePreviewViewModel previewImage = data.First();
-                previewImage.ImageIndex = id;
-
-                return this.PartialView("_PreviewImagePartial", previewImage);
-            }
-        }
+        //        return this.PartialView("_PreviewImagePartial", previewImage);
+        //    }
+        //}
 
         [HttpPost("UpdateAvatar")]
         [ValidateAntiForgeryToken]

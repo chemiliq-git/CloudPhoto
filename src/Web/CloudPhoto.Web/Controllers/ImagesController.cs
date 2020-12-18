@@ -14,9 +14,11 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
+    using CloudPhoto.Services.Data.UsersServices;
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Web.ViewModels.Categories;
     using CloudPhoto.Web.ViewModels.Images;
+    using CloudPhoto.Web.ViewModels.Users;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
@@ -33,6 +35,7 @@
         private readonly ICategoriesService categoriesService;
         private readonly IVotesService votesService;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IUsersServices usersServices;
         private readonly IWebHostEnvironment env;
         private readonly ILogger logger;
 
@@ -43,6 +46,7 @@
             ICategoriesService categoriesService,
             IVotesService votesService,
             UserManager<ApplicationUser> userManager,
+            IUsersServices usersServices,
             IWebHostEnvironment env,
             ILogger<ImagesController> logger)
         {
@@ -52,6 +56,7 @@
             this.categoriesService = categoriesService;
             this.votesService = votesService;
             this.userManager = userManager;
+            this.usersServices = usersServices;
             this.env = env;
             this.logger = logger;
         }
@@ -114,7 +119,59 @@
             return this.View(image);
         }
 
-        [HttpPost(Name = "PreviewImage")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> GetSearchingData(
+          int pageIndex,
+          int pageSize,
+          string searchText,
+          string selectCategory)
+        {
+            SearchImageData localSearchData = new SearchImageData
+            {
+                FilterByTag = searchText,
+            };
+            if (!string.IsNullOrEmpty(selectCategory))
+            {
+                localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(selectCategory);
+            }
+
+            if (pageSize == 0)
+            {
+                return this.BadRequest();
+            }
+
+            if (pageIndex == 0)
+            {
+                return this.BadRequest();
+            }
+
+            if (this.User.Identity.IsAuthenticated)
+            {
+                ApplicationUser user = await this.userManager.GetUserAsync(this.User);
+                localSearchData.LikeForUserId = user.Id;
+            }
+
+            var data = this.imagesService.GetByFilter<ListImageViewModel>(
+                localSearchData, pageSize, pageIndex);
+
+            int indexOfPage = 1;
+            foreach (ListImageViewModel model in data)
+            {
+                model.ImageIndex = ((pageIndex - 1) * pageSize) + indexOfPage;
+                indexOfPage++;
+            }
+
+            if (!data.Any())
+            {
+                return this.Json(string.Empty);
+            }
+            else
+            {
+                return this.PartialView("_ImageListPartial", data);
+            }
+        }
+
         public async Task<IActionResult> PreviewImage(int id)
         {
             if (!this.Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
@@ -142,6 +199,131 @@
 
             var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
                     localSearchData, 1, id);
+
+            if (!data.Any())
+            {
+                return this.Json(string.Empty);
+            }
+            else
+            {
+                ImagePreviewViewModel previewImage = data.First();
+                previewImage.ImageIndex = id;
+
+                return this.PartialView("_PreviewImagePartial", previewImage);
+            }
+        }
+
+        /// <summary>
+        /// Return images which related by user(upoload/vote).
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GetUserImagesData(
+           int pageIndex,
+           int pageSize,
+           string userId,
+           string type)
+        {
+            ApplicationUser user = await this.userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return this.BadRequest();
+            }
+
+            SearchImageData localSearchData = null;
+            switch (type)
+            {
+                case "uploads":
+                    {
+                        localSearchData = new SearchImageData
+                        {
+                            AuthorId = user.Id,
+                        };
+                        break;
+                    }
+
+                case "likes":
+                    {
+                        localSearchData = new SearchImageData
+                        {
+                            LikeByUser = user.Id,
+                        };
+                        break;
+                    }
+            }
+
+            if (this.User.Identity.IsAuthenticated)
+            {
+                ApplicationUser loginUser = await this.userManager.GetUserAsync(this.User);
+                localSearchData.LikeForUserId = loginUser.Id;
+            }
+
+            var data = this.imagesService.GetByFilter<ListImageViewModel>(
+                    localSearchData, pageSize, pageIndex);
+
+            int indexOfPage = 1;
+            foreach (ListImageViewModel model in data)
+            {
+                model.ImageIndex = ((pageIndex - 1) * pageSize) + indexOfPage;
+                indexOfPage++;
+            }
+
+            if (!data.Any())
+            {
+                return this.Json(string.Empty);
+            }
+            else
+            {
+                return this.PartialView("_ImageListPartial", data);
+            }
+        }
+
+        /// <summary>
+        /// Return image which related by user(upload/vote).
+        /// </summary>
+        public async Task<IActionResult> PreviewUserImage(int id)
+        {
+            if (!this.Request.Cookies.TryGetValue("imageRelateByUserData", out string readPagingDataCookie))
+            {
+                return this.BadRequest();
+            }
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+            };
+            PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
+
+            ApplicationUser userPreviewProfil = await this.userManager.FindByIdAsync(cookieSearchData.UserId);
+            if (userPreviewProfil == null)
+            {
+                return this.BadRequest();
+            }
+
+            SearchImageData localSearchData = null;
+            if (cookieSearchData.Type == "uploads")
+            {
+                localSearchData = new SearchImageData
+                {
+                    AuthorId = userPreviewProfil.Id,
+                };
+            }
+            else if (cookieSearchData.Type == "likes")
+            {
+                localSearchData = new SearchImageData
+                {
+                    LikeByUser = userPreviewProfil.Id,
+                };
+            }
+
+            if (this.User.Identity.IsAuthenticated)
+            {
+                ApplicationUser loginUser = await this.userManager.GetUserAsync(this.User);
+                localSearchData.LikeForUserId = loginUser.Id;
+            }
+
+            var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
+                  localSearchData, 1, id);
 
             if (!data.Any())
             {
@@ -239,59 +421,6 @@
             this.context.Images.Remove(image);
             await this.context.SaveChangesAsync();
             return this.RedirectToAction(nameof(this.Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> GetSearchingData(
-            int pageIndex,
-            int pageSize,
-            string searchText,
-            string selectCategory)
-        {
-            SearchImageData localSearchData = new SearchImageData
-            {
-                FilterByTag = searchText,
-            };
-            if (!string.IsNullOrEmpty(selectCategory))
-            {
-                localSearchData.FilterCategory = JsonSerializer.Deserialize<List<string>>(selectCategory);
-            }
-
-            if (pageSize == 0)
-            {
-                return this.BadRequest();
-            }
-
-            if (pageIndex == 0)
-            {
-                return this.BadRequest();
-            }
-
-            if (this.User.Identity.IsAuthenticated)
-            {
-                ApplicationUser user = await this.userManager.GetUserAsync(this.User);
-                localSearchData.LikeForUserId = user.Id;
-            }
-
-            var data = this.imagesService.GetByFilter<ListImageViewModel>(
-                localSearchData, pageSize, pageIndex);
-
-            int indexOfPage = 1;
-            foreach (ListImageViewModel model in data)
-            {
-                model.ImageIndex = ((pageIndex - 1) * pageSize) + indexOfPage;
-                indexOfPage++;
-            }
-
-            if (!data.Any())
-            {
-                return this.Json(string.Empty);
-            }
-            else
-            {
-                return this.PartialView("_ImageListPartial", data);
-            }
         }
 
         /// <summary>
