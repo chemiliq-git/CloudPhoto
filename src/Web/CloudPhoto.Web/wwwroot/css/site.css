@@ -109,9 +109,9 @@ body {
 .boxHead {
     cursor: pointer;
 }
-    /*var(--gray) get collor from bootstrap https://getbootstrap.com/docs/4.3/getting-started/theming/#css-variables */
+    /*var(--light) get collor from bootstrap https://getbootstrap.com/docs/4.3/getting-started/theming/#css-variables */
     .boxHead:hover {
-        background: linear-gradient(130deg, var(--gray) 0%, var(--gray) 100%);
+        background: linear-gradient(130deg, var(--light) 0%, var(--light) 100%);
         box-shadow: none;
     }
 /* Home page image style
