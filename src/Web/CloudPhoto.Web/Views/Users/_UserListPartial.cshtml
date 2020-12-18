@@ -1,0 +1,57 @@
+﻿@using CloudPhoto.Web.ViewModels.Users
+@model IEnumerable<UserListViewModel>
+
+
+@if (@Model != null)
+{
+    string avatarUrl;
+    string followBtnText;
+
+    <div class="row container">
+        @{
+            foreach (var item in @Model)
+            {
+                if (string.IsNullOrEmpty(item.UserAvatar))
+                {
+                    avatarUrl = "/icon/emptyAvatar.png";
+                }
+                else
+                {
+                    avatarUrl = item.UserAvatar;
+                }
+
+                if (item.IsFollowCurrentUser)
+                {
+                    followBtnText = "Following";
+                }
+                else
+                {
+                    followBtnText = "Follow";
+                }
+
+                <div class="col-md-5 border border-dark rounded m-1 p-2">
+                    <div class="row col-12">
+                        <div id="userAvatar" class="col-2 justify-content-start">
+                            <img id="avatarImage" src=@avatarUrl referrerpolicy="no-referrer" width="40" height="40"
+                                 class="rounded-circle" alt=@item.DisplayUserName>
+                        </div>
+                        <div class="row col-10 justify-content-start ">
+                            <div class="col-12">
+                                <p class="text-dark h6">@item.DisplayUserName</p>
+                            </div>
+                            <div class="col-12 justify-content-start">
+                                <p class="small">@item.Description</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button id="followButton" type="button" class="btn btn-block btn-sm btn-success rounded"  
+                                onclick="myInvokeSubscribe(this, '@item.Id'); return false;">
+                            @followBtnText
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}

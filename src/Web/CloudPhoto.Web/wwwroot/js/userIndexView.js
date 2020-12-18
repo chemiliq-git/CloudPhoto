@@ -6,49 +6,49 @@ var UserPageTabEnum;
     UserPageTabEnum[UserPageTabEnum["following"] = 3] = "following";
 })(UserPageTabEnum || (UserPageTabEnum = {}));
 var UserIndexViewHelper = /** @class */ (function () {
-    function UserIndexViewHelper(pPagingData) {
-        this.myPagingHelper = new myFloatPagingHelper();
+    function UserIndexViewHelper(imagePagingData, userPagingData) {
+        this.myImagePagingHelper = new myFloatPagingHelper();
+        this.myUserPagingHelper = new myFloatPagingHelper();
         this.myAllertHelper = new myAlertHelper("myMessageContainer");
-        this.pagingData = pPagingData;
-        this.pagingData.saveCookieData();
+        this.imagePagingData = imagePagingData;
+        this.imagePagingData.saveCookieData();
+        this.userPagingData = userPagingData;
+        this.userPagingData.saveCookieData();
         var context = this;
         $(document).ready(function () {
-            context.myPagingHelper.RegisterFloatPaging('/images/GetUserImagesData', context.pagingData);
-            context.myPagingHelper.startSearchData();
+            context.myImagePagingHelper.RegisterFloatPaging('/images/GetUserImagesData', context.imagePagingData);
+            context.myImagePagingHelper.startSearchData();
+            context.myUserPagingHelper.pausePaging();
+            context.myUserPagingHelper.RegisterFloatPaging('/users/GetLinkedUsers', context.userPagingData);
             context.hookToArrowKey();
         });
     }
     UserIndexViewHelper.prototype.getUploadImages = function (control) {
-        this.pagingData.cookieData.type = "uploads";
-        control.setAttribute("class", "nav-link");
-        document.getElementById("likeTab").setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
+        this.imagePagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.uploads].toString();
+        this.imagePagingData.saveCookieData();
         this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+        this.myImagePagingHelper.startSearchData();
+        this.myUserPagingHelper.pausePaging();
     };
     UserIndexViewHelper.prototype.getLikeImages = function (control) {
-        this.pagingData.cookieData.type = "likes";
-        control.setAttribute("class", "nav-link");
-        document.getElementById("uploadTab").setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
+        this.imagePagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.likes].toString();
+        ;
+        this.imagePagingData.saveCookieData();
         this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+        this.myImagePagingHelper.startSearchData();
+        this.myUserPagingHelper.pausePaging();
     };
     UserIndexViewHelper.prototype.getFollowers = function (control) {
-        this.pagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.followers].toString();
-        control.setAttribute("class", "nav-link");
-        control.parentElement.setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
-        this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+        this.userPagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.followers].toString();
+        this.userPagingData.saveCookieData();
+        this.myImagePagingHelper.pausePaging();
+        this.myUserPagingHelper.startSearchData();
     };
     UserIndexViewHelper.prototype.getFollowing = function (control) {
-        this.pagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.following].toString();
-        control.setAttribute("class", "nav-link");
-        control.parentElement.setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
-        this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+        this.userPagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.following].toString();
+        this.userPagingData.saveCookieData();
+        this.myImagePagingHelper.pausePaging();
+        this.myUserPagingHelper.startSearchData();
     };
     UserIndexViewHelper.prototype.uploadAvatar = function (inputId) {
         var input = document.getElementById(inputId);
@@ -60,7 +60,7 @@ var UserIndexViewHelper = /** @class */ (function () {
         this.uploadFile(formData);
     };
     UserIndexViewHelper.prototype.uploadFile = function (formData) {
-        formData.append("userId", this.pagingData.cookieData.userId);
+        formData.append("userId", this.imagePagingData.cookieData.userId);
         var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
         var context = this;
         $.ajax({
@@ -91,7 +91,7 @@ var UserIndexViewHelper = /** @class */ (function () {
     };
     UserIndexViewHelper.prototype.updateAvatar = function (avatarUrl) {
         var formData = new FormData();
-        formData.append("userId", this.pagingData.cookieData.userId);
+        formData.append("userId", this.imagePagingData.cookieData.userId);
         formData.append("avatarUrl", avatarUrl);
         var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
         $.ajax({
@@ -116,9 +116,9 @@ var UserIndexViewHelper = /** @class */ (function () {
         });
     };
     UserIndexViewHelper.prototype.showModalImage = function (imageIndex) {
-        this.pagingData.cookieData.currentSelectImage = imageIndex;
+        this.imagePagingData.cookieData.currentSelectImage = imageIndex;
         $('#myModal').modal('show');
-        this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
+        this.GetPreviewImageData(this.imagePagingData.cookieData.currentSelectImage);
     };
     UserIndexViewHelper.prototype.GetPreviewImageData = function (index) {
         var token = $("#keyForm input[name=__RequestVerificationToken]").val();
@@ -143,8 +143,8 @@ var UserIndexViewHelper = /** @class */ (function () {
                     pageContainer.append(data);
                 }
                 else {
-                    context.pagingData.cookieData.currentSelectImage = context.pagingData.cookieData.currentSelectImage - 1;
-                    context.maxImageIndex = context.pagingData.cookieData.currentSelectImage;
+                    context.imagePagingData.cookieData.currentSelectImage = context.imagePagingData.cookieData.currentSelectImage - 1;
+                    context.maxImageIndex = context.imagePagingData.cookieData.currentSelectImage;
                 }
             },
             error: function () {
@@ -165,16 +165,16 @@ var UserIndexViewHelper = /** @class */ (function () {
         }.bind(this));
     };
     UserIndexViewHelper.prototype.navigationToLeft = function () {
-        if (this.pagingData.cookieData.currentSelectImage > 1) {
-            this.pagingData.cookieData.currentSelectImage = this.pagingData.cookieData.currentSelectImage - 1;
-            this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
+        if (this.imagePagingData.cookieData.currentSelectImage > 1) {
+            this.imagePagingData.cookieData.currentSelectImage = this.imagePagingData.cookieData.currentSelectImage - 1;
+            this.GetPreviewImageData(this.imagePagingData.cookieData.currentSelectImage);
         }
     };
     UserIndexViewHelper.prototype.navigationToRigth = function () {
         if (!this.maxImageIndex
-            || this.maxImageIndex - 1 >= this.pagingData.cookieData.currentSelectImage) {
-            this.pagingData.cookieData.currentSelectImage = this.pagingData.cookieData.currentSelectImage + 1;
-            this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
+            || this.maxImageIndex - 1 >= this.imagePagingData.cookieData.currentSelectImage) {
+            this.imagePagingData.cookieData.currentSelectImage = this.imagePagingData.cookieData.currentSelectImage + 1;
+            this.GetPreviewImageData(this.imagePagingData.cookieData.currentSelectImage);
         }
     };
     return UserIndexViewHelper;

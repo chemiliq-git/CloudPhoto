@@ -7,63 +7,74 @@
 
 class UserIndexViewHelper {
 
-    constructor(pPagingData: imageRelationByUserCookieHelper) {
-        this.pagingData = pPagingData;
-        this.pagingData.saveCookieData();
+    constructor(
+        imagePagingData: imageRelationByUserCookieHelper,
+        userPagingData: userRelationByUserCookieHelper) {
+        this.imagePagingData = imagePagingData;
+        this.imagePagingData.saveCookieData();
+
+        this.userPagingData = userPagingData;
+        this.userPagingData.saveCookieData();
 
         var context = this;
         $(document).ready(
             function () {
-                context.myPagingHelper.RegisterFloatPaging(
+                context.myImagePagingHelper.RegisterFloatPaging(
                     '/images/GetUserImagesData',
-                    context.pagingData);
-                context.myPagingHelper.startSearchData();
+                    context.imagePagingData);
+                context.myImagePagingHelper.startSearchData();
+
+                context.myUserPagingHelper.pausePaging();
+                context.myUserPagingHelper.RegisterFloatPaging(
+                    '/users/GetLinkedUsers',
+                    context.userPagingData);
 
                 context.hookToArrowKey();
             }
         );
     }
 
-    myPagingHelper = new myFloatPagingHelper<imageRelationByUserCookieHelper>();
-    myAllertHelper = new myAlertHelper("myMessageContainer");
-    pagingData: imageRelationByUserCookieHelper;
+    myImagePagingHelper = new myFloatPagingHelper<imageRelationByUserCookieHelper>();
+    imagePagingData: imageRelationByUserCookieHelper;
 
+    myUserPagingHelper = new myFloatPagingHelper<userRelationByUserCookieHelper>();
+    userPagingData: userRelationByUserCookieHelper;
+
+    myAllertHelper = new myAlertHelper("myMessageContainer");
     maxImageIndex;
 
     getUploadImages(control) {
-        this.pagingData.cookieData.type = "uploads";
-        control.setAttribute("class", "nav-link");
-        document.getElementById("likeTab").setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
+        this.imagePagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.uploads].toString();
+        this.imagePagingData.saveCookieData();
         this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+
+        this.myImagePagingHelper.startSearchData();
+        this.myUserPagingHelper.pausePaging();
     }
 
     getLikeImages(control) {
-        this.pagingData.cookieData.type = "likes";
-        control.setAttribute("class", "nav-link");
-        document.getElementById("uploadTab").setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
+        this.imagePagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.likes].toString();;
+        this.imagePagingData.saveCookieData();
         this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+
+        this.myImagePagingHelper.startSearchData();
+        this.myUserPagingHelper.pausePaging();
     }
 
     getFollowers(control: HTMLElement) {
-        this.pagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.followers].toString();
-        control.setAttribute("class", "nav-link");
-        control.parentElement.setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
-        this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+        this.userPagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.followers].toString();
+        this.userPagingData.saveCookieData();
+
+        this.myImagePagingHelper.pausePaging();
+        this.myUserPagingHelper.startSearchData();
     }
 
     getFollowing(control: HTMLElement) {
-        this.pagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.following].toString();
-        control.setAttribute("class", "nav-link");
-        control.parentElement.setAttribute("class", "nav-link active");
-        this.pagingData.saveCookieData();
-        this.maxImageIndex = undefined;
-        this.myPagingHelper.startSearchData();
+        this.userPagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.following].toString();
+        this.userPagingData.saveCookieData();
+
+        this.myImagePagingHelper.pausePaging();
+        this.myUserPagingHelper.startSearchData();
     }
 
     uploadAvatar(inputId) {
@@ -79,7 +90,7 @@ class UserIndexViewHelper {
 
     uploadFile(formData) {
 
-        formData.append("userId", this.pagingData.cookieData.userId);
+        formData.append("userId", this.imagePagingData.cookieData.userId);
         var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
         var context = this;
         $.ajax(
@@ -114,7 +125,7 @@ class UserIndexViewHelper {
     updateAvatar(avatarUrl) {
         var formData = new FormData();
 
-        formData.append("userId", this.pagingData.cookieData.userId);
+        formData.append("userId", this.imagePagingData.cookieData.userId);
         formData.append("avatarUrl", avatarUrl);
 
         var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
@@ -143,9 +154,9 @@ class UserIndexViewHelper {
     }
 
     showModalImage(imageIndex) {
-        this.pagingData.cookieData.currentSelectImage = imageIndex;
+        this.imagePagingData.cookieData.currentSelectImage = imageIndex;
         (<any>$('#myModal')).modal('show');
-        this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
+        this.GetPreviewImageData(this.imagePagingData.cookieData.currentSelectImage);
     }
 
     GetPreviewImageData(index) {
@@ -171,8 +182,8 @@ class UserIndexViewHelper {
                     pageContainer.append(data);
                 }
                 else {
-                    context.pagingData.cookieData.currentSelectImage = context.pagingData.cookieData.currentSelectImage - 1;
-                    context.maxImageIndex = context.pagingData.cookieData.currentSelectImage;
+                    context.imagePagingData.cookieData.currentSelectImage = context.imagePagingData.cookieData.currentSelectImage - 1;
+                    context.maxImageIndex = context.imagePagingData.cookieData.currentSelectImage;
                 }
             },
             error: function () {
@@ -195,17 +206,17 @@ class UserIndexViewHelper {
     }
 
     navigationToLeft() {
-        if (this.pagingData.cookieData.currentSelectImage > 1) {
-            this.pagingData.cookieData.currentSelectImage = this.pagingData.cookieData.currentSelectImage - 1;
-            this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
+        if (this.imagePagingData.cookieData.currentSelectImage > 1) {
+            this.imagePagingData.cookieData.currentSelectImage = this.imagePagingData.cookieData.currentSelectImage - 1;
+            this.GetPreviewImageData(this.imagePagingData.cookieData.currentSelectImage);
         }
     }
 
     navigationToRigth() {
         if (!this.maxImageIndex
-            || this.maxImageIndex - 1 >= this.pagingData.cookieData.currentSelectImage) {
-            this.pagingData.cookieData.currentSelectImage = this.pagingData.cookieData.currentSelectImage + 1;
-            this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
+            || this.maxImageIndex - 1 >= this.imagePagingData.cookieData.currentSelectImage) {
+            this.imagePagingData.cookieData.currentSelectImage = this.imagePagingData.cookieData.currentSelectImage + 1;
+            this.GetPreviewImageData(this.imagePagingData.cookieData.currentSelectImage);
         }
     }
 }

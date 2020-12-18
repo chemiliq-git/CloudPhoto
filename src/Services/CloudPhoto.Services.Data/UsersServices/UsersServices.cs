@@ -12,7 +12,6 @@
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.DapperService;
-    using CloudPhoto.Services.Mapping;
     using Microsoft.AspNetCore.Identity;
 
     public class UsersServices : IUsersServices
@@ -68,12 +67,35 @@
             }
         }
 
-        public T GetUserInfo<T>(string infoForUserId, string currentLoginUser)
+        public T GetUserInfo<T>(string infoForUserId, string currentLoginUserId)
+        {
+            return this.GetUsersData<T>(infoForUserId, currentLoginUserId).FirstOrDefault();
+        }
+
+        public IEnumerable<T> GetFollowingUsers<T>(string infoForUserId, string currentLoginUserId, int perPage, int page)
+        {
+            return this.GetUsersData<T>(infoForUserId, currentLoginUserId, perPage, page, isGetFollowing: true);
+        }
+
+        public IEnumerable<T> GetFollowerUsers<T>(string infoForUserId, string currentLoginUserId, int perPage, int page)
+        {
+            return this.GetUsersData<T>(infoForUserId, currentLoginUserId, perPage, page, isGetFollower: true);
+        }
+
+        private IEnumerable<T> GetUsersData<T>(
+            string infoForUserId,
+            string currentLoginUserId,
+            int perPage = 0,
+            int page = 0,
+            bool isGetFollower = false,
+            bool isGetFollowing = false)
         {
             var parameters = new
             {
+                Skip = (page - 1) * perPage,
+                Take = perPage,
                 infoForUserId,
-                currentLoginUser,
+                currentLoginUserId,
                 ClaimType = GlobalConstants.ExternalClaimAvatar,
             };
 
@@ -85,17 +107,45 @@
                 c.ClaimValue AS UserAvatar,
                 -- get follow info
                 (SELECT Count(*) FROM UserSubscribes AS us
-                WHERE us.UserSubscribedId = @currentLoginUser
+                WHERE us.UserSubscribedId = @currentLoginUserId
                 AND aspu.Id = us.SubscribeToUserId) AS IsFollowCurrentUser,
+                -- get count followers
                 (SELECT Count(*) FROM UserSubscribes AS us
                 WHERE aspu.Id = us.SubscribeToUserId) AS CountFollowers,
+                -- get count following
                 (SELECT Count(*) FROM UserSubscribes AS us
                 WHERE aspu.Id = us.UserSubscribedId) AS CountFollowing
                 FROM AspNetUsers AS aspu
-                LEFT JOIN AspNetUserClaims AS c On aspu.Id = c.UserId AND c.ClaimType = @ClaimType
-                WHERE aspu.Id = @InfoForUserId");
+                LEFT JOIN AspNetUserClaims AS c On aspu.Id = c.UserId AND c.ClaimType = @ClaimType");
 
-            return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text).FirstOrDefault();
+            if (!isGetFollower
+                && !isGetFollowing)
+            {
+                sqlSelect.Append(" WHERE aspu.Id = @InfoForUserId");
+            }
+            else
+            {
+                if (isGetFollower)
+                {
+                    sqlSelect.Append(@" WHERE aspu.id in 
+                    (SELECT UserSubscribedId FROM UserSubscribes WHERE SubscribeToUserId = @InfoForUserId)");
+                }
+
+                if (isGetFollowing)
+                {
+                    sqlSelect.Append(@" WHERE aspu.id in 
+                    (SELECT SubscribeToUserId FROM UserSubscribes WHERE UserSubscribedId = @InfoForUserId)");
+                }
+            }
+
+            if (page > 0 &&
+                perPage > 0)
+            {
+                sqlSelect.AppendLine(" ORDER BY aspu.ID OFFSET @Skip ROWS ");
+                sqlSelect.AppendLine(" FETCH NEXT @Take ROWS ONLY");
+            }
+
+            return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
         }
     }
 }

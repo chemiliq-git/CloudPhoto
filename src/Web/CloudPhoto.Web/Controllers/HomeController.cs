@@ -36,7 +36,7 @@
                 countShowCategory = 2;
             }
 
-            if (!int.TryParse(this.Configuration.GetSection("HomePageSettings:ShowMostLikeCategory_Count").Value, out int countShowImages))
+            if (!int.TryParse(this.Configuration.GetSection("HomePageSettings:ShowMostLikeImage_ByCategory_Count").Value, out int countShowImages))
             {
                 countShowImages = 4;
             }

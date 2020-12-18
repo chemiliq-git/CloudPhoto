@@ -49,10 +49,8 @@
 <div>
     <div class="row container-fluid">
         <div id="userAvatar" class="h-100 col-lg-5 col-xl-5 col-md-5 col-sm-12 d-flex justify-content-lg-end justify-content-xl-end justify-content-md-end justify-content-sm-center justify-content-center">
-            <form id="dragFileForm" method="post" enctype="multipart/form-data">
-                <img id="avatarImage" src=@avatarUrl referrerpolicy="no-referrer" width="60" height="60"
-                     class="rounded-circle" alt=@Model.DisplayUserName>
-            </form>
+            <img id="avatarImage" src=@avatarUrl referrerpolicy="no-referrer" width="60" height="60"
+                 class="rounded-circle" alt=@Model.DisplayUserName>
         </div>
         <div class="row no-gutters col-xl-7 col-lg-7 col-md-7 col-sm-12 d-flex justify-content-lg-start justify-content-xl-start justify-content-md-center justify-content-sm-center justify-content-center ">
             <div class="col-xl-7 col-lg-7 col-md-12 col-sm-12 d-flex justify-content-lg-start justify-content-xl-start justify-content-md-center justify-content-sm-center justify-content-center">
@@ -76,7 +74,7 @@
                 else
                 {
                     <form id="dragFileForm" method="post" enctype="multipart/form-data">
-                        <label for="file-upload" class="btn btn-sm btn-outline-dark m-1 custom-file-upload" >
+                        <label for="file-upload" class="btn btn-sm btn-outline-dark m-1 custom-file-upload">
                             Update avatar
                         </label>
                         <input id="file-upload" type="file" style="display: none;" onchange="helper.uploadAvatar('file-upload');" />
@@ -95,22 +93,22 @@
 <div class="row container-fluid">
     <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item">
-            <a id="uploadTab" class="nav-link active" href="#" data-toggle="tab" role="tab" onclick="helper.getUploadImages(this);">
+            <a id="uploads" class="nav-link active" href="#" data-toggle="tab" role="tab" onclick="helper.getUploadImages(this);">
                 Upload Images
             </a>
         </li>
         <li class="nav-item">
-            <a id="likeTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getLikeImages(this);">
+            <a id="likes" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getLikeImages(this);">
                 Like Images
             </a>
         </li>
         <li class="nav-item">
-            <a id="followersTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getFollowers(this);">
+            <a id="followers" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getFollowers(this);">
                 @Model.CountFollowers Followers
             </a>
         </li>
         <li class="nav-item">
-            <a id="followingTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getFollowing(this);">
+            <a id="following" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getFollowing(this);">
                 @Model.CountFollowing Following
             </a>
         </li>
@@ -133,10 +131,12 @@
 @section Scripts {
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
     <script type="text/javascript" src="~/js/imageRalateByUserCookieData.js"></script>
+    <script type="text/javascript" src="~/js/userRalateByUserCookieData.js"></script>
     <script type="text/javascript" src="~/js/userIndexView.js"></script>
     <script type="text/javascript" src="~/js/mySubscribe.js"></script>
     <script>
-        var pagingData = new imageRelationByUserCookieHelper(@imagePerPage, '@Model.Id',"uploads");
-        var helper = new UserIndexViewHelper(pagingData);
+        var imagePagingData = new imageRelationByUserCookieHelper(@imagePerPage, '@Model.Id', "uploads");
+        var userPagingData = new userRelationByUserCookieHelper(@imagePerPage, '@Model.Id');
+        var helper = new UserIndexViewHelper(imagePagingData, userPagingData);
     </script>
 }

@@ -3,12 +3,8 @@ using CloudPhoto.Services.Mapping;
 
 namespace CloudPhoto.Web.ViewModels.Users
 {
-    public class UserPreviewViewModel : IMapFrom<ApplicationUser>
+    public class UserListViewModel : IMapFrom<ApplicationUser>
     {
-        public UserPreviewViewModel()
-        {
-        }
-
         public string Id { get; set; }
 
         public string UserName { get; set; }
@@ -19,15 +15,9 @@ namespace CloudPhoto.Web.ViewModels.Users
 
         public string UserAvatar { get; set; }
 
-        public string PayPalEmail { get; set; }
-
         public string Description { get; set; }
 
         public bool IsFollowCurrentUser { get; set; } = false;
-
-        public int CountFollowers { get; set; }
-
-        public int CountFollowing { get; set; }
 
         public virtual string DisplayUserName
         {

@@ -65,63 +65,68 @@
             return this.View(userInfo);
         }
 
-        //[HttpPost("PreviewImage")]
-        //public async Task<IActionResult> PreviewImage(int id)
-        //{
-        //    if (!this.Request.Cookies.TryGetValue("imageRelateByUserData", out string readPagingDataCookie))
-        //    {
-        //        return this.BadRequest();
-        //    }
+        [HttpPost("GetLinkedUsers")]
+        public async Task<IActionResult> GetLinkedUsers(
+            int pageIndex,
+            int pageSize,
+            string userId,
+            string type)
+        {
 
-        //    var options = new JsonSerializerOptions
-        //    {
-        //        PropertyNameCaseInsensitive = true,
-        //    };
-        //    PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
+            ApplicationUser user = await this.UserManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return this.BadRequest();
+            }
 
-        //    ApplicationUser userPreviewProfil = await this.UserManager.FindByIdAsync(cookieSearchData.UserId);
-        //    if (userPreviewProfil == null)
-        //    {
-        //        return this.BadRequest();
-        //    }
+            bool isSearchFollowing;
+            switch (type)
+            {
+                case "followers":
+                    {
+                        isSearchFollowing = false;
+                        break;
+                    }
 
-        //    SearchImageData localSearchData = null;
-        //    if (cookieSearchData.Type == "uploads")
-        //    {
-        //        localSearchData = new SearchImageData
-        //        {
-        //            AuthorId = userPreviewProfil.Id,
-        //        };
-        //    }
-        //    else if (cookieSearchData.Type == "likes")
-        //    {
-        //        localSearchData = new SearchImageData
-        //        {
-        //            LikeByUser = userPreviewProfil.Id,
-        //        };
-        //    }
+                case "following":
+                    {
+                        isSearchFollowing = true;
+                        break;
+                    }
 
-        //    if (this.User.Identity.IsAuthenticated)
-        //    {
-        //        ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
-        //        localSearchData.LikeForUserId = loginUser.Id;
-        //    }
+                default:
+                    {
+                        return this.BadRequest();
+                    }
+            }
 
-        //    var data = this.ImagesService.GetByFilter<ImagePreviewViewModel>(
-        //          localSearchData, 1, id);
+            string likeForUserId = string.Empty;
+            if (this.User.Identity.IsAuthenticated)
+            {
+                ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
+                likeForUserId = loginUser.Id;
+            }
 
-        //    if (!data.Any())
-        //    {
-        //        return this.Json(string.Empty);
-        //    }
-        //    else
-        //    {
-        //        ImagePreviewViewModel previewImage = data.First();
-        //        previewImage.ImageIndex = id;
+            IEnumerable<UserListViewModel> lstUsersInfo;
+            if (isSearchFollowing)
+            {
+                lstUsersInfo = this.UsersServices.GetFollowingUsers<UserListViewModel>(
+                          userId,
+                          likeForUserId,
+                          pageSize,
+                          pageIndex);
+            }
+            else
+            {
+                lstUsersInfo = this.UsersServices.GetFollowerUsers<UserListViewModel>(
+                        userId,
+                        likeForUserId,
+                        pageSize,
+                        pageIndex);
+            }
 
-        //        return this.PartialView("_PreviewImagePartial", previewImage);
-        //    }
-        //}
+            return this.PartialView("_UserListPartial", lstUsersInfo);
+        }
 
         [HttpPost("UpdateAvatar")]
         [ValidateAntiForgeryToken]

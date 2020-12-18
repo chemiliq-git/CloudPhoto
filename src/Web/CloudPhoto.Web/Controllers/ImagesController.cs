@@ -292,7 +292,7 @@
             {
                 PropertyNameCaseInsensitive = true,
             };
-            PagingCookieData cookieSearchData = JsonSerializer.Deserialize<PagingCookieData>(readPagingDataCookie, options);
+            ImagePagingCookieData cookieSearchData = JsonSerializer.Deserialize<ImagePagingCookieData>(readPagingDataCookie, options);
 
             ApplicationUser userPreviewProfil = await this.userManager.FindByIdAsync(cookieSearchData.UserId);
             if (userPreviewProfil == null)
