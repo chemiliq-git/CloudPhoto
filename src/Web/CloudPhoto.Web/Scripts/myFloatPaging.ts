@@ -1,101 +1,125 @@
-﻿var mPagingContainer = '#partialView'
-var mPagingProgress = '#progress'
-var mPaginData;
-
-var mPagingUrl;
-var mReadPagingData;
-var mSavePagingData;
-
-var mHasAnoutherPages = true;
-var mHasStartRequest = false;
-
-function RegisterFloatPaging(
-    pReadPagingData, pSavePaginData, pSearchUrl) {
-    mReadPagingData = pReadPagingData;
-    mSavePagingData = pSavePaginData;
-    mPagingUrl = pSearchUrl;
+﻿interface IPagingData {
+    readPagingData: () => any;
+    onChangePageIndex: (pageIndex: number) => void;
 }
 
-$(window).scroll(function () {
-    if ($(window).scrollTop() >=
-        $(document).height() - $(window).height()) {
-        if (!mHasStartRequest) {
-            GetData();
-        }
-    }
-});
+class myFloatPagingHelper<T extends IPagingData> {
 
-function startSearchData() {
-    var pagingView = $(mPagingContainer);
-    pagingView.html("");
-
-    mPaginData = mReadPagingData();
-    mPaginData.pageIndex = 1;
-    mSavePagingData(mPaginData);
-
-    mHasAnoutherPages = true;
-    GetData();
-}
-
-function GetData() {
-    mHasStartRequest = true;
-
-    if (!mHasAnoutherPages) {
-        return;
+    constructor(
+        pagingContainerName: string = '#partialView',
+        pagingProcessControlName: string = '#progress') {
+        this.pagingContainer = pagingContainerName;
+        this.pagingProgress = pagingProcessControlName;
     }
 
-    var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+    pagingContainer: string;
+    pagingProgress: string;
+    pagingData: T;
+    pageIndex: number;
 
-    mPaginData = mReadPagingData();
+    pagingUrl: string;
 
-    var formData = new FormData();
-    Object.keys(mPaginData).forEach(function (key, index) {
-        // key: the name of the object key
-        // index: the ordinal position of the key within the object
-        if (Array.isArray(mPaginData[key])) {
-            formData.append(key, JSON.stringify(mPaginData[key]));
-        }
-        else {
-            formData.append(key, mPaginData[key]);
-        }
-    });
+    hasAnoutherPages: boolean = true;
+    hasStartRequest: boolean = false;
+    isPausePaging: boolean = false;
 
-    $.ajax({
-        url: mPagingUrl,
-        data: formData,
-        processData: false,
-        contentType: false,
-        type: "POST",
-        headers: { 'X-CSRF-TOKEN': token.toString() },
-        xhrFields: {
-            withCredentials: true
-        },
-        success: function (data) {
-            var pageContainer = $(mPagingContainer);
-            if (data != '') {
-                pageContainer.append(data);
-                if (mPaginData.pageIndex == 1) {
-                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+    RegisterFloatPaging(pSearchUrl: string, pagingData: T) {
+        this.pagingUrl = pSearchUrl;
+        this.pagingData = pagingData;
+
+        let context = this;
+        $(window).scroll(function () {
+            if ($(window).scrollTop() >=
+                $(document).height() - $(window).height()) {
+                if (!context.isPausePaging
+                    && !context.hasStartRequest) {
+                    context.GetData();
                 }
-                mPaginData.pageIndex++;
-                mSavePagingData(mPaginData);
+            }
+        });
+    }
+
+    pausePaging() {
+        this.isPausePaging = true;
+    }
+
+    playPaging() {
+        this.isPausePaging = false;
+    }
+
+
+    startSearchData() {
+        var pagingView = $(this.pagingContainer);
+        pagingView.html("");
+
+        this.pageIndex = 1;
+        this.pagingData.onChangePageIndex(this.pageIndex);
+
+        this.hasAnoutherPages = true;
+        this.GetData();
+    }
+
+    private GetData() {
+        this.hasStartRequest = true;
+
+        if (!this.hasAnoutherPages) {
+            return;
+        }
+
+        var token = $("#keyForm input[name=__RequestVerificationToken]").val();
+
+        var searchData = this.pagingData.readPagingData();
+
+        var formData = new FormData();
+        let context = this;
+        Object.keys(searchData).forEach(function (key, index) {
+            // key: the name of the object key
+            // index: the ordinal position of the key within the object
+            if (Array.isArray(searchData[key])) {
+                formData.append(key, JSON.stringify(searchData[key]));
             }
             else {
-                mHasAnoutherPages = false;
-                if (mPaginData.pageIndex == 1) {
-                    pageContainer.html("");
-                }
+                formData.append(key, searchData[key]);
             }
-        },
-        beforeSend: function () {
-            $(mPagingProgress).show();
-        },
-        complete: function () {
-            $(mPagingProgress).hide();
-            mHasStartRequest = false;
-        },
-        error: function () {
-            alert("Error while retrieving data!");
-        }
-    });
+        });
+
+        $.ajax({
+            url: this.pagingUrl,
+            data: formData,
+            processData: false,
+            contentType: false,
+            type: "POST",
+            headers: { 'X-CSRF-TOKEN': token.toString() },
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function (data) {
+                var pageContainer = $(context.pagingContainer);
+                if (data != '') {
+                    pageContainer.append(data);
+                    if (context.pageIndex == 1) {
+                        $('html, body').animate({ scrollTop: 0 }, 'slow');
+                    }
+                    context.pageIndex++;
+                    context.pagingData.onChangePageIndex(context.pageIndex);
+                }
+                else {
+                    context.hasAnoutherPages = false;
+                    if (context.pageIndex == 1) {
+                        pageContainer.html("");
+                    }
+                }
+            },
+            beforeSend: function () {
+                $(context.pagingProgress).show();
+            },
+            complete: function () {
+                $(context.pagingProgress).hide();
+                context.hasStartRequest = false;
+            },
+            error: function () {
+                alert("Error while retrieving data!");
+            }
+        });
+    }
 }

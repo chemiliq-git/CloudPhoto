@@ -1,9 +1,9 @@
 ﻿class siteHelper {
     searchControlName: string = '#headerSearchControl';
-    searchData: mainCookieHelper;
+    searchData: mainImageCookieHelper;
 
     constructor() {
-        this.searchData = new mainCookieHelper();
+        this.searchData = new mainImageCookieHelper();
     }
 
     hookToSearchControlEvents() {
@@ -24,23 +24,23 @@
     }
 
     onStartAutoCompleteSearch() {
-        this.searchData.readSearchData();
+        this.searchData.readCookieData();
         var searchValue = $(this.searchControlName).val();
         if (searchValue) {
-            this.searchData.mainSearchData.searchText = $(this.searchControlName).val().toString();
-            this.searchData.saveSearchData();
+            this.searchData.cookieData.searchText = $(this.searchControlName).val().toString();
+            this.searchData.saveCookieData();
         }
     }
 
     seachImageByInputData() {
-        this.searchData.readSearchData();
+        this.searchData.readCookieData();
         var searchValue = $(this.searchControlName).val();
         if (searchValue) {
-            this.searchData.clearSearchData();
-            this.searchData.mainSearchData.searchText = $(this.searchControlName).val().toString();
-            this.searchData.saveSearchData();
+            this.searchData.clearCookieData();
+            this.searchData.cookieData.searchText = $(this.searchControlName).val().toString();
+            this.searchData.saveCookieData();
 
-            window.location.href = '/Images/Index'; var data1 = this.searchData.readSearchData();
+            window.location.href = '/Images/Index'; var data1 = this.searchData.readCookieData();
         }
     }
 }

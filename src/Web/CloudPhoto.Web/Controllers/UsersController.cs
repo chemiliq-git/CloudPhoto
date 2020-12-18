@@ -80,19 +80,25 @@
             }
 
             SearchImageData localSearchData = null;
-            if (type == "uploads")
+            switch (type)
             {
-                localSearchData = new SearchImageData
-                {
-                    AuthorId = user.Id,
-                };
-            }
-            else if (type == "likes")
-            {
-                localSearchData = new SearchImageData
-                {
-                    LikeByUser = user.Id,
-                };
+                case "uploads":
+                    {
+                        localSearchData = new SearchImageData
+                        {
+                            AuthorId = user.Id,
+                        };
+                        break;
+                    }
+
+                case "likes":
+                    {
+                        localSearchData = new SearchImageData
+                        {
+                            LikeByUser = user.Id,
+                        };
+                        break;
+                    }
             }
 
             if (this.User.Identity.IsAuthenticated)
@@ -124,7 +130,7 @@
         [HttpPost("PreviewImage")]
         public async Task<IActionResult> PreviewImage(int id)
         {
-            if (!this.Request.Cookies.TryGetValue("pagingData", out string readPagingDataCookie))
+            if (!this.Request.Cookies.TryGetValue("imageRelateByUserData", out string readPagingDataCookie))
             {
                 return this.BadRequest();
             }

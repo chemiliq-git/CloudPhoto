@@ -28,17 +28,17 @@ $(window).on("scroll", function () {
 });
 
 class HomeIndexViewHelper {
-    cookieHelper: mainCookieHelper;
+    cookieHelper: mainImageCookieHelper;
 
     constructor(imagePerPage: number) {
-        this.cookieHelper = new mainCookieHelper();
-        this.cookieHelper.initSearchData(imagePerPage);
+        this.cookieHelper = new mainImageCookieHelper();
+        this.cookieHelper.initCookieData(imagePerPage);
     }
 
     clickToCategory(categoryId: string) {
-        this.cookieHelper.clearSearchData();
-        this.cookieHelper.mainSearchData.selectCategory.push(categoryId);
-        this.cookieHelper.saveSearchData();
+        this.cookieHelper.clearCookieData();
+        this.cookieHelper.cookieData.selectCategory.push(categoryId);
+        this.cookieHelper.saveCookieData();
         window.location.href = "/images/index";
     }
 }

@@ -23,13 +23,13 @@ $(window).on("scroll", function () {
 });
 var HomeIndexViewHelper = /** @class */ (function () {
     function HomeIndexViewHelper(imagePerPage) {
-        this.cookieHelper = new mainCookieHelper();
-        this.cookieHelper.initSearchData(imagePerPage);
+        this.cookieHelper = new mainImageCookieHelper();
+        this.cookieHelper.initCookieData(imagePerPage);
     }
     HomeIndexViewHelper.prototype.clickToCategory = function (categoryId) {
-        this.cookieHelper.clearSearchData();
-        this.cookieHelper.mainSearchData.selectCategory.push(categoryId);
-        this.cookieHelper.saveSearchData();
+        this.cookieHelper.clearCookieData();
+        this.cookieHelper.cookieData.selectCategory.push(categoryId);
+        this.cookieHelper.saveCookieData();
         window.location.href = "/images/index";
     };
     return HomeIndexViewHelper;

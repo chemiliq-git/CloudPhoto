@@ -104,6 +104,16 @@
                 Like Images
             </a>
         </li>
+        <li class="nav-item">
+            <a id="followersTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getFollowers(this);">
+                @Model.CountFollowers Followers
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="followingTab" class="nav-link" href="#" data-toggle="tab" role="tab" onclick="helper.getFollowing(this);">
+                @Model.CountFollowing Following
+            </a>
+        </li>
     </ul>
 </div>
 
@@ -122,11 +132,11 @@
 
 @section Scripts {
     <script type="text/javascript" src="~/js/myFloatPaging.js"></script>
-    <script type="text/javascript" src="~/js/userSearchData.js"></script>
+    <script type="text/javascript" src="~/js/imageRalateByUserCookieData.js"></script>
     <script type="text/javascript" src="~/js/userIndexView.js"></script>
     <script type="text/javascript" src="~/js/mySubscribe.js"></script>
     <script>
-        var pagingData = new userCookieHelper(@imagePerPage, '@Model.Id',"uploads");
+        var pagingData = new imageRelationByUserCookieHelper(@imagePerPage, '@Model.Id',"uploads");
         var helper = new UserIndexViewHelper(pagingData);
     </script>
 }

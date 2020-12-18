@@ -1,7 +1,7 @@
 var siteHelper = /** @class */ (function () {
     function siteHelper() {
         this.searchControlName = '#headerSearchControl';
-        this.searchData = new mainCookieHelper();
+        this.searchData = new mainImageCookieHelper();
     }
     siteHelper.prototype.hookToSearchControlEvents = function () {
         new myAutocompleteHelper(this.onStartAutoCompleteSearch.bind(this), this.seachImageByInputData.bind(this), this.searchControlName);
@@ -16,22 +16,22 @@ var siteHelper = /** @class */ (function () {
         }.bind(this));
     };
     siteHelper.prototype.onStartAutoCompleteSearch = function () {
-        this.searchData.readSearchData();
+        this.searchData.readCookieData();
         var searchValue = $(this.searchControlName).val();
         if (searchValue) {
-            this.searchData.mainSearchData.searchText = $(this.searchControlName).val().toString();
-            this.searchData.saveSearchData();
+            this.searchData.cookieData.searchText = $(this.searchControlName).val().toString();
+            this.searchData.saveCookieData();
         }
     };
     siteHelper.prototype.seachImageByInputData = function () {
-        this.searchData.readSearchData();
+        this.searchData.readCookieData();
         var searchValue = $(this.searchControlName).val();
         if (searchValue) {
-            this.searchData.clearSearchData();
-            this.searchData.mainSearchData.searchText = $(this.searchControlName).val().toString();
-            this.searchData.saveSearchData();
+            this.searchData.clearCookieData();
+            this.searchData.cookieData.searchText = $(this.searchControlName).val().toString();
+            this.searchData.saveCookieData();
             window.location.href = '/Images/Index';
-            var data1 = this.searchData.readSearchData();
+            var data1 = this.searchData.readCookieData();
         }
     };
     return siteHelper;

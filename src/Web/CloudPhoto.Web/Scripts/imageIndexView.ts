@@ -1,6 +1,8 @@
 ﻿class ImageIndexViewHelper {
 
-    searchData: mainCookieHelper;
+    searchData: mainImageCookieHelper;
+    myPagingHelper = new myFloatPagingHelper<mainImageCookieHelper>();
+    
 
     hasAnoutherPages = true;
     hasStartRequest = false;
@@ -9,13 +11,14 @@
     currentSelectImage;
     userVode;
 
-    constructor(pSearchData: mainCookieHelper) {
+    constructor(pSearchData: mainImageCookieHelper) {
         this.searchData = pSearchData;
+
         var context = this;
 
         $(document).ready(
             function () {
-                context.searchData = new mainCookieHelper();
+                context.searchData = new mainImageCookieHelper();
                 context.hookToCloseSideMenu();
                 context.hookToClearAllFilter();
                 context.hookToArrowKey();
@@ -26,13 +29,12 @@
                     context.onStartAutoCompleteSearch.bind(context),
                     context.onStartAutoCompleteSearch.bind(context));
 
-                RegisterFloatPaging(
-                    context.searchData.readSearchData.bind(context.searchData),
-                    context.searchData.saveSearchData.bind(context.searchData),
-                    '/images/GetSearchingData');
+                context.myPagingHelper.RegisterFloatPaging(
+                    '/images/GetSearchingData',
+                    context.searchData);
 
                 context.maxImageIndex = undefined;
-                startSearchData();
+                context.myPagingHelper.startSearchData();
             });
     }
 
@@ -104,26 +106,26 @@
 
     // execute when selected element on tag search control
     onStartAutoCompleteSearch() {
-        this.searchData.readSearchData();
-        this.searchData.mainSearchData.searchText = $('#searchImageTag').val().toString();
-        this.searchData.saveSearchData();
+        this.searchData.readCookieData();
+        this.searchData.cookieData.searchText = $('#searchImageTag').val().toString();
+        this.searchData.saveCookieData();
     }
 
     checkUncheckCategory(checkBox) {
-        this.searchData.readSearchData();
+        this.searchData.readCookieData();
 
         if (checkBox.checked == true) {
-            this.searchData.mainSearchData.selectCategory.push(checkBox.id);
+            this.searchData.cookieData.selectCategory.push(checkBox.id);
         }
         else {
-            var filtered = this.searchData.mainSearchData.selectCategory.filter(function (value, index, arr) {
+            var filtered = this.searchData.cookieData.selectCategory.filter(function (value, index, arr) {
                 return value != checkBox.id;
             });
-            this.searchData.mainSearchData.selectCategory = filtered;
+            this.searchData.cookieData.selectCategory = filtered;
         }
-        this.searchData.saveSearchData();
+        this.searchData.saveCookieData();
         this.maxImageIndex = undefined;
-        startSearchData();
+        this.myPagingHelper.startSearchData();
     }
 
     configPage() {
@@ -132,11 +134,11 @@
             this.toggleMenu();
         }
 
-        this.searchData.readSearchData();
+        this.searchData.readCookieData();
 
-        this.showCheckedCategory(this.searchData.mainSearchData.selectCategory);
+        this.showCheckedCategory(this.searchData.cookieData.selectCategory);
 
-        $('#searchImageTag').val(this.searchData.mainSearchData.searchText);
+        $('#searchImageTag').val(this.searchData.cookieData.searchText);
     }
 
     showCheckedCategory(arraySelectCategories) {
@@ -161,7 +163,7 @@
         const node = document.getElementById("clearFilter");
         let context = this;
         node.addEventListener("click", function (event) {
-            context.searchData.clearSearchData();
+            context.searchData.clearCookieData();
             $('#groupCheckBox input:checked').each(function () {
                 (<any>this).checked = false;
             });
@@ -169,7 +171,7 @@
             $('#searchImageTag').val(null);
 
             context.maxImageIndex = undefined;
-            startSearchData();
+            context.myPagingHelper.startSearchData();
         }.bind(this));
     }
 

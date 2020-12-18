@@ -1,43 +1,69 @@
-﻿
+﻿enum UserPageTabEnum {
+    uploads,
+    likes,
+    followers,
+    following,
+}
+
 class UserIndexViewHelper {
-    constructor(pPagingData: userCookieHelper) {
+
+    constructor(pPagingData: imageRelationByUserCookieHelper) {
         this.pagingData = pPagingData;
-        this.pagingData.saveSearchData();
+        this.pagingData.saveCookieData();
 
         var context = this;
         $(document).ready(
             function () {
-                RegisterFloatPaging(context.pagingData.readSearchData.bind(context.pagingData),
-                    context.pagingData.saveSearchData.bind(context.pagingData),
-                    '/Users/GetPagingData');
-                startSearchData();
+                context.myPagingHelper.RegisterFloatPaging(
+                    '/Users/GetPagingData',
+                    context.pagingData);
+                context.myPagingHelper.startSearchData();
 
                 context.hookToArrowKey();
             }
         );
     }
 
+    myPagingHelper = new myFloatPagingHelper<imageRelationByUserCookieHelper>();
     myAllertHelper = new myAlertHelper("myMessageContainer");
-    pagingData: userCookieHelper;
+    pagingData: imageRelationByUserCookieHelper;
 
     maxImageIndex;
 
     getUploadImages(control) {
-        this.pagingData.userSearchData.type = "uploads";
+        this.pagingData.cookieData.type = "uploads";
         control.setAttribute("class", "nav-link");
         document.getElementById("likeTab").setAttribute("class", "nav-link active");
-        this.pagingData.saveSearchData();
+        this.pagingData.saveCookieData();
         this.maxImageIndex = undefined;
-        startSearchData();
+        this.myPagingHelper.startSearchData();
     }
 
     getLikeImages(control) {
-        this.pagingData.userSearchData.type = "likes";
+        this.pagingData.cookieData.type = "likes";
         control.setAttribute("class", "nav-link");
         document.getElementById("uploadTab").setAttribute("class", "nav-link active");
-        this.pagingData.saveSearchData();
+        this.pagingData.saveCookieData();
         this.maxImageIndex = undefined;
-        startSearchData();
+        this.myPagingHelper.startSearchData();
+    }
+
+    getFollowers(control: HTMLElement) {
+        this.pagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.followers].toString();
+        control.setAttribute("class", "nav-link");
+        control.parentElement.setAttribute("class", "nav-link active");
+        this.pagingData.saveCookieData();
+        this.maxImageIndex = undefined;
+        this.myPagingHelper.startSearchData();
+    }
+
+    getFollowing(control: HTMLElement) {
+        this.pagingData.cookieData.type = UserPageTabEnum[UserPageTabEnum.following].toString();
+        control.setAttribute("class", "nav-link");
+        control.parentElement.setAttribute("class", "nav-link active");
+        this.pagingData.saveCookieData();
+        this.maxImageIndex = undefined;
+        this.myPagingHelper.startSearchData();
     }
 
     uploadAvatar(inputId) {
@@ -53,7 +79,7 @@ class UserIndexViewHelper {
 
     uploadFile(formData) {
 
-        formData.append("userId", this.pagingData.userSearchData.userId);
+        formData.append("userId", this.pagingData.cookieData.userId);
         var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
         var context = this;
         $.ajax(
@@ -88,7 +114,7 @@ class UserIndexViewHelper {
     updateAvatar(avatarUrl) {
         var formData = new FormData();
 
-        formData.append("userId", this.pagingData.userSearchData.userId);
+        formData.append("userId", this.pagingData.cookieData.userId);
         formData.append("avatarUrl", avatarUrl);
 
         var token = $("#dragFileForm input[name=__RequestVerificationToken]").val();
@@ -117,9 +143,9 @@ class UserIndexViewHelper {
     }
 
     showModalImage(imageIndex) {
-        this.pagingData.userSearchData.currentSelectImage = imageIndex;
+        this.pagingData.cookieData.currentSelectImage = imageIndex;
         (<any>$('#myModal')).modal('show');
-        this.GetPreviewImageData(this.pagingData.userSearchData.currentSelectImage);
+        this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
     }
 
     GetPreviewImageData(index) {
@@ -145,8 +171,8 @@ class UserIndexViewHelper {
                     pageContainer.append(data);
                 }
                 else {
-                    context.pagingData.userSearchData.currentSelectImage = context.pagingData.userSearchData.currentSelectImage - 1;
-                    context.maxImageIndex = context.pagingData.userSearchData.currentSelectImage;
+                    context.pagingData.cookieData.currentSelectImage = context.pagingData.cookieData.currentSelectImage - 1;
+                    context.maxImageIndex = context.pagingData.cookieData.currentSelectImage;
                 }
             },
             error: function () {
@@ -169,17 +195,17 @@ class UserIndexViewHelper {
     }
 
     navigationToLeft() {
-        if (this.pagingData.userSearchData.currentSelectImage > 1) {
-            this.pagingData.userSearchData.currentSelectImage = this.pagingData.userSearchData.currentSelectImage - 1;
-            this.GetPreviewImageData(this.pagingData.userSearchData.currentSelectImage);
+        if (this.pagingData.cookieData.currentSelectImage > 1) {
+            this.pagingData.cookieData.currentSelectImage = this.pagingData.cookieData.currentSelectImage - 1;
+            this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
         }
     }
 
     navigationToRigth() {
         if (!this.maxImageIndex
-            || this.maxImageIndex - 1 >= this.pagingData.userSearchData.currentSelectImage) {
-            this.pagingData.userSearchData.currentSelectImage = this.pagingData.userSearchData.currentSelectImage + 1;
-            this.GetPreviewImageData(this.pagingData.userSearchData.currentSelectImage);
+            || this.maxImageIndex - 1 >= this.pagingData.cookieData.currentSelectImage) {
+            this.pagingData.cookieData.currentSelectImage = this.pagingData.cookieData.currentSelectImage + 1;
+            this.GetPreviewImageData(this.pagingData.cookieData.currentSelectImage);
         }
     }
 }

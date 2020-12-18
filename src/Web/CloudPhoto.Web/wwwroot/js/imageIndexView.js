@@ -1,19 +1,20 @@
 var ImageIndexViewHelper = /** @class */ (function () {
     function ImageIndexViewHelper(pSearchData) {
+        this.myPagingHelper = new myFloatPagingHelper();
         this.hasAnoutherPages = true;
         this.hasStartRequest = false;
         this.searchData = pSearchData;
         var context = this;
         $(document).ready(function () {
-            context.searchData = new mainCookieHelper();
+            context.searchData = new mainImageCookieHelper();
             context.hookToCloseSideMenu();
             context.hookToClearAllFilter();
             context.hookToArrowKey();
             context.configPage();
             new myAutocompleteHelper(context.onStartAutoCompleteSearch.bind(context), context.onStartAutoCompleteSearch.bind(context));
-            RegisterFloatPaging(context.searchData.readSearchData.bind(context.searchData), context.searchData.saveSearchData.bind(context.searchData), '/images/GetSearchingData');
+            context.myPagingHelper.RegisterFloatPaging('/images/GetSearchingData', context.searchData);
             context.maxImageIndex = undefined;
-            startSearchData();
+            context.myPagingHelper.startSearchData();
         });
     }
     ImageIndexViewHelper.prototype.showModalImage = function (imageIndex) {
@@ -79,33 +80,33 @@ var ImageIndexViewHelper = /** @class */ (function () {
     };
     // execute when selected element on tag search control
     ImageIndexViewHelper.prototype.onStartAutoCompleteSearch = function () {
-        this.searchData.readSearchData();
-        this.searchData.mainSearchData.searchText = $('#searchImageTag').val().toString();
-        this.searchData.saveSearchData();
+        this.searchData.readCookieData();
+        this.searchData.cookieData.searchText = $('#searchImageTag').val().toString();
+        this.searchData.saveCookieData();
     };
     ImageIndexViewHelper.prototype.checkUncheckCategory = function (checkBox) {
-        this.searchData.readSearchData();
+        this.searchData.readCookieData();
         if (checkBox.checked == true) {
-            this.searchData.mainSearchData.selectCategory.push(checkBox.id);
+            this.searchData.cookieData.selectCategory.push(checkBox.id);
         }
         else {
-            var filtered = this.searchData.mainSearchData.selectCategory.filter(function (value, index, arr) {
+            var filtered = this.searchData.cookieData.selectCategory.filter(function (value, index, arr) {
                 return value != checkBox.id;
             });
-            this.searchData.mainSearchData.selectCategory = filtered;
+            this.searchData.cookieData.selectCategory = filtered;
         }
-        this.searchData.saveSearchData();
+        this.searchData.saveCookieData();
         this.maxImageIndex = undefined;
-        startSearchData();
+        this.myPagingHelper.startSearchData();
     };
     ImageIndexViewHelper.prototype.configPage = function () {
         var showSearchBar = $.cookie("show-search-bar");
         if (showSearchBar != null) {
             this.toggleMenu();
         }
-        this.searchData.readSearchData();
-        this.showCheckedCategory(this.searchData.mainSearchData.selectCategory);
-        $('#searchImageTag').val(this.searchData.mainSearchData.searchText);
+        this.searchData.readCookieData();
+        this.showCheckedCategory(this.searchData.cookieData.selectCategory);
+        $('#searchImageTag').val(this.searchData.cookieData.searchText);
     };
     ImageIndexViewHelper.prototype.showCheckedCategory = function (arraySelectCategories) {
         arraySelectCategories.forEach(function (element) {
@@ -127,13 +128,13 @@ var ImageIndexViewHelper = /** @class */ (function () {
         var node = document.getElementById("clearFilter");
         var context = this;
         node.addEventListener("click", function (event) {
-            context.searchData.clearSearchData();
+            context.searchData.clearCookieData();
             $('#groupCheckBox input:checked').each(function () {
                 this.checked = false;
             });
             $('#searchImageTag').val(null);
             context.maxImageIndex = undefined;
-            startSearchData();
+            context.myPagingHelper.startSearchData();
         }.bind(this));
     };
     ImageIndexViewHelper.prototype.toggleMenu = function () {
