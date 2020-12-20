@@ -40,12 +40,12 @@ function mySendImageVote(imageId) {
     });
     return false;
 }
-function mySendImageVoteOnPreviewForm(button, likeIconId, imageId, likeCounts, userIsLike) {
+function mySendImageVoteOnPreviewForm(button, imageId, likeCounts, userIsLike) {
     var token = $("#keyForm input[name=__RequestVerificationToken]").val();
     var formData = new FormData();
     formData.append("imageId", imageId);
-    var style = document.getElementById(likeIconId).getAttribute('style');
-    if (style.indexOf("red") != -1) {
+    var likeIcon = button.getElementsByTagName("svg")[0];
+    if (likeIcon.getAttribute("style").indexOf("red") != -1) {
         formData.append("isLike", "false");
     }
     else {
@@ -64,8 +64,8 @@ function mySendImageVoteOnPreviewForm(button, likeIconId, imageId, likeCounts, u
         success: function (data) {
             if (data.result == true) {
                 var textNode = button.lastChild;
-                if (style.indexOf("red") != -1) {
-                    document.getElementById(likeIconId).setAttribute("style", "color:");
+                if (likeIcon.getAttribute("style").indexOf("red") != -1) {
+                    likeIcon.setAttribute("style", "color:");
                     if (userIsLike == 0) {
                         textNode.nodeValue = " " + (likeCounts - 1) + " likes";
                     }
@@ -74,7 +74,7 @@ function mySendImageVoteOnPreviewForm(button, likeIconId, imageId, likeCounts, u
                     }
                 }
                 else {
-                    document.getElementById(likeIconId).setAttribute("style", "color:red");
+                    likeIcon.setAttribute("style", "color:red");
                     if (userIsLike == 0) {
                         textNode.nodeValue = " " + (likeCounts) + " likes";
                     }
