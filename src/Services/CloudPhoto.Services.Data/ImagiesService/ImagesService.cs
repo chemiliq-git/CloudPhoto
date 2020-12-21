@@ -46,9 +46,15 @@
 
         public ITempCloudImageService TempCloudImage { get; }
 
-        public async Task<string> CreateAsync(string rootFolder, CreateImageModelData createData)
+        public async Task<string> CreateAsync(CreateImageModelData createData)
         {
             Category category = this.CategoriesService.GetByCategoryId<Category>(createData.CategoryId);
+
+            if (category == null)
+            {
+                this.Logger.LogError($"Not exist category with Id:{createData.CategoryId}");
+                return null;
+            }
 
             var image = new Image
             {
@@ -80,11 +86,6 @@
             await this.ImageRepository.SaveChangesAsync();
 
             return image.Id;
-        }
-
-        public Task<bool> Delete(string id)
-        {
-            throw new System.NotImplementedException();
         }
 
         public IEnumerable<T> GetMostLikeImageByCategory<T>(string categoryId, int countTopImage)
@@ -203,8 +204,12 @@
         private async Task<ICollection<ImageTag>> ParseImageTag(Image image, List<string> tags)
         {
             List<ImageTag> imageTags = new List<ImageTag>();
-            Tag tempTag;
+            if (tags == null)
+            {
+                return imageTags;
+            }
 
+            Tag tempTag;
             foreach (string tag in tags)
             {
                 tempTag = this.TagsService.GetByTagName<Tag>(tag);

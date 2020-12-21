@@ -7,9 +7,7 @@
 
     public interface IImagesService
     {
-        public Task<string> CreateAsync(string rootFolder, CreateImageModelData createData);
-
-        public Task<bool> Delete(string id);
+        public Task<string> CreateAsync(CreateImageModelData createData);
 
         public T GetImageById<T>(string imageId);
 

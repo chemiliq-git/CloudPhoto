@@ -92,7 +92,6 @@
                 List<string> lstImageTag = JsonSerializer.Deserialize<List<string>>(image.ImageTags);
 
                 string newId = await this.imagesService.CreateAsync(
-                    this.env.WebRootPath,
                     new CreateImageModelData()
                     {
                         Id = image.ImageId,
