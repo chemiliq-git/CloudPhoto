@@ -2,9 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.Common;
     using System.Linq;
     using System.Threading.Tasks;
+
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
@@ -13,13 +13,10 @@
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.TempCloudImageService;
-    using CloudPhoto.Services.Data.Tests.Configure;
-    using Microsoft.Data.Sqlite;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Moq;
-    using ServiceStack.OrmLite;
     using Xunit;
 
     public class ImagesServiceTest : IDisposable
@@ -34,13 +31,18 @@
         private const string TestImage2 = "testImage2";
 
         private const string TestUserId1 = "TestUser1";
+        private const string TestUserId2 = "TestUser2";
 
         private EfDeletableEntityRepository<Image> imageRepository;
+        private EfRepository<Vote> voteRepository;
         private DapperService dapperService;
         private CategoriesService categoriesService;
         private TagService tagService;
         private TempCloudImageService tempCloudImageService;
         private ImagesService imagesService;
+
+        private string testCategoryId1;
+        private string testCategoryId2;
 
         public ImagesServiceTest()
         {
@@ -146,7 +148,7 @@
         }
 
         [Fact]
-        public async void GetImageById()
+        public void GetImageById()
         {
             //string imageId = "getAddImage";
             //string categoryId = await this.categoriesService.CreateAsync("TestCategory", null, "memoryUserId");
@@ -175,17 +177,26 @@
             Assert.NotNull(selectImage);
         }
 
-        //[Fact]
-        //public void GetByFilter()
-        //{
-        //    SearchImageData searchImageData = new SearchImageData()
-        //    {
-        //        FilterByTag = TestTag1,
-        //    };
+        [Fact]
+        public void GetMostLikeImageFirstCase()
+        {
+            List<Image> lstResult = this.imagesService.GetMostLikeImageByCategory<Image>(this.testCategoryId1, 4).ToList();
+            Assert.Equal(2, lstResult.Count);
+        }
 
-        //    List<Image> lstResult = this.imagesService.GetByFilter<Image>(searchImageData, 10, 1)?.ToList();
-        //    Assert.Equal(2, lstResult.Count);
-        //}
+        [Fact]
+        public void GetMostLikeImageSecondCase()
+        {
+            List<Image> lstResult = this.imagesService.GetMostLikeImageByCategory<Image>(this.testCategoryId1, 1).ToList();
+            Assert.Single(lstResult);
+        }
+
+        [Fact]
+        public void GetMostLikeImageThirdCase()
+        {
+            List<Image> lstResult = this.imagesService.GetMostLikeImageByCategory<Image>(this.testCategoryId1, 2).ToList();
+            Assert.Equal(lstResult?[0].Id, TestImage1);
+        }
 
         public void Dispose()
         {
@@ -199,6 +210,7 @@
             {
                 this.imageRepository.Dispose();
                 this.dapperService.Dispose();
+                this.voteRepository.Dispose();
             }
         }
 
@@ -230,11 +242,14 @@
             var tempCloudImageRepository = new EfRepository<TempCloudImage>(dbContext);
             this.tempCloudImageService = new TempCloudImageService(tempCloudImageRepository);
 
+            this.voteRepository = new EfRepository<Vote>(dbContext);
+
             var logger = Mock.Of<ILogger<ImagesService>>();
 
             this.imagesService = new ImagesService(
                 logger,
                 this.imageRepository,
+                this.voteRepository,
                 this.categoriesService,
                 this.tagService,
                 this.dapperService,
@@ -244,8 +259,8 @@
 
         private async void AddTestData()
         {
-            string categoryId1 = await this.categoriesService.CreateAsync(TestCategory1, TestCategory1, TestUserId1);
-            string categoryId2 = await this.categoriesService.CreateAsync(TestCategory2, null, TestUserId1);
+            this.testCategoryId1 = await this.categoriesService.CreateAsync(TestCategory1, TestCategory1, TestUserId1);
+            this.testCategoryId2 = await this.categoriesService.CreateAsync(TestCategory2, null, TestUserId1);
 
             await this.CreateImageTempData(TestImage1);
             await this.CreateImageTempData(TestImage2);
@@ -257,7 +272,7 @@
             {
                 Id = TestImage1,
                 AuthorId = TestUserId1,
-                CategoryId = categoryId1,
+                CategoryId = this.testCategoryId1,
                 Tags = new List<string>() { tagId1 },
             });
 
@@ -265,9 +280,14 @@
             {
                 Id = TestImage2,
                 AuthorId = TestUserId1,
-                CategoryId = categoryId2,
+                CategoryId = this.testCategoryId1,
                 Tags = new List<string>() { tagId1, tagId2 },
             });
+
+            await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId1 });
+            await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId2 });
+
+            await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage2, IsLike = 1, AuthorId = TestUserId1 });
         }
 
         private async Task CreateImageTempData(string imageId)

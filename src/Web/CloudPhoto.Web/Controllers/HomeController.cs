@@ -50,7 +50,7 @@
                 tempModel = new HomeIndexViewModel
                 {
                     CategoryInfo = category,
-                    CategoryImages = this.ImagesService.GetMostLikeImageByCategory<ImageHomeViewModel>(category.Id, countShowImages).ToList(),
+                    CategoryImages = this.ImagesService.GetMostLikeImageByCategory<ImageHomeViewModel>(category.Id, countShowImages)?.ToList(),
                 };
                 model.Add(tempModel);
             }

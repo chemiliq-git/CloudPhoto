@@ -1,5 +1,6 @@
 ﻿namespace CloudPhoto.Services.Data.ImagiesService
 {
+    using System;
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
@@ -21,6 +22,7 @@
         public ImagesService(
             ILogger<ImagesService> logger,
             IDeletableEntityRepository<Image> imageRepository,
+            IRepository<Vote> voteRepository,
             ICategoriesService categoriesService,
             ITagsService tagsService,
             IDapperService dapperService,
@@ -28,6 +30,7 @@
         {
             this.Logger = logger;
             this.ImageRepository = imageRepository;
+            this.VoteRepository = voteRepository;
             this.CategoriesService = categoriesService;
             this.TagsService = tagsService;
             this.DapperService = dapperService;
@@ -37,6 +40,8 @@
         public ILogger<ImagesService> Logger { get; }
 
         public IDeletableEntityRepository<Image> ImageRepository { get; }
+
+        public IRepository<Vote> VoteRepository { get; }
 
         public ICategoriesService CategoriesService { get; }
 
@@ -90,21 +95,25 @@
 
         public IEnumerable<T> GetMostLikeImageByCategory<T>(string categoryId, int countTopImage)
         {
-            StringBuilder sqlSelect = new StringBuilder(
-                @"SELECT TOP(@countTopImage) *,
-                (SELECT SUM(v.IsLike) from Votes AS v
-                WHERE i.Id = v.ImageId) AS ImageLikes
-                FROM Images as i
-                JOIN ImageCategories AS ic ON ic.CategoryId =@categoryId ANd ic.ImageId = i.Id
-                WHERE ic.CategoryId = @categoryId
-                ORDER BY ImageLikes Desc");
-            var parameters = new
+            try
             {
-                categoryId,
-                countTopImage,
-            };
+                var selectTopVoteImage = (from image in this.ImageRepository.All()
+                         where image.ImageCategories.Where(x => x.CategoryId == categoryId).Count() > 0
+                         let sumLikes = (from vote in this.VoteRepository.All() where vote.ImageId == image.Id select vote.IsLike).Sum()
+                         select new ImageLikeData
+                         {
+                              Image = image,
+                              LikeCounts = sumLikes,
+                         })
+                         .OrderByDescending(x => x.LikeCounts);
 
-            return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
+                return selectTopVoteImage.Select(s => s.Image).Take(countTopImage).To<T>().ToList();
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError(e, $"Error get top vote image from category: {categoryId}");
+                return null;
+            }
         }
 
         public IEnumerable<T> GetByFilter<T>(

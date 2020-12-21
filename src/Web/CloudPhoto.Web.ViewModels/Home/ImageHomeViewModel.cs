@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CloudPhoto.Data.Models;
+using CloudPhoto.Services.Mapping;
 
 namespace CloudPhoto.Web.ViewModels.Home
 {
-    public class ImageHomeViewModel
+    public class ImageHomeViewModel : IMapFrom<Image>
     {
         public string Id { get; set; }
 
