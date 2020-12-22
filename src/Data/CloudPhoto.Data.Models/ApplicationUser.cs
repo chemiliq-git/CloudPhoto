@@ -4,6 +4,7 @@ namespace CloudPhoto.Data.Models
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations.Schema;
+
     using CloudPhoto.Data.Common.Models;
 
     using Microsoft.AspNetCore.Identity;
@@ -27,6 +28,8 @@ namespace CloudPhoto.Data.Models
         public string LastName { get; set; }
 
         public string PayPalEmail { get; set; }
+
+        public string UserAvatarUrl { get; set; }
 
         public string Description { get; set; }
 

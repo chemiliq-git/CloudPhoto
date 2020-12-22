@@ -125,7 +125,12 @@ namespace CloudPhoto.Web.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
-
+                
+                if (info.Principal.HasClaim(c => c.Type == GlobalConstants.ExternalClaimAvatar))
+                {
+                    user.UserAvatarUrl = info.Principal.FindFirst(GlobalConstants.ExternalClaimAvatar)?.Value;
+                }
+                
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
