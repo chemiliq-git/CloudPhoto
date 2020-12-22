@@ -254,7 +254,6 @@
                 this.tagService,
                 this.dapperService,
                 this.tempCloudImageService);
-
         }
 
         private async void AddTestData()

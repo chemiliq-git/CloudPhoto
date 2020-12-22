@@ -14,28 +14,29 @@
     using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Mapping;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.Extensions.Logging;
 
     public class UsersServices : IUsersServices
     {
         public UsersServices(
+            ILogger<UsersServices> logger,
             UserManager<ApplicationUser> userManager,
             IRepository<ApplicationUser> userRepository,
-            IRepository<UserSubscribe> userSubscribeRepository,
-            IDapperService dapperService)
+            IRepository<UserSubscribe> userSubscribeRepository)
         {
+            this.Logger = logger;
             this.UserManager = userManager;
             this.UserRepository = userRepository;
             this.UserSubscribeRepository = userSubscribeRepository;
-            this.DapperService = dapperService;
         }
+
+        public ILogger<UsersServices> Logger { get; }
 
         public UserManager<ApplicationUser> UserManager { get; }
 
         public IRepository<ApplicationUser> UserRepository { get; }
 
         public IRepository<UserSubscribe> UserSubscribeRepository { get; }
-
-        public IDapperService DapperService { get; }
 
         public async Task<bool> ChangeAvatar(string userId, string avatarUrl)
         {
@@ -59,6 +60,7 @@
             }
             catch (Exception e)
             {
+                this.Logger.LogError(e, $"Error update user avatar for UseId:{userId}");
                 return false;
             }
         }
