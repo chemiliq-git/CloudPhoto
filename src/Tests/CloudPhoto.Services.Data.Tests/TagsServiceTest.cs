@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+
     using CloudPhoto.Data;
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
@@ -11,7 +12,7 @@
     using Microsoft.EntityFrameworkCore;
     using Xunit;
 
-    public class TagsServicesTest : IDisposable
+    public class TagsServiceTest : IDisposable
     {
         private const string TestTagName1 = "Tag1";
         private const string TestTagName2 = "Tag2";
@@ -23,7 +24,7 @@
         private IDeletableEntityRepository<Tag> tagRepository;
         private TagsService tagService;
 
-        public TagsServicesTest()
+        public TagsServiceTest()
         {
             this.InitTestServices();
 

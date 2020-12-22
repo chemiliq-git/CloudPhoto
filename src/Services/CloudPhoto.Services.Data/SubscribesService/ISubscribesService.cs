@@ -5,7 +5,7 @@
 
     public interface ISubscribesService
     {
-        public IEnumerable<T> GetSubscribesAsync<T>(string userSubscribedId = null, string subscribeToUserId = null);
+        public IEnumerable<T> GetSubscribes<T>(string userSubscribedId = null, string subscribeToUserId = null);
 
         public Task<bool> ManageUserSubsctibe(string userSubscribedId, string subscribeToUserId, bool isWantToSubscribe);
     }

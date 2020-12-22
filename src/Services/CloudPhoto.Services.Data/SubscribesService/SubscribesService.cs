@@ -23,7 +23,7 @@
 
         public IDeletableEntityRepository<UserSubscribe> SubsctibeRepository { get; }
 
-        public IEnumerable<T> GetSubscribesAsync<T>(string userSubscribedId = null, string subscribeToUserId = null)
+        public IEnumerable<T> GetSubscribes<T>(string userSubscribedId = null, string subscribeToUserId = null)
         {
             IQueryable<UserSubscribe> query =
                            this.SubsctibeRepository.All();
@@ -43,8 +43,13 @@
 
         public async Task<bool> ManageUserSubsctibe(string userSubscribedId, string subscribeToUserId, bool isWantToSubscribe)
         {
+            if (string.Compare(userSubscribedId, subscribeToUserId, true) == 0)
+            {
+                return false;
+            }
+
             UserSubscribe existSubscribe =
-               this.GetSubscribesAsync<UserSubscribe>(userSubscribedId, subscribeToUserId).FirstOrDefault();
+               this.GetSubscribes<UserSubscribe>(userSubscribedId, subscribeToUserId).FirstOrDefault();
 
             if (isWantToSubscribe)
             {
