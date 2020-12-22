@@ -1,5 +1,6 @@
 ﻿namespace CloudPhoto.Services.Data.CategoriesService
 {
+    using System;
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
@@ -10,19 +11,28 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Mapping;
+    using Microsoft.Extensions.Logging;
 
     public class CategoriesService : ICategoriesService
     {
+        private readonly ILogger<CategoriesService> logger;
         private readonly IDeletableEntityRepository<Category> categoriesRepository;
-
-        private readonly IDapperService dapperService;
+        private readonly IRepository<Vote> voteRepository;
+        private readonly IRepository<Image> imageRepository;
+        private readonly IRepository<ImageCategory> imageCategoryRepository;
 
         public CategoriesService(
+            ILogger<CategoriesService> logger,
             IDeletableEntityRepository<Category> categoriesRepository,
-            IDapperService dapperService)
+            IRepository<Vote> voteRepository,
+            IRepository<Image> imageRepository,
+            IRepository<ImageCategory> imageCategoryRepository)
         {
+            this.logger = logger;
             this.categoriesRepository = categoriesRepository;
-            this.dapperService = dapperService;
+            this.voteRepository = voteRepository;
+            this.imageRepository = imageRepository;
+            this.imageCategoryRepository = imageCategoryRepository;
         }
 
         public async Task<string> CreateAsync(string name, string description, string userId)
@@ -72,19 +82,30 @@
 
         public IEnumerable<T> GetMostLikedCategory<T>(int countTopCategory)
         {
-            StringBuilder sqlSelect = new StringBuilder(
-                @"SELECT TOP(@countTopCategory) *,
-                (SELECT SUM(v.IsLike) from Votes AS v
-                JOIN Images AS i ON i.id = v.ImageId
-                JOIN ImageCategories AS ic ON ic.ImageId = i.Id
-                WHERE ic.CategoryId = c.Id) AS likeCounts
-                FROM Categories AS c
-                ORDER BY likeCounts DESC");
-            var parameters = new
+            try
             {
-                countTopCategory,
-            };
-            return this.dapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
+                var selectTopVoteCategory = (from category in this.categoriesRepository.All()
+                                             let likeCounts = (from vote in this.voteRepository.All()
+                                                               join image in this.imageRepository.All()
+                                                               on vote.ImageId equals image.Id
+                                                               join imageCategory in this.imageCategoryRepository.All()
+                                                               on image.Id equals imageCategory.ImageId
+                                                               where imageCategory.CategoryId == category.Id
+                                                               select vote.IsLike).Sum()
+                                             select new
+                                             {
+                                                 Category = category,
+                                                 LikeCounts = likeCounts,
+                                             })
+                         .OrderByDescending(x => x.LikeCounts);
+
+                return selectTopVoteCategory.Select(s => s.Category).Take(countTopCategory).To<T>().ToList();
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, $"Error get top vote categories");
+                return null;
+            }
         }
 
         public async Task<bool> UpdateAsync(string id, string name, string description)

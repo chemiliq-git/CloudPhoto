@@ -231,18 +231,24 @@
 
             this.dapperService = new DapperService(configuration);
 
-            var categoryRepository = new EfDeletableEntityRepository<Category>(dbContext);
-            this.categoriesService = new CategoriesService(
-                categoryRepository,
-                this.dapperService);
-
             var tagRepository = new EfDeletableEntityRepository<Tag>(dbContext);
             this.tagService = new TagsService(tagRepository);
+
+            var imageCategoryRepository = new EfDeletableEntityRepository<ImageCategory>(dbContext);
 
             var tempCloudImageRepository = new EfRepository<TempCloudImage>(dbContext);
             this.tempCloudImageService = new TempCloudImagesService(tempCloudImageRepository);
 
             this.voteRepository = new EfRepository<Vote>(dbContext);
+
+            var categoryRepository = new EfDeletableEntityRepository<Category>(dbContext);
+            var loggerCategory = Mock.Of<ILogger<CategoriesService>>();
+            this.categoriesService = new CategoriesService(
+                loggerCategory,
+                categoryRepository,
+                this.voteRepository,
+                this.imageRepository,
+                imageCategoryRepository);
 
             var logger = Mock.Of<ILogger<ImagesService>>();
 

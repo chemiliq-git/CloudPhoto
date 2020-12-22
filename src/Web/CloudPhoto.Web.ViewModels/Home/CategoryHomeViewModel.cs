@@ -1,6 +1,9 @@
-﻿namespace CloudPhoto.Web.ViewModels.Home
+﻿using CloudPhoto.Data.Models;
+using CloudPhoto.Services.Mapping;
+
+namespace CloudPhoto.Web.ViewModels.Home
 {
-    public class CategoryHomeViewModel
+    public class CategoryHomeViewModel : IMapFrom<Category>
     {
         public string Id { get; set; }
 

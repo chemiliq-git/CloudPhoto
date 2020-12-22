@@ -3,8 +3,6 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Common;
-
     public interface IImagesService
     {
         public Task<string> CreateAsync(CreateImageModelData createData);
