@@ -24,7 +24,7 @@
         private EfDeletableEntityRepository<ApplicationUser> userRepository;
         private EfRepository<UserSubscribe> userSubscribeRepository;
         private UserManager<ApplicationUser> userManager;
-        private UsersServices usersService;
+        private UsersService usersService;
 
         public UsersServiceTest()
         {
@@ -226,9 +226,9 @@
             this.userRepository = new EfDeletableEntityRepository<ApplicationUser>(dbContext);
             this.userSubscribeRepository = new EfRepository<UserSubscribe>(dbContext);
 
-            var logger = Mock.Of<ILogger<UsersServices>>();
+            var logger = Mock.Of<ILogger<UsersService>>();
 
-            this.usersService = new UsersServices(
+            this.usersService = new UsersService(
                 logger,
                 this.userManager,
                 this.userRepository,

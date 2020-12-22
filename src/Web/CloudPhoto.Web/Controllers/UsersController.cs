@@ -22,7 +22,7 @@
     {
         public UsersController(
             UserManager<ApplicationUser> userManager,
-            IUsersServices usersServices,
+            IUsersService usersServices,
             IImagesService imagesService,
             IVotesService votesService)
         {
@@ -34,7 +34,7 @@
 
         public UserManager<ApplicationUser> UserManager { get; }
 
-        public IUsersServices UsersServices { get; }
+        public IUsersService UsersServices { get; }
 
         public IImagesService ImagesService { get; }
 

@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public interface IUsersServices
+    public interface IUsersService
     {
         public Task<bool> ChangeAvatar(string userId, string avatarUrl);
 

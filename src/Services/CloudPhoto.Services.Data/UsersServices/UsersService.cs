@@ -16,10 +16,10 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.Logging;
 
-    public class UsersServices : IUsersServices
+    public class UsersService : IUsersService
     {
-        public UsersServices(
-            ILogger<UsersServices> logger,
+        public UsersService(
+            ILogger<UsersService> logger,
             UserManager<ApplicationUser> userManager,
             IRepository<ApplicationUser> userRepository,
             IRepository<UserSubscribe> userSubscribeRepository)
@@ -30,7 +30,7 @@
             this.UserSubscribeRepository = userSubscribeRepository;
         }
 
-        public ILogger<UsersServices> Logger { get; }
+        public ILogger<UsersService> Logger { get; }
 
         public UserManager<ApplicationUser> UserManager { get; }
 

@@ -34,7 +34,7 @@
         private readonly ICategoriesService categoriesService;
         private readonly IVotesService votesService;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly IUsersServices usersServices;
+        private readonly IUsersService usersServices;
         private readonly IWebHostEnvironment env;
         private readonly ILogger logger;
 
@@ -45,7 +45,7 @@
             ICategoriesService categoriesService,
             IVotesService votesService,
             UserManager<ApplicationUser> userManager,
-            IUsersServices usersServices,
+            IUsersService usersServices,
             IWebHostEnvironment env,
             ILogger<ImagesController> logger)
         {

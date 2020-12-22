@@ -155,7 +155,7 @@
             services.AddTransient<IImagesService, ImagesService>();
             services.AddTransient<ITagsService, Services.Data.TagsService.TagService>();
             services.AddTransient<IVotesService, VotesService>();
-            services.AddTransient<IUsersServices, UsersServices>();
+            services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
             services.AddTransient<IDapperService, CloudPhoto.Services.Data.DapperService.DapperService>();
             services.AddTransient<ITempCloudImageService, TempCloudImageService>();
