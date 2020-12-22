@@ -4,12 +4,10 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Mapping;
     using Microsoft.Extensions.Logging;
 
@@ -37,6 +35,11 @@
 
         public async Task<string> CreateAsync(string name, string description, string userId)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+
             var category = new Category
             {
                 Description = description,
@@ -59,7 +62,7 @@
 
             this.categoriesRepository.Delete(category);
             int result = await this.categoriesRepository.SaveChangesAsync();
-            return result == 1;
+            return result > 0;
         }
 
         public IEnumerable<T> GetAll<T>()
@@ -110,6 +113,11 @@
 
         public async Task<bool> UpdateAsync(string id, string name, string description)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+
             var category = this.GetByCategoryId<Category>(id);
 
             if (category == null)
@@ -122,7 +130,7 @@
 
             this.categoriesRepository.Update(category);
             int result = await this.categoriesRepository.SaveChangesAsync();
-            return result == 1;
+            return result > 0;
         }
     }
 }

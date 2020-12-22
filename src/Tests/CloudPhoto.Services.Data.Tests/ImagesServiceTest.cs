@@ -22,7 +22,6 @@
     public class ImagesServiceTest : IDisposable
     {
         private const string TestCategory1 = "Category1";
-        private const string TestCategory2 = "Category2";
 
         private const string TestTag1 = "Tag1";
         private const string TestTag2 = "Tag2";
@@ -42,7 +41,6 @@
         private ImagesService imagesService;
 
         private string testCategoryId1;
-        private string testCategoryId2;
 
         public ImagesServiceTest()
         {
@@ -150,29 +148,6 @@
         [Fact]
         public void GetImageById()
         {
-            //string imageId = "getAddImage";
-            //string categoryId = await this.categoriesService.CreateAsync("TestCategory", null, "memoryUserId");
-
-            //await this.tempCloudImageService.CreateAsync(new TempCloudImage()
-            //{
-            //    ImageId = imageId,
-            //    ImageUrl = "tempURL",
-            //    ImageType = (int)ImageType.Original,
-            //});
-
-            //await this.tempCloudImageService.CreateAsync(new TempCloudImage()
-            //{
-            //    ImageId = imageId,
-            //    ImageUrl = "tempURL",
-            //});
-
-            //string newImageID = await this.imagesService.CreateAsync(new CreateImageModelData()
-            //{
-            //    Id = imageId,
-            //    AuthorId = "memoryAuthorId",
-            //    CategoryId = categoryId,
-            //});
-
             Image selectImage = this.imagesService.GetImageById<Image>(TestImage1);
             Assert.NotNull(selectImage);
         }
@@ -265,7 +240,6 @@
         private async void AddTestData()
         {
             this.testCategoryId1 = await this.categoriesService.CreateAsync(TestCategory1, TestCategory1, TestUserId1);
-            this.testCategoryId2 = await this.categoriesService.CreateAsync(TestCategory2, null, TestUserId1);
 
             await this.CreateImageTempData(TestImage1);
             await this.CreateImageTempData(TestImage2);
