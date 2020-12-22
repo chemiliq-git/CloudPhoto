@@ -18,14 +18,14 @@
         private readonly IRemoteStorageService storageService;
         private readonly IImageManipulationProvider imageManipulation;
         private readonly IConfiguration configuration;
-        private readonly ITempCloudImageService tempCloudImage;
+        private readonly ITempCloudImagesService tempCloudImage;
 
         public ImageHelper(
             ILogger<ImageHelper> logger,
             IRemoteStorageService storageService,
             IImageManipulationProvider imageManipulation,
             IConfiguration configuration,
-            ITempCloudImageService tempCloudImage)
+            ITempCloudImagesService tempCloudImage)
         {
             this.logger = logger;
             this.storageService = storageService;

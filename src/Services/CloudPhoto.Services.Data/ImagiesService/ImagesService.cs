@@ -26,7 +26,7 @@
             ICategoriesService categoriesService,
             ITagsService tagsService,
             IDapperService dapperService,
-            ITempCloudImageService tempCloudImage)
+            ITempCloudImagesService tempCloudImage)
         {
             this.Logger = logger;
             this.ImageRepository = imageRepository;
@@ -49,7 +49,7 @@
 
         public IDapperService DapperService { get; }
 
-        public ITempCloudImageService TempCloudImage { get; }
+        public ITempCloudImagesService TempCloudImage { get; }
 
         public async Task<string> CreateAsync(CreateImageModelData createData)
         {

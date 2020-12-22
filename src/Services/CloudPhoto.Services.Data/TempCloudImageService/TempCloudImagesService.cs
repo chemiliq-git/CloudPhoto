@@ -8,9 +8,9 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Mapping;
 
-    public class TempCloudImageService : ITempCloudImageService
+    public class TempCloudImagesService : ITempCloudImagesService
     {
-        public TempCloudImageService(
+        public TempCloudImagesService(
             IRepository<TempCloudImage> repository)
         {
             this.Repository = repository;

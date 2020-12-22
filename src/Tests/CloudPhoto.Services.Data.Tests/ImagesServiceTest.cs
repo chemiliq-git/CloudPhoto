@@ -38,7 +38,7 @@
         private DapperService dapperService;
         private CategoriesService categoriesService;
         private TagService tagService;
-        private TempCloudImageService tempCloudImageService;
+        private TempCloudImagesService tempCloudImageService;
         private ImagesService imagesService;
 
         private string testCategoryId1;
@@ -240,7 +240,7 @@
             this.tagService = new TagService(tagRepository);
 
             var tempCloudImageRepository = new EfRepository<TempCloudImage>(dbContext);
-            this.tempCloudImageService = new TempCloudImageService(tempCloudImageRepository);
+            this.tempCloudImageService = new TempCloudImagesService(tempCloudImageRepository);
 
             this.voteRepository = new EfRepository<Vote>(dbContext);
 

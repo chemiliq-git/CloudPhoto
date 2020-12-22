@@ -158,7 +158,7 @@
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
             services.AddTransient<IDapperService, CloudPhoto.Services.Data.DapperService.DapperService>();
-            services.AddTransient<ITempCloudImageService, TempCloudImageService>();
+            services.AddTransient<ITempCloudImagesService, TempCloudImagesService>();
             services.AddTransient<ISubscribesService, SubscribesService>();
 
             services

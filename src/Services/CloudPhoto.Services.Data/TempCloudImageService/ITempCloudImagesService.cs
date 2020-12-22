@@ -5,7 +5,7 @@
 
     using CloudPhoto.Data.Models;
 
-    public interface ITempCloudImageService
+    public interface ITempCloudImagesService
     {
         public IEnumerable<T> GetByImageId<T>(string imageId);
 
