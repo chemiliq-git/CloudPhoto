@@ -3,7 +3,7 @@ namespace CloudPhoto.Data.Models
 {
     using System;
     using System.Collections.Generic;
-
+    using System.ComponentModel.DataAnnotations.Schema;
     using CloudPhoto.Data.Common.Models;
 
     using Microsoft.AspNetCore.Identity;
@@ -30,6 +30,7 @@ namespace CloudPhoto.Data.Models
 
         public string Description { get; set; }
 
+        [NotMapped]
         public virtual string FullName
         {
             get
@@ -44,6 +45,15 @@ namespace CloudPhoto.Data.Models
                 }
             }
         }
+
+        [NotMapped]
+        public virtual bool IsFollowCurrentUser { get; set; }
+
+        [NotMapped]
+        public virtual int CountFollowers { get; set; }
+
+        [NotMapped]
+        public virtual int CountFollowing { get; set; }
 
         // Audit info
         public DateTime CreatedOn { get; set; }

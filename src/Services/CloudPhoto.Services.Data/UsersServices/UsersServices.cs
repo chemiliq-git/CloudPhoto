@@ -12,6 +12,7 @@
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.DapperService;
+    using CloudPhoto.Services.Mapping;
     using Microsoft.AspNetCore.Identity;
 
     public class UsersServices : IUsersServices
@@ -19,16 +20,20 @@
         public UsersServices(
             UserManager<ApplicationUser> userManager,
             IRepository<ApplicationUser> userRepository,
+            IRepository<UserSubscribe> userSubscribeRepository,
             IDapperService dapperService)
         {
             this.UserManager = userManager;
             this.UserRepository = userRepository;
+            this.UserSubscribeRepository = userSubscribeRepository;
             this.DapperService = dapperService;
         }
 
         public UserManager<ApplicationUser> UserManager { get; }
 
         public IRepository<ApplicationUser> UserRepository { get; }
+
+        public IRepository<UserSubscribe> UserSubscribeRepository { get; }
 
         public IDapperService DapperService { get; }
 
@@ -90,62 +95,65 @@
             bool isGetFollower = false,
             bool isGetFollowing = false)
         {
-            var parameters = new
-            {
-                Skip = (page - 1) * perPage,
-                Take = perPage,
-                infoForUserId,
-                currentLoginUserId,
-                ClaimType = GlobalConstants.ExternalClaimAvatar,
-            };
-
-            StringBuilder sqlSelect = new StringBuilder();
-
-            // add head select
-            sqlSelect.Append(
-                @"SELECT aspu.*, 
-                c.ClaimValue AS UserAvatar,
-                -- get follow info
-                (SELECT Count(*) FROM UserSubscribes AS us
-                WHERE us.UserSubscribedId = @currentLoginUserId
-                AND aspu.Id = us.SubscribeToUserId) AS IsFollowCurrentUser,
-                -- get count followers
-                (SELECT Count(*) FROM UserSubscribes AS us
-                WHERE aspu.Id = us.SubscribeToUserId) AS CountFollowers,
-                -- get count following
-                (SELECT Count(*) FROM UserSubscribes AS us
-                WHERE aspu.Id = us.UserSubscribedId) AS CountFollowing
-                FROM AspNetUsers AS aspu
-                LEFT JOIN AspNetUserClaims AS c On aspu.Id = c.UserId AND c.ClaimType = @ClaimType");
+            var selectTopVoteImage = from user in this.UserRepository.All()
+                                     let isFollowCurrentUser = (from subscribe in this.UserSubscribeRepository.All()
+                                                                where subscribe.UserSubscribedId == currentLoginUserId
+                                                                && user.Id == subscribe.SubscribeToUserId
+                                                                select subscribe).Count()
+                                     let countFollowers = (from subscribe in this.UserSubscribeRepository.All()
+                                                           where user.Id == subscribe.SubscribeToUserId
+                                                           select subscribe).Count()
+                                     let countFollowing = (from subscribe in this.UserSubscribeRepository.All()
+                                                           where user.Id == subscribe.UserSubscribedId
+                                                           select subscribe).Count()
+                select new ApplicationUser()
+                                     {
+                                         Id = user.Id,
+                                         FirstName = user.FirstName,
+                                         LastName = user.LastName,
+                                         PayPalEmail = user.PayPalEmail,
+                                         Description = user.Description,
+                                         IsFollowCurrentUser = isFollowCurrentUser > 0,
+                                         CountFollowers = countFollowers,
+                                         CountFollowing = countFollowing,
+                                     };
 
             if (!isGetFollower
                 && !isGetFollowing)
             {
-                sqlSelect.Append(" WHERE aspu.Id = @InfoForUserId");
+                selectTopVoteImage = selectTopVoteImage.Where(x => x.Id == infoForUserId);
             }
             else
             {
                 if (isGetFollower)
                 {
-                    sqlSelect.Append(@" WHERE aspu.id in 
-                    (SELECT UserSubscribedId FROM UserSubscribes WHERE SubscribeToUserId = @InfoForUserId)");
+                    selectTopVoteImage = selectTopVoteImage.Where(
+                        temp => this.UserSubscribeRepository.All().
+                        Where(x => x.SubscribeToUserId == infoForUserId).Select(x => x.UserSubscribedId).Contains(temp.Id));
                 }
 
                 if (isGetFollowing)
                 {
-                    sqlSelect.Append(@" WHERE aspu.id in 
-                    (SELECT SubscribeToUserId FROM UserSubscribes WHERE UserSubscribedId = @InfoForUserId)");
+                    selectTopVoteImage = selectTopVoteImage.Where(
+                     temp => this.UserSubscribeRepository.All().
+                     Where(x => x.UserSubscribedId == infoForUserId).Select(x => x.SubscribeToUserId).Contains(temp.Id));
                 }
             }
 
             if (page > 0 &&
                 perPage > 0)
             {
-                sqlSelect.AppendLine(" ORDER BY aspu.ID OFFSET @Skip ROWS ");
-                sqlSelect.AppendLine(" FETCH NEXT @Take ROWS ONLY");
+                selectTopVoteImage = selectTopVoteImage.Skip((page - 1) * perPage).Take(perPage);
             }
 
-            return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
+            try
+            {
+                return selectTopVoteImage.To<T>();
+            }
+            catch( Exception e)
+            {
+                return null;
+            }
         }
     }
 }

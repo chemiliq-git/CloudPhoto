@@ -18,7 +18,6 @@
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Web.ViewModels.Categories;
     using CloudPhoto.Web.ViewModels.Images;
-    using CloudPhoto.Web.ViewModels.Users;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;

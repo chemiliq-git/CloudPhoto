@@ -14,7 +14,7 @@
     public class VotesServiceTest
     {
         [Fact]
-        public async void VoteOnlyMemoryShouldSucceeded()
+        public async void VoteFirstTimeShouldSucceeded()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
@@ -32,7 +32,7 @@
         }
 
         [Fact]
-        public async void VoteOnlyMemoryShouldNoSucceeded()
+        public async void VoteUnsibscribeWhenNotExitsShouldNoSucceeded()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
