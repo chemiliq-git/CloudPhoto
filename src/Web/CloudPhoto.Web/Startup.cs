@@ -153,7 +153,7 @@
             services.AddTransient<IImageValidatorService, ImageValidator>();
             services.AddTransient<ILocalStorageServices, LocalStorage>();
             services.AddTransient<IImagesService, ImagesService>();
-            services.AddTransient<ITagsService, Services.Data.TagsService.TagService>();
+            services.AddTransient<ITagsService, Services.Data.TagsService.TagsService>();
             services.AddTransient<IVotesService, VotesService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();

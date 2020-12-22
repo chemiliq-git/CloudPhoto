@@ -37,7 +37,7 @@
         private EfRepository<Vote> voteRepository;
         private DapperService dapperService;
         private CategoriesService categoriesService;
-        private TagService tagService;
+        private TagsService tagService;
         private TempCloudImagesService tempCloudImageService;
         private ImagesService imagesService;
 
@@ -237,7 +237,7 @@
                 this.dapperService);
 
             var tagRepository = new EfDeletableEntityRepository<Tag>(dbContext);
-            this.tagService = new TagService(tagRepository);
+            this.tagService = new TagsService(tagRepository);
 
             var tempCloudImageRepository = new EfRepository<TempCloudImage>(dbContext);
             this.tempCloudImageService = new TempCloudImagesService(tempCloudImageRepository);

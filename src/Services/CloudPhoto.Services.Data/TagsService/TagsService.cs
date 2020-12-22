@@ -8,9 +8,9 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Mapping;
 
-    public class TagService : ITagsService
+    public class TagsService : ITagsService
     {
-        public TagService(IDeletableEntityRepository<Tag> tagRepository)
+        public TagsService(IDeletableEntityRepository<Tag> tagRepository)
         {
             this.TagRepository = tagRepository;
         }
@@ -44,7 +44,7 @@
         {
             var query =
                   this.TagRepository.All()
-                  .Where(c => c.Name.Contains(searchText));
+                  .Where(c => c.Name.Contains(searchText, System.StringComparison.OrdinalIgnoreCase));
             return query.To<T>().ToList();
         }
     }
