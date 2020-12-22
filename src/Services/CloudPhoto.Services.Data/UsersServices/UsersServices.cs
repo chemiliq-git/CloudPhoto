@@ -37,32 +37,23 @@
 
         public IDapperService DapperService { get; }
 
-        public async Task<bool> ChangeAvatar(string userId, string avatarId)
+        public async Task<bool> ChangeAvatar(string userId, string avatarUrl)
         {
             try
             {
+                if (string.IsNullOrEmpty(avatarUrl))
+                {
+                    return false;
+                }
+
                 ApplicationUser user = await this.UserManager.FindByIdAsync(userId);
-                IList<Claim> lstClaims = await this.UserManager.GetClaimsAsync(user);
-                Claim existAvatar = lstClaims.FirstOrDefault(temp => temp.Type == GlobalConstants.ExternalClaimAvatar);
-
-                IdentityResult result = null;
-                if (existAvatar != null)
+                if (user == null)
                 {
-                    result = await this.UserManager.RemoveClaimAsync(user, existAvatar);
+                    return false;
                 }
 
-                if (result == null
-                    || result.Succeeded)
-                {
-                    user.Claims.Add(new IdentityUserClaim<string>()
-                    {
-                        ClaimType = GlobalConstants.ExternalClaimAvatar,
-                        ClaimValue = avatarId,
-                        UserId = user.Id,
-                    });
-
-                    result = await this.UserManager.UpdateAsync(user);
-                }
+                user.UserAvatarUrl = avatarUrl;
+                IdentityResult result = await this.UserManager.UpdateAsync(user);
 
                 return result.Succeeded;
             }
@@ -95,7 +86,7 @@
             bool isGetFollower = false,
             bool isGetFollowing = false)
         {
-            var selectTopVoteImage = from user in this.UserRepository.All()
+            var selectUserInfo = from user in this.UserRepository.All()
                                      let isFollowCurrentUser = (from subscribe in this.UserSubscribeRepository.All()
                                                                 where subscribe.UserSubscribedId == currentLoginUserId
                                                                 && user.Id == subscribe.SubscribeToUserId
@@ -106,13 +97,14 @@
                                      let countFollowing = (from subscribe in this.UserSubscribeRepository.All()
                                                            where user.Id == subscribe.UserSubscribedId
                                                            select subscribe).Count()
-                select new ApplicationUser()
+                                     select new ApplicationUser()
                                      {
                                          Id = user.Id,
                                          FirstName = user.FirstName,
                                          LastName = user.LastName,
                                          PayPalEmail = user.PayPalEmail,
                                          Description = user.Description,
+                                         UserAvatarUrl = user.UserAvatarUrl,
                                          IsFollowCurrentUser = isFollowCurrentUser > 0,
                                          CountFollowers = countFollowers,
                                          CountFollowing = countFollowing,
@@ -121,20 +113,20 @@
             if (!isGetFollower
                 && !isGetFollowing)
             {
-                selectTopVoteImage = selectTopVoteImage.Where(x => x.Id == infoForUserId);
+                selectUserInfo = selectUserInfo.Where(x => x.Id == infoForUserId);
             }
             else
             {
                 if (isGetFollower)
                 {
-                    selectTopVoteImage = selectTopVoteImage.Where(
+                    selectUserInfo = selectUserInfo.Where(
                         temp => this.UserSubscribeRepository.All().
                         Where(x => x.SubscribeToUserId == infoForUserId).Select(x => x.UserSubscribedId).Contains(temp.Id));
                 }
 
                 if (isGetFollowing)
                 {
-                    selectTopVoteImage = selectTopVoteImage.Where(
+                    selectUserInfo = selectUserInfo.Where(
                      temp => this.UserSubscribeRepository.All().
                      Where(x => x.UserSubscribedId == infoForUserId).Select(x => x.SubscribeToUserId).Contains(temp.Id));
                 }
@@ -143,17 +135,10 @@
             if (page > 0 &&
                 perPage > 0)
             {
-                selectTopVoteImage = selectTopVoteImage.Skip((page - 1) * perPage).Take(perPage);
+                selectUserInfo = selectUserInfo.Skip((page - 1) * perPage).Take(perPage);
             }
 
-            try
-            {
-                return selectTopVoteImage.To<T>();
-            }
-            catch( Exception e)
-            {
-                return null;
-            }
+            return selectUserInfo.To<T>();
         }
     }
 }

@@ -11,13 +11,13 @@
         @{
             foreach (var item in @Model)
             {
-                if (string.IsNullOrEmpty(item.UserAvatar))
+                if (string.IsNullOrEmpty(item.UserAvatarUrl))
                 {
                     avatarUrl = "/icon/emptyAvatar.png";
                 }
                 else
                 {
-                    avatarUrl = item.UserAvatar;
+                    avatarUrl = item.UserAvatarUrl;
                 }
 
                 if (item.IsFollowCurrentUser)

@@ -26,13 +26,13 @@
 
 @{
     string avatarUrl;
-    if (string.IsNullOrEmpty(Model.UserAvatar))
+    if (string.IsNullOrEmpty(Model.UserAvatarUrl))
     {
         avatarUrl = "/icon/emptyAvatar.png";
     }
     else
     {
-        avatarUrl = @Model.UserAvatar;
+        avatarUrl = @Model.UserAvatarUrl;
     }
 
     string followBtnText = "Follow";

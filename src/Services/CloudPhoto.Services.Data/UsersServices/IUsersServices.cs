@@ -5,7 +5,7 @@
 
     public interface IUsersServices
     {
-        public Task<bool> ChangeAvatar(string userId, string avatarId);
+        public Task<bool> ChangeAvatar(string userId, string avatarUrl);
 
         public T GetUserInfo<T>(string infoForUserId, string currentLoginUserId);
 
