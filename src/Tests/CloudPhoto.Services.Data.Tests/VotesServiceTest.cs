@@ -11,42 +11,117 @@
     using Moq;
     using Xunit;
 
-    public class VotesServiceTest
+    public class VotesServiceTest : IDisposable
     {
+        private const string FirstTestImageId = "firstImageId";
+        private const string SecondTestImageId = "secondImageId";
+        private const string ThirdTestImageId = "thirdIMageId";
+        private const string FourTestImageId = "fourIMageId";
+
+        private const string FirstUserTestId = "firstUserId";
+        private const string SecondUserTestId = "secondUserId";
+        private const string ThirdUserTestId = "thirdUserId";
+        private const string FourUserTestId = "fourUserId";
+
+        private VotesService votesService;
+        private EfRepository<Vote> repository;
+
+        public VotesServiceTest()
+        {
+            this.InitTestServices();
+
+            this.AddTestData();
+        }
+
         [Fact]
         public async void VoteFirstTimeShouldSucceeded()
         {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString());
-            var repository = new EfRepository<Vote>(new ApplicationDbContext(options.Options));
-
-            var logger = Mock.Of<ILogger<VotesService>>();
-
-            var voteService = new VotesService(
-                logger,
-                repository);
-
-            bool result = await voteService.VoteAsync("memoryImageId", "memoryUserId", true);
-
+            bool result = await this.votesService.VoteAsync(ThirdTestImageId, ThirdUserTestId, true);
             Assert.True(result);
         }
 
         [Fact]
-        public async void VoteUnsibscribeWhenNotExitsShouldNoSucceeded()
+        public async void TryDownVoteFirstTimeShouldFalse()
+        {
+            bool result = await this.votesService.VoteAsync(FourTestImageId, FourUserTestId, false);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async void TryVoteManyTimes()
+        {
+            bool result = await this.votesService.VoteAsync(FirstTestImageId, FirstUserTestId, true);
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async void TryDownVote()
+        {
+            bool result = await this.votesService.VoteAsync(FirstTestImageId, FirstUserTestId, false);
+            Assert.True(result);
+        }
+
+        [Fact]
+        public async void TryDownVoteWhenAlreadyDownVote()
+        {
+            bool result = await this.votesService.VoteAsync(SecondTestImageId, FirstUserTestId, false);
+            Assert.False(result);
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.repository.Dispose();
+            }
+        }
+
+        private void InitTestServices()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
-            var repository = new EfRepository<Vote>(new ApplicationDbContext(options.Options));
+            this.repository = new EfRepository<Vote>(new ApplicationDbContext(options.Options));
 
             var logger = Mock.Of<ILogger<VotesService>>();
 
-            var voteService = new VotesService(
+            this.votesService = new VotesService(
                 logger,
-                repository);
+                this.repository);
+        }
 
-            bool result = await voteService.VoteAsync("memoryImageId", "memoryUserId", false);
+        private async void AddTestData()
+        {
+            // FirstTestImageId vote by FirstUserTestId, SecondUserTestId
+            // SecondTestImageId vote by FirstUserTestId
+            await this.repository.AddAsync(
+                 new Vote()
+                 {
+                     ImageId = FirstTestImageId,
+                     AuthorId = FirstUserTestId,
+                     IsLike = 1,
+                 });
+            await this.repository.AddAsync(
+                new Vote()
+                {
+                    ImageId = FirstTestImageId,
+                    AuthorId = SecondUserTestId,
+                    IsLike = 1,
+                });
+            await this.repository.AddAsync(
+                new Vote()
+                {
+                    ImageId = SecondTestImageId,
+                    AuthorId = FirstUserTestId,
+                    IsLike = 0,
+                });
 
-            Assert.False(result);
+            await this.repository.SaveChangesAsync();
         }
     }
 }

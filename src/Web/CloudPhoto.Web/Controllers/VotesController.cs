@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
 
     using CloudPhoto.Data.Models;
+    using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Web.ViewModels.Votes;
     using Microsoft.AspNetCore.Authorization;
@@ -14,15 +15,19 @@
     {
         public VotesController(
             UserManager<ApplicationUser> userManager,
-            IVotesService votesService)
+            IVotesService votesService,
+            IImagesService imagesService)
         {
-           this.UserManager = userManager;
-           this.VotesService = votesService;
+            this.UserManager = userManager;
+            this.VotesService = votesService;
+            this.ImagesService = imagesService;
         }
 
         public UserManager<ApplicationUser> UserManager { get; }
 
         public IVotesService VotesService { get; }
+
+        public IImagesService ImagesService { get; }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -32,6 +37,17 @@
             if (this.ModelState.IsValid)
             {
                 var userId = this.UserManager.GetUserId(this.User);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return this.BadRequest();
+                }
+
+                var dbImage = this.ImagesService.GetImageById<Image>(input.ImageId);
+                if (dbImage == null)
+                {
+                    return this.BadRequest();
+                }
+
                 bool result = await this.VotesService.VoteAsync(input.ImageId, userId, input.IsLike);
                 return new VoteResponseModel { Result = result };
             }

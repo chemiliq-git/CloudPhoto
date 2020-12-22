@@ -23,34 +23,6 @@
 
         public IRepository<Vote> VotesRepository { get; }
 
-        public IEnumerable<T> GetByImage<T>(string imageId, string userId = null)
-        {
-            IQueryable<Vote> query =
-             this.VotesRepository.All()
-             .Where(c => c.ImageId == imageId);
-
-            if (userId != null)
-            {
-                query = query.Where(v => v.AuthorId == userId);
-            }
-
-            return query.To<T>();
-        }
-
-        public IEnumerable<T> GetByUser<T>(string userId, string imageId = null)
-        {
-            IQueryable<Vote> query =
-               this.VotesRepository.All()
-               .Where(c => c.AuthorId.ToLower() == userId.ToLower());
-
-            if (imageId != null)
-            {
-                query = query.Where(v => v.ImageId == imageId);
-            }
-
-            return query.To<T>();
-        }
-
         public async Task<bool> VoteAsync(string imageId, string userId, bool isLike)
         {
             var vote = this.VotesRepository.All()

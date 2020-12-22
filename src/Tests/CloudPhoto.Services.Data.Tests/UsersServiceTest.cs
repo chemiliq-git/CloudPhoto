@@ -33,21 +33,6 @@
             this.AddTestData();
         }
 
-        public static Mock<UserManager<TUser>> MockUserManager<TUser>(List<TUser> ls)
-              where TUser : class
-        {
-            var store = new Mock<IUserStore<TUser>>();
-            var mgr = new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
-            mgr.Object.UserValidators.Add(new UserValidator<TUser>());
-            mgr.Object.PasswordValidators.Add(new PasswordValidator<TUser>());
-
-            mgr.Setup(x => x.DeleteAsync(It.IsAny<TUser>())).ReturnsAsync(IdentityResult.Success);
-            mgr.Setup(x => x.CreateAsync(It.IsAny<TUser>(), It.IsAny<string>())).ReturnsAsync(IdentityResult.Success).Callback<TUser, string>((x, y) => ls.Add(x));
-            mgr.Setup(x => x.UpdateAsync(It.IsAny<TUser>())).ReturnsAsync(IdentityResult.Success);
-
-            return mgr;
-        }
-
         [Fact]
         public void GetUserInfoForNotExistUser()
         {
@@ -128,7 +113,7 @@
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
                 = this.usersService.GetFollowingUsers<ApplicationUser>(FirstTestUserId, SecondTestUserId, 0, 0);
-            Assert.Equal(2, lstFollowerUsers.ToList().Count());
+            Assert.Equal(2, lstFollowerUsers.ToList()?.Count);
         }
 
         [Fact]
@@ -193,7 +178,7 @@
             }
         }
 
-        private void InitTestServices()
+        private static UserManager<ApplicationUser> MockUserManager()
         {
             var userStore = new Mock<IUserStore<ApplicationUser>>();
             userStore.Setup(x => x.FindByIdAsync(FirstTestUserId, CancellationToken.None))
@@ -216,6 +201,12 @@
                 .ReturnsAsync(IdentityResult.Success);
 
             var userManagerMock = new UserManager<ApplicationUser>(userStore.Object, null, null, null, null, null, null, null, null);
+            return userManagerMock;
+        }
+
+        private void InitTestServices()
+        {
+            UserManager<ApplicationUser> userManagerMock = MockUserManager();
             this.userManager = userManagerMock;
 
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -237,22 +228,28 @@
 
         private async void AddTestData()
         {
-            ApplicationUser firstUser = new ApplicationUser();
-            firstUser.Id = FirstTestUserId;
-            firstUser.FirstName = "Test1";
-            firstUser.LastName = "User1";
+            ApplicationUser firstUser = new ApplicationUser
+            {
+                Id = FirstTestUserId,
+                FirstName = "Test1",
+                LastName = "User1",
+            };
             await this.userRepository.AddAsync(firstUser);
 
-            ApplicationUser secondtUser = new ApplicationUser();
-            secondtUser.Id = SecondTestUserId;
-            secondtUser.FirstName = "Test2";
-            secondtUser.LastName = "User2";
+            ApplicationUser secondtUser = new ApplicationUser
+            {
+                Id = SecondTestUserId,
+                FirstName = "Test2",
+                LastName = "User2",
+            };
             await this.userRepository.AddAsync(secondtUser);
 
-            ApplicationUser thirdtUser = new ApplicationUser();
-            thirdtUser.Id = ThirdTestUserId;
-            thirdtUser.FirstName = "Test3";
-            thirdtUser.LastName = "User3";
+            ApplicationUser thirdtUser = new ApplicationUser
+            {
+                Id = ThirdTestUserId,
+                FirstName = "Test3",
+                LastName = "User3",
+            };
             await this.userRepository.AddAsync(thirdtUser);
 
             await this.userRepository.SaveChangesAsync();
