@@ -5,7 +5,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class BackgroundQueue<T> : IBackgroundQueue<T>
+    public class BackgroundQueue<T> : IBackgroundQueue<T>, IDisposable
         where T : class
     {
         private readonly ConcurrentQueue<T> items = new ConcurrentQueue<T>();
@@ -30,6 +30,20 @@
             return success
                 ? workItem
                 : null;
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.signal.Dispose();
+            }
         }
     }
 }

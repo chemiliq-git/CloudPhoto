@@ -30,8 +30,7 @@
         {
             this.logger.LogCritical(
                 "The {Type} is stopping due to a host shutdown, queued items might not be processed anymore.",
-                nameof(BackgroundWorker)
-            );
+                nameof(BackgroundWorker));
 
             return base.StopAsync(cancellationToken);
         }
