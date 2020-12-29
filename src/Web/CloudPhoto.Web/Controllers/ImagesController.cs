@@ -422,7 +422,7 @@
         }
 
         /// <summary>
-        /// Download image
+        /// Download image.
         /// </summary>
         /// <param name="id">ImageId.</param>
         /// <returns>File content that must save to disc.</returns>

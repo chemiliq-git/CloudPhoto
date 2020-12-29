@@ -102,7 +102,7 @@
         [Fact]
         public void GetFollowersPagingTest()
         {
-            // try get not exist index of list 
+            // try get not exist index of list
             IEnumerable<ApplicationUser> lstFollowerUsers
                 = this.usersService.GetFollowerUsers<ApplicationUser>(FirstTestUserId, null, 5, 5);
             Assert.Empty(lstFollowerUsers.ToList());

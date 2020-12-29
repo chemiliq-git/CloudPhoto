@@ -1,8 +1,7 @@
 ﻿namespace CloudPhoto.Web.Controllers
 {
-    using System.Linq;
     using System.Threading.Tasks;
-    
+
     using CloudPhoto.Common;
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;

@@ -36,7 +36,7 @@
         {
             string newTadId = await this.tagService.CreateAsync("Nature Tag Name", "description", "userId");
             Tag selectNewTag = this.tagService.GetByTagName<Tag>("Nature Tag Name");
-            Assert.Equal(newTadId,selectNewTag?.Id);
+            Assert.Equal(newTadId, selectNewTag?.Id);
         }
 
         [Fact]

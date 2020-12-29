@@ -72,7 +72,6 @@
             string userId,
             string type)
         {
-
             ApplicationUser user = await this.UserManager.FindByIdAsync(userId);
             if (user == null)
             {
