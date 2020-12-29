@@ -82,13 +82,6 @@
         }
 
         [Fact]
-        public void FilteTagCaseSensitiveTest()
-        {
-            IEnumerable<Tag> selectTags = this.tagService.FiterTagsByNames<Tag>(TestTagPartialName.ToUpper());
-            Assert.Equal(2, selectTags?.Count());
-        }
-
-        [Fact]
         public void FilteTagByUndefineName()
         {
             IEnumerable<Tag> selectTags = this.tagService.FiterTagsByNames<Tag>("undefine");

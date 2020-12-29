@@ -10,12 +10,10 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
     using CloudPhoto.Services.Data.CategoriesService;
-    using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.TempCloudImageService;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Moq;
     using Xunit;
@@ -174,16 +172,13 @@
 
         private void CreateImageService(ApplicationDbContext dbContext)
         {
-            var configuration = new ConfigurationBuilder()
-                           .AddInMemoryCollection(new Dictionary<string, string>
-                       {
-                { "DefaultConnection", "NoConnectionString" },
-                       }).Build();
-
-            var dapperService = new DapperService(configuration);
-
             var tagRepository = new EfDeletableEntityRepository<Tag>(dbContext);
             var tagService = new TagsService(tagRepository);
+
+            var userSubscribeRepository = new EfDeletableEntityRepository<UserSubscribe>(dbContext);
+            var imageTagRepository = new EfDeletableEntityRepository<ImageTag>(dbContext);
+            var imageCategoryRepository = new EfDeletableEntityRepository<ImageCategory>(dbContext);
+            var userRepository = new EfDeletableEntityRepository<ApplicationUser>(dbContext);
 
             var tempCloudImageRepository = new EfRepository<TempCloudImage>(dbContext);
             this.tempCloudImagesService = new TempCloudImagesService(tempCloudImageRepository);
@@ -194,9 +189,13 @@
                 logger,
                 this.imageRepository,
                 this.voteRepository,
+                userSubscribeRepository,
+                imageTagRepository,
+                tagRepository,
+                imageCategoryRepository,
+                userRepository,
                 this.categoriesService,
                 tagService,
-                dapperService,
                 this.tempCloudImagesService);
         }
 

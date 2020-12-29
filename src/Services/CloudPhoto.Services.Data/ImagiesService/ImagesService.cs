@@ -4,14 +4,11 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Common;
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
-    using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.TempCloudImageService;
     using CloudPhoto.Services.Mapping;
@@ -23,17 +20,25 @@
             ILogger<ImagesService> logger,
             IDeletableEntityRepository<Image> imageRepository,
             IRepository<Vote> voteRepository,
+            IRepository<UserSubscribe> userSubscribeRepository,
+            IRepository<ImageTag> imageTagRepository,
+            IRepository<Tag> tagRepository,
+            IRepository<ImageCategory> imageCategoryRepository,
+            IRepository<ApplicationUser> userRepository,
             ICategoriesService categoriesService,
             ITagsService tagsService,
-            IDapperService dapperService,
             ITempCloudImagesService tempCloudImage)
         {
             this.Logger = logger;
             this.ImageRepository = imageRepository;
             this.VoteRepository = voteRepository;
+            this.UserSubscribeRepository = userSubscribeRepository;
+            this.ImageTagRepository = imageTagRepository;
+            this.TagRepository = tagRepository;
+            this.ImageCategoryRepository = imageCategoryRepository;
             this.CategoriesService = categoriesService;
+            this.UserRepository = userRepository;
             this.TagsService = tagsService;
-            this.DapperService = dapperService;
             this.TempCloudImage = tempCloudImage;
         }
 
@@ -43,11 +48,19 @@
 
         public IRepository<Vote> VoteRepository { get; }
 
+        public IRepository<UserSubscribe> UserSubscribeRepository { get; }
+
+        public IRepository<ImageTag> ImageTagRepository { get; }
+
+        public IRepository<Tag> TagRepository { get; }
+
+        public IRepository<ImageCategory> ImageCategoryRepository { get; }
+
         public ICategoriesService CategoriesService { get; }
 
-        public ITagsService TagsService { get; }
+        public IRepository<ApplicationUser> UserRepository { get; }
 
-        public IDapperService DapperService { get; }
+        public ITagsService TagsService { get; }
 
         public ITempCloudImagesService TempCloudImage { get; }
 
@@ -98,13 +111,13 @@
             try
             {
                 var selectTopVoteImage = (from image in this.ImageRepository.All()
-                         where image.ImageCategories.Where(x => x.CategoryId == categoryId).Count() > 0
-                         let sumLikes = (from vote in this.VoteRepository.All() where vote.ImageId == image.Id select vote.IsLike).Sum()
-                         select new ImageLikeData
-                         {
-                              Image = image,
-                              LikeCounts = sumLikes,
-                         })
+                                          where image.ImageCategories.Where(x => x.CategoryId == categoryId).Any()
+                                          let sumLikes = (from vote in this.VoteRepository.All() where vote.ImageId == image.Id select vote.IsLike).Sum()
+                                          select new ImageLikeData
+                                          {
+                                              Image = image,
+                                              LikeCounts = sumLikes,
+                                          })
                          .OrderByDescending(x => x.LikeCounts);
 
                 return selectTopVoteImage.Select(s => s.Image).Take(countTopImage).To<T>().ToList();
@@ -121,84 +134,100 @@
             int perPage,
             int page = 1)
         {
-            var parameters = new
-            {
-                Skip = (page - 1) * perPage,
-                Take = perPage,
-                ClaimType = GlobalConstants.ExternalClaimAvatar,
-                searchData.LikeForUserId,
-                searchData.AuthorId,
-                @FilterCategory = searchData.FilterCategory.ToArray(),
-                @FilterTag = searchData.FilterByTag,
-                searchData.FilterTags,
-                searchData.LikeByUser,
-            };
-
-            StringBuilder sqlSelect = new StringBuilder();
-
             // add head select
-            sqlSelect.Append(
-                @"SELECT 
-                    i.*,
-                    aspu.FirstName + ' ' + aspu.LastName AS AuthorFullName,
-                    aspu.Email As AuthorEmail, 
-                    aspu.PayPalEmail,
-                    c.ClaimValue AS AuthorAvatarUrl,
-                    -- get follow info    
-                    (SELECT Count(*) FROM UserSubscribes AS us
-					WHERE us.UserSubscribedId = @LikeForUserId
-					AND aspu.Id = us.SubscribeToUserId) AS IsFollow,
-				    -- get like counts
-                    (CASE
-                    WHEN v.IsLike IS NULL THEN 0
-                    WHEN v.IsLike = 1 THEN 1
-	                ELSE 0
-                    END) AS IsLike,
-                    (SELECT SUM(IsLike) FROM Votes Where Votes.ImageId = i.Id) AS LikeCount
-                    FROM Images AS i
-                    JOIN AspNetUsers AS aspu ON aspu.Id = i.AuthorId 
-                    LEFT JOIN AspNetUserClaims AS c On i.AuthorId = c.UserId AND c.ClaimType = @ClaimType
-                    LEFT JOIN Votes AS v ON v.AuthorId = @LikeForUserId AND v.ImageId = i.Id AND v.IsLike = 1");
+            var selecTempData = from image in this.ImageRepository.All()
+                                join user in this.UserRepository.All()
+                                on image.AuthorId equals user.Id
+                                let isFollow = (from subsribe in this.UserSubscribeRepository.All()
+                                                where subsribe.UserSubscribedId == searchData.LikeForUserId
+                                                && subsribe.SubscribeToUserId == user.Id
+                                                select subsribe).Count()
+                                let isLike = (from vote in this.VoteRepository.All()
+                                              where vote.ImageId == image.Id
+                                              && vote.AuthorId == searchData.LikeForUserId
+                                              && vote.IsLike == 1
+                                              select vote.IsLike).Sum()
+                                let likeCount = (from vote in this.VoteRepository.All()
+                                                 where vote.ImageId == image.Id
+                                                 select vote.IsLike).Sum()
+                                select new
+                                {
+                                    Image = image,
+                                    User = user,
+                                    IsFollow = isFollow >= 1,
+                                    IsLike = isLike >= 1,
+                                    LikeCount = likeCount,
+                                };
 
             // filter by categories
             if (searchData.FilterCategory != null
               && searchData.FilterCategory.Count > 0)
             {
-                sqlSelect.AppendLine("JOIN ImageCategories AS ic ON ic.ImageId = i.Id AND ic.CategoryId in @FilterCategory");
+                selecTempData = from tempData in selecTempData
+                                join imgCategory in this.ImageCategoryRepository.All()
+                                on tempData.Image.Id equals imgCategory.ImageId
+                                where searchData.FilterCategory.Contains(imgCategory.CategoryId)
+                                select tempData;
             }
 
             // filter by tag
             if (searchData.FilterTags != null
                 && searchData.FilterTags.Count > 0)
             {
-                sqlSelect.AppendLine("JOIN ImageTags AS it ON it.ImageId = i.Id AND it.TagId in @FilterTags");
+                selecTempData = from tempData in selecTempData
+                                join imageTag in this.ImageTagRepository.All()
+                                on tempData.Image.Id equals imageTag.ImageId
+                                where searchData.FilterTags.Contains(imageTag.TagId)
+                                select tempData;
             }
 
             // filter images which like by user
             if (!string.IsNullOrEmpty(searchData.LikeByUser))
             {
-                sqlSelect.AppendLine("JOIN Votes AS vt ON vt.ImageId = i.Id AND vt.AuthorId = @LikeByUser AND vt.IsLike = 1");
+                selecTempData = from tempData in selecTempData
+                                join vote in this.VoteRepository.All()
+                                on tempData.Image.Id equals vote.ImageId
+                                where vote.AuthorId == searchData.LikeByUser
+                                && vote.IsLike == 1
+                                select tempData;
             }
-
-            sqlSelect.AppendLine("WHERE (1=1)");
 
             // get images upload by user
             if (!string.IsNullOrEmpty(searchData.AuthorId))
             {
-                sqlSelect.AppendLine("AND i.AuthorId = @AuthorId");
+                selecTempData = selecTempData.Where(tempData => tempData.Image.AuthorId == searchData.AuthorId);
             }
 
             // filter images by text tag
             if (!string.IsNullOrEmpty(searchData.FilterByTag))
             {
-                sqlSelect.AppendLine(@"AND i.Id in(SELECT ImageId FROM ImageTags
-                          JOIN Tags ON Tags.Id = ImageTags.TagId
-                          WHERE Tags.Name like '%' + @FilterTag + '%')");
+                selecTempData = selecTempData.Where(
+                        tempData => (from imaTag in this.ImageTagRepository.All()
+                                     join tag in this.TagRepository.All() on imaTag.TagId equals tag.Id
+                                     where tag.Name.Contains(searchData.FilterByTag)
+                                     select imaTag.ImageId).Contains(tempData.Image.Id));
             }
 
-            sqlSelect.AppendLine("ORDER BY i.ID OFFSET @Skip ROWS ");
-            sqlSelect.AppendLine("FETCH NEXT @Take ROWS ONLY");
-            return this.DapperService.GetAll<T>(sqlSelect.ToString(), parameters, commandType: CommandType.Text);
+            selecTempData = selecTempData.OrderBy(tempData => tempData.Image.Id);
+            selecTempData = selecTempData.Skip((page - 1) * perPage).Take(perPage);
+
+            var selecResponseData = from tempData in selecTempData
+                                   select new ResponseSearchImageModelData()
+                                   {
+                                       Id = tempData.Image.Id,
+                                       Title = tempData.Image.Title,
+                                       Description = tempData.Image.Description,
+                                       ThumbnailImageUrl = tempData.Image.ThumbnailImageUrl,
+                                       ImageUrl = tempData.Image.ImageUrl,
+                                       ImageType = tempData.Image.ImageType,
+                                       AuthorId = tempData.Image.AuthorId,
+                                       AuthorAvatarUrl = tempData.User.UserAvatarUrl,
+                                       IsFollow = tempData.IsFollow,
+                                       IsLike = tempData.IsLike,
+                                       LikeCount = tempData.LikeCount,
+                                   };
+
+            return selecResponseData.To<T>().ToList();
         }
 
         public T GetImageById<T>(string imageId)

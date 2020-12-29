@@ -44,7 +44,7 @@
         {
             var query =
                   this.TagRepository.All()
-                  .Where(c => c.Name.Contains(searchText, System.StringComparison.OrdinalIgnoreCase));
+                  .Where(c => c.Name.Contains(searchText));
             return query.To<T>().ToList();
         }
     }

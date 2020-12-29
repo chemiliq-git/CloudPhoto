@@ -9,12 +9,10 @@
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
     using CloudPhoto.Services.Data.CategoriesService;
-    using CloudPhoto.Services.Data.DapperService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Services.Data.TempCloudImageService;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Moq;
     using Xunit;
@@ -33,14 +31,17 @@
         private const string TestUserId2 = "TestUser2";
 
         private EfDeletableEntityRepository<Image> imageRepository;
+        private EfDeletableEntityRepository<ApplicationUser> userRepository;
+        private EfDeletableEntityRepository<ImageCategory> imageCategoryRepository;
+        private EfDeletableEntityRepository<ImageTag> imageTagRepository;
         private EfRepository<Vote> voteRepository;
-        private DapperService dapperService;
         private CategoriesService categoriesService;
         private TagsService tagService;
         private TempCloudImagesService tempCloudImageService;
         private ImagesService imagesService;
 
         private string testCategoryId1;
+        private string testTagId2;
 
         public ImagesServiceTest()
         {
@@ -173,6 +174,95 @@
             Assert.Equal(lstResult?[0].Id, TestImage1);
         }
 
+        [Fact]
+        public void GetImageByCategory()
+        {
+            SearchImageData searchData = new SearchImageData
+            {
+                FilterCategory = new List<string>() { this.testCategoryId1 },
+            };
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 10, 1);
+            Assert.Equal(2, selectImages.Count());
+        }
+
+        [Fact]
+        public void GetImageByTagShouldReturnOneImage()
+        {
+            SearchImageData searchData = new SearchImageData
+            {
+                FilterByTag = TestTag2,
+            };
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 10, 1);
+            Assert.Single(selectImages);
+        }
+
+        [Fact]
+        public void GetImageByTagShoulReturnTwoImage()
+        {
+            SearchImageData searchData = new SearchImageData
+            {
+                FilterByTag = TestTag1,
+            };
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 10, 1);
+            Assert.Equal(2, selectImages.Count());
+        }
+
+        [Fact]
+        public void GetImageByTags()
+        {
+            SearchImageData searchData = new SearchImageData
+            {
+                FilterTags = new List<string>() { this.testTagId2 },
+            };
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 10, 1);
+            Assert.Single(selectImages);
+        }
+
+        [Fact]
+        public void GetImageByAuthor()
+        {
+            SearchImageData searchData = new SearchImageData
+            {
+                AuthorId = TestUserId1,
+            };
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 10, 1);
+            Assert.Equal(2, selectImages.Count());
+        }
+
+        [Fact]
+        public void GetImageTestPaging()
+        {
+            SearchImageData searchData = new SearchImageData();
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 1, 1);
+            Assert.Single(selectImages);
+        }
+
+        [Fact]
+        public void GetImageBySearchData()
+        {
+            SearchImageData searchData = new SearchImageData()
+            {
+                LikeByUser = TestUserId2,
+                LikeForUserId = TestUserId1,
+            };
+
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 10, 1);
+            Assert.Single(selectImages);
+        }
+
+        [Fact]
+        public void GetImageCheckIsLikeFlag()
+        {
+            SearchImageData searchData = new SearchImageData()
+            {
+                LikeByUser = TestUserId2,
+                LikeForUserId = TestUserId1,
+            };
+
+            var selectImages = this.imagesService.GetByFilter<ResponseSearchImageModelData>(searchData, 10, 1);
+            Assert.True(selectImages.ToList()[0].IsLike);
+        }
+
         public void Dispose()
         {
             this.Dispose(true);
@@ -184,8 +274,10 @@
             if (disposing)
             {
                 this.imageRepository.Dispose();
-                this.dapperService.Dispose();
                 this.voteRepository.Dispose();
+                this.userRepository.Dispose();
+                this.imageCategoryRepository.Dispose();
+                this.imageTagRepository.Dispose();
             }
         }
 
@@ -198,23 +290,19 @@
 
             this.imageRepository = new EfDeletableEntityRepository<Image>(dbContext);
 
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "DefaultConnection", "NoConnectionString" },
-            }).Build();
-
-            this.dapperService = new DapperService(configuration);
-
             var tagRepository = new EfDeletableEntityRepository<Tag>(dbContext);
             this.tagService = new TagsService(tagRepository);
 
-            var imageCategoryRepository = new EfDeletableEntityRepository<ImageCategory>(dbContext);
+            this.imageCategoryRepository = new EfDeletableEntityRepository<ImageCategory>(dbContext);
 
             var tempCloudImageRepository = new EfRepository<TempCloudImage>(dbContext);
             this.tempCloudImageService = new TempCloudImagesService(tempCloudImageRepository);
 
             this.voteRepository = new EfRepository<Vote>(dbContext);
+
+            var userSubscribeRepository = new EfDeletableEntityRepository<UserSubscribe>(dbContext);
+            this.imageTagRepository = new EfDeletableEntityRepository<ImageTag>(dbContext);
+            this.userRepository = new EfDeletableEntityRepository<ApplicationUser>(dbContext);
 
             var categoryRepository = new EfDeletableEntityRepository<Category>(dbContext);
             var loggerCategory = Mock.Of<ILogger<CategoriesService>>();
@@ -223,7 +311,7 @@
                 categoryRepository,
                 this.voteRepository,
                 this.imageRepository,
-                imageCategoryRepository);
+                this.imageCategoryRepository);
 
             var logger = Mock.Of<ILogger<ImagesService>>();
 
@@ -231,28 +319,45 @@
                 logger,
                 this.imageRepository,
                 this.voteRepository,
+                userSubscribeRepository,
+                this.imageTagRepository,
+                tagRepository,
+                this.imageCategoryRepository,
+                this.userRepository,
                 this.categoriesService,
                 this.tagService,
-                this.dapperService,
                 this.tempCloudImageService);
         }
 
         private async void AddTestData()
         {
+            ApplicationUser applicationUser = new ApplicationUser
+            {
+                Id = TestUserId1,
+                Email = "Test@email.com",
+            };
+            await this.userRepository.AddAsync(applicationUser);
+            applicationUser = new ApplicationUser
+            {
+                Id = TestUserId2,
+                Email = "Test@email.com",
+            };
+            await this.userRepository.AddAsync(applicationUser);
+
             this.testCategoryId1 = await this.categoriesService.CreateAsync(TestCategory1, TestCategory1, TestUserId1);
 
             await this.CreateImageTempData(TestImage1);
             await this.CreateImageTempData(TestImage2);
 
-            string tagId1 = await this.tagService.CreateAsync(TestTag1, null, TestUserId1);
-            string tagId2 = await this.tagService.CreateAsync(TestTag2, null, TestUserId1);
+            await this.tagService.CreateAsync(TestTag1, null, TestUserId1);
+            this.testTagId2 = await this.tagService.CreateAsync(TestTag2, null, TestUserId1);
 
             await this.imagesService.CreateAsync(new CreateImageModelData()
             {
                 Id = TestImage1,
                 AuthorId = TestUserId1,
                 CategoryId = this.testCategoryId1,
-                Tags = new List<string>() { tagId1 },
+                Tags = new List<string>() { TestTag1 },
             });
 
             await this.imagesService.CreateAsync(new CreateImageModelData()
@@ -260,13 +365,15 @@
                 Id = TestImage2,
                 AuthorId = TestUserId1,
                 CategoryId = this.testCategoryId1,
-                Tags = new List<string>() { tagId1, tagId2 },
+                Tags = new List<string>() { TestTag1, TestTag2 },
             });
 
             await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId1 });
             await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId2 });
 
             await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage2, IsLike = 1, AuthorId = TestUserId1 });
+
+            await this.voteRepository.SaveChangesAsync();
         }
 
         private async Task CreateImageTempData(string imageId)

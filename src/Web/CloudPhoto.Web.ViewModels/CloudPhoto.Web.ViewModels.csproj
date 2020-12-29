@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Data\CloudPhoto.Data.Models\CloudPhoto.Data.Models.csproj" />
+    <ProjectReference Include="..\..\Services\CloudPhoto.Services.Data\CloudPhoto.Services.Data.csproj" />
     <ProjectReference Include="..\..\Services\CloudPhoto.Services.Mapping\CloudPhoto.Services.Mapping.csproj" />
   </ItemGroup>
 
