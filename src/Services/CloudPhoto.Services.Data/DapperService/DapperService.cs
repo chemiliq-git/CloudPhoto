@@ -1,5 +1,6 @@
 ﻿namespace CloudPhoto.Services.Data.DapperService
 {
+    using System;
     using System.Collections.Generic;
     using System.Data;
     using System.Data.Common;
@@ -19,10 +20,6 @@
             this.config = config;
         }
 
-        public void Dispose()
-        {
-        }
-
         public T Get<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.Text)
         {
             using IDbConnection db = new SqlConnection(this.config.GetConnectionString(this.connectionstring));
@@ -38,6 +35,19 @@
         public DbConnection GetDbconnection()
         {
             return new SqlConnection(this.config.GetConnectionString(this.connectionstring));
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+            }
         }
     }
 }
