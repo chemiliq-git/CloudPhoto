@@ -17,6 +17,16 @@
         [ValidateAntiForgeryToken]
         public IActionResult AutoCompleteSearch(string searchData)
         {
+            if (string.IsNullOrEmpty(searchData))
+            {
+                return this.BadRequest();
+            }
+
+            if (searchData.Length <= 2)
+            {
+                return this.BadRequest();
+            }
+
             var foundTags = this.TagsService.FiterTagsByNames<SearchTagDataModel>(searchData);
             return this.Json(foundTags);
         }
