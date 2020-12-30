@@ -111,8 +111,11 @@
         [InlineData("4")]
         public void CheckConfigImageCountSettings(string showMostLikeImageByCategoryCount)
         {
-            Dictionary<string, string> settings = new Dictionary<string, string>();
-            settings.Add(GlobalConstants.ShowMostLikeCategoryCount, "1");
+            Dictionary<string, string> settings = new Dictionary<string, string>
+            {
+                { GlobalConstants.ShowMostLikeCategoryCount, "1" },
+            };
+
             if (!string.IsNullOrEmpty(showMostLikeImageByCategoryCount))
             {
                 settings.Add(GlobalConstants.ShowMostLikeImageByCategoryCount, showMostLikeImageByCategoryCount);
