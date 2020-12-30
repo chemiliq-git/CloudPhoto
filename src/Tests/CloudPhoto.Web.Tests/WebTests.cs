@@ -50,7 +50,6 @@
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         }
 
-
         [Fact]
         public async Task CheckHomePage()
         {
