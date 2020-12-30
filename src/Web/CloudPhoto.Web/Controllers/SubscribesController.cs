@@ -29,7 +29,9 @@
         [Authorize]
         public async Task<ActionResult<SubscribeResponseModel>> Subscribe(SubscribeInputModel input)
         {
-            if (!this.ModelState.IsValid)
+            if (!this.ModelState.IsValid
+                || input == null
+                || string.IsNullOrEmpty(input.UserId))
             {
                 return this.BadRequest();
             }
