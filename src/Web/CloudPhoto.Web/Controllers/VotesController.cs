@@ -36,8 +36,18 @@
         {
             if (this.ModelState.IsValid)
             {
+                if (input == null)
+                {
+                    return this.BadRequest();
+                }
+
                 var userId = this.UserManager.GetUserId(this.User);
                 if (string.IsNullOrEmpty(userId))
+                {
+                    return this.BadRequest();
+                }
+
+                if (string.IsNullOrEmpty(input.ImageId))
                 {
                     return this.BadRequest();
                 }
