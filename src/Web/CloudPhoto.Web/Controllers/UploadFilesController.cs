@@ -19,7 +19,7 @@
     using Microsoft.Extensions.Configuration;
 
     [Route("api/[controller]")]
-    public class UploadFilesController : Controller
+    public class UploadFilesController : BaseController
     {
         public UploadFilesController(
             ILocalStorageServices localStorageService,

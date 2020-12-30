@@ -26,7 +26,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
-    public class ImagesController : Controller
+    public class ImagesController : BaseController
     {
         private readonly ApplicationDbContext context;
         private readonly IConfiguration configuration;

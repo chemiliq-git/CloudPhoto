@@ -5,7 +5,7 @@
 
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
-
+    using OpenQA.Selenium.Support.UI;
     using Xunit;
 
     public class SeleniumTests : IClassFixture<SeleniumServerFactory<Startup>>, IDisposable
@@ -31,6 +31,18 @@
                 "/Home/Privacy",
                 this.browser.FindElements(By.CssSelector("footer a")).First().GetAttribute("href"));
         }
+
+        //[Fact]
+        //public void HomePageMustContainLoginButton()
+        //{
+        //    this.browser.Navigate().GoToUrl(this.server.RootUri);
+        //    this.browser.FindElement(By.Id("headerSearchControl")).SendKeys("people" + Keys.Enter);
+
+        //    WebDriverWait wait = new WebDriverWait(this.browser, TimeSpan.FromSeconds(10));
+        //    IWebElement firstResult = wait.Until(e => e.FindElement(By.XPath("//a/h3")));
+
+        //    Console.WriteLine(firstResult.Text);
+        //}
 
         public void Dispose()
         {

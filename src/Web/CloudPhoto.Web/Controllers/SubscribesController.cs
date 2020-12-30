@@ -10,7 +10,7 @@
     using Microsoft.AspNetCore.Mvc;
 
     [Route("api/[controller]")]
-    public class SubscribesController : Controller
+    public class SubscribesController : BaseController
     {
         public SubscribesController(
             UserManager<ApplicationUser> userManager,

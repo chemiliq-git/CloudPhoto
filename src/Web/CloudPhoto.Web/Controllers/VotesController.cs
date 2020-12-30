@@ -11,7 +11,7 @@
     using Microsoft.AspNetCore.Mvc;
 
     [Route("api/[controller]")]
-    public class VotesController : Controller
+    public class VotesController : BaseController
     {
         public VotesController(
             UserManager<ApplicationUser> userManager,

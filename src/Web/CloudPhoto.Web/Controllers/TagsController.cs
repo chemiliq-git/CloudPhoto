@@ -4,7 +4,7 @@
     using CloudPhoto.Web.ViewModels.Tags;
     using Microsoft.AspNetCore.Mvc;
 
-    public class TagsController : Controller
+    public class TagsController : BaseController
     {
         public TagsController(ITagsService tagsService)
         {

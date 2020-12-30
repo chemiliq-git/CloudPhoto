@@ -18,7 +18,7 @@
     using Microsoft.AspNetCore.Mvc;
 
     [Route("[controller]")]
-    public class UsersController : Controller
+    public class UsersController : BaseController
     {
         public UsersController(
             UserManager<ApplicationUser> userManager,
