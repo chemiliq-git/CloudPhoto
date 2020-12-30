@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-
+    using CloudPhoto.Common;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Web.ViewModels;
@@ -31,12 +31,12 @@
 
         public IActionResult Index()
         {
-            if (!int.TryParse(this.Configuration.GetSection("HomePageSettings:ShowMostLikeCategory_Count").Value, out int countShowCategory))
+            if (!int.TryParse(this.Configuration.GetSection(GlobalConstants.ShowMostLikeCategoryCount).Value, out int countShowCategory))
             {
                 countShowCategory = 2;
             }
 
-            if (!int.TryParse(this.Configuration.GetSection("HomePageSettings:ShowMostLikeImage_ByCategory_Count").Value, out int countShowImages))
+            if (!int.TryParse(this.Configuration.GetSection(GlobalConstants.ShowMostLikeImageByCategoryCount).Value, out int countShowImages))
             {
                 countShowImages = 4;
             }
@@ -56,11 +56,6 @@
             }
 
             return this.View(model);
-        }
-
-        public IActionResult Privacy()
-        {
-            return this.View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

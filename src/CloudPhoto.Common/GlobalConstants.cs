@@ -13,5 +13,9 @@
         public const string ExternalClaimAvatar = "useravatar";
 
         public const int ImagePerPage = 6;
+
+        public const string ShowMostLikeCategoryCount = "HomePageSettings:ShowMostLikeCategory_Count";
+
+        public const string ShowMostLikeImageByCategoryCount = "HomePageSettings:ShowMostLikeImage_ByCategory_Count";
     }
 }
