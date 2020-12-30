@@ -27,6 +27,7 @@ class myAutocompleteHelper {
 
     configAutoCompleteTags() {
         let context: myAutocompleteHelper = this;
+        $(this.autoCompleteControlName).attr("autocomplete", "off");
         $(this.autoCompleteControlName).keyup(function (event) {
             var token = $("#keyForm input[name=__RequestVerificationToken]").val();
 

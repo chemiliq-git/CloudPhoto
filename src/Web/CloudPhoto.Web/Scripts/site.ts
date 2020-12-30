@@ -13,11 +13,13 @@
             this.searchControlName);
 
         let searchHTLElement: HTMLInputElement = <HTMLInputElement>document.getElementById(this.searchControlName.substring(1));
-        searchHTLElement.addEventListener("keydown", function (event) {
+        searchHTLElement.addEventListener("keydown", function (event: KeyboardEvent) {
             if (event.key === "Enter") {
                 if (searchHTLElement.value
                     && searchHTLElement.value.length >= 2) {
                     this.seachImageByInputData();
+                    event.preventDefault();
+                    return false;
                 }
             }
         }.bind(this));
@@ -40,7 +42,8 @@
             this.searchData.cookieData.searchText = $(this.searchControlName).val().toString();
             this.searchData.saveCookieData();
 
-            window.location.href = '/Images/Index'; var data1 = this.searchData.readCookieData();
+            console.log("Show images");
+            window.location.href = '/Images/Index';
         }
     }
 }

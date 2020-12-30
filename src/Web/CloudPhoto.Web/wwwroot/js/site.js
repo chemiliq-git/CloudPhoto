@@ -11,6 +11,8 @@ var siteHelper = /** @class */ (function () {
                 if (searchHTLElement.value
                     && searchHTLElement.value.length >= 2) {
                     this.seachImageByInputData();
+                    event.preventDefault();
+                    return false;
                 }
             }
         }.bind(this));
@@ -30,8 +32,8 @@ var siteHelper = /** @class */ (function () {
             this.searchData.clearCookieData();
             this.searchData.cookieData.searchText = $(this.searchControlName).val().toString();
             this.searchData.saveCookieData();
+            console.log("Show images");
             window.location.href = '/Images/Index';
-            var data1 = this.searchData.readCookieData();
         }
     };
     return siteHelper;
