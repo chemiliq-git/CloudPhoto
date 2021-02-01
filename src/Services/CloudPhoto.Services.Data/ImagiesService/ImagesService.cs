@@ -212,22 +212,30 @@
             selecTempData = selecTempData.Skip((page - 1) * perPage).Take(perPage);
 
             var selecResponseData = from tempData in selecTempData
-                                   select new ResponseSearchImageModelData()
-                                   {
-                                       Id = tempData.Image.Id,
-                                       Title = tempData.Image.Title,
-                                       Description = tempData.Image.Description,
-                                       ThumbnailImageUrl = tempData.Image.ThumbnailImageUrl,
-                                       ImageUrl = tempData.Image.ImageUrl,
-                                       ImageType = tempData.Image.ImageType,
-                                       AuthorId = tempData.Image.AuthorId,
-                                       AuthorAvatarUrl = tempData.User.UserAvatarUrl,
-                                       IsFollow = tempData.IsFollow,
-                                       IsLike = tempData.IsLike,
-                                       LikeCount = tempData.LikeCount,
-                                   };
+                                    select new ResponseSearchImageModelData()
+                                    {
+                                        Id = tempData.Image.Id,
+                                        Title = tempData.Image.Title,
+                                        Description = tempData.Image.Description,
+                                        ThumbnailImageUrl = tempData.Image.ThumbnailImageUrl,
+                                        ImageUrl = tempData.Image.ImageUrl,
+                                        ImageType = tempData.Image.ImageType,
+                                        AuthorId = tempData.Image.AuthorId,
+                                        AuthorAvatarUrl = tempData.User.UserAvatarUrl,
+                                        IsFollow = tempData.IsFollow,
+                                        IsLike = tempData.IsLike,
+                                        LikeCount = tempData.LikeCount,
+                                    };
 
-            return selecResponseData.To<T>().ToList();
+            try
+            {
+                return selecResponseData.To<T>().ToList();
+            }
+            catch (Exception e)
+            {
+                this.Logger.LogError(e, e.Message);
+                return null;
+            }
         }
 
         public T GetImageById<T>(string imageId)

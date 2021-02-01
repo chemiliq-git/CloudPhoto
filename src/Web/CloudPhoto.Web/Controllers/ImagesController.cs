@@ -3,14 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Drawing;
-    using System.Drawing.Imaging;
     using System.IO;
     using System.Linq;
     using System.Net.Http;
     using System.Text.Json;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
@@ -22,41 +20,25 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     public class ImagesController : BaseController
     {
-        private readonly ApplicationDbContext context;
-        private readonly IConfiguration configuration;
         private readonly IImagesService imagesService;
         private readonly ICategoriesService categoriesService;
-        private readonly IVotesService votesService;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly IUsersService usersServices;
-        private readonly IWebHostEnvironment env;
         private readonly ILogger logger;
 
         public ImagesController(
-            ApplicationDbContext context,
-            IConfiguration configuration,
             IImagesService imagesService,
             ICategoriesService categoriesService,
-            IVotesService votesService,
             UserManager<ApplicationUser> userManager,
-            IUsersService usersServices,
-            IWebHostEnvironment env,
             ILogger<ImagesController> logger)
         {
-            this.context = context;
-            this.configuration = configuration;
             this.imagesService = imagesService;
             this.categoriesService = categoriesService;
-            this.votesService = votesService;
             this.userManager = userManager;
-            this.usersServices = usersServices;
-            this.env = env;
             this.logger = logger;
         }
 
@@ -222,13 +204,20 @@
            string userId,
            string type)
         {
+            if (pageSize == 0
+               || pageIndex == 0
+               || string.IsNullOrEmpty(userId))
+            {
+                return this.BadRequest();
+            }
+
             ApplicationUser user = await this.userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return this.BadRequest();
             }
 
-            SearchImageData localSearchData = null;
+            SearchImageData localSearchData;
             switch (type)
             {
                 case "uploads":
@@ -247,6 +236,11 @@
                             LikeByUser = user.Id,
                         };
                         break;
+                    }
+
+                default:
+                    {
+                        return this.BadRequest();
                     }
             }
 
@@ -336,91 +330,6 @@
             }
         }
 
-        // GET: Images/Edit/5
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (id == null)
-            {
-                return this.NotFound();
-            }
-
-            var image = await this.context.Images.FindAsync(id);
-            if (image == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.View(image);
-        }
-
-        // POST: Images/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, Data.Models.Image image)
-        {
-            if (id != image.Id)
-            {
-                return this.NotFound();
-            }
-
-            if (this.ModelState.IsValid)
-            {
-                try
-                {
-                    this.context.Update(image);
-                    await this.context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!this.ImageExists(image.Id))
-                    {
-                        return this.NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-
-                return this.RedirectToAction(nameof(this.Index));
-            }
-
-            return this.View(image);
-        }
-
-        // GET: Images/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null)
-            {
-                return this.NotFound();
-            }
-
-            var image = await this.context.Images
-                .Include(i => i.Author)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (image == null)
-            {
-                return this.NotFound();
-            }
-
-            return this.View(image);
-        }
-
-        // POST: Images/Delete/5
-        [HttpPost]
-        [ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var image = await this.context.Images.FindAsync(id);
-            this.context.Images.Remove(image);
-            await this.context.SaveChangesAsync();
-            return this.RedirectToAction(nameof(this.Index));
-        }
-
         /// <summary>
         /// Download image.
         /// </summary>
@@ -480,11 +389,6 @@
             }
 
             return image;
-        }
-
-        private bool ImageExists(string id)
-        {
-            return this.context.Images.Any(e => e.Id == id);
         }
     }
 }

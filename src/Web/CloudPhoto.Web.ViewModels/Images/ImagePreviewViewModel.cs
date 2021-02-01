@@ -2,11 +2,12 @@
 
 using AutoMapper;
 using CloudPhoto.Data.Models;
+using CloudPhoto.Services.Data.ImagiesService;
 using CloudPhoto.Services.Mapping;
 
 namespace CloudPhoto.Web.ViewModels.Images
 {
-    public class ImagePreviewViewModel : IMapFrom<Image>
+    public class ImagePreviewViewModel : IMapFrom<ResponseSearchImageModelData>
     {
         public string Id { get; set; }
 
