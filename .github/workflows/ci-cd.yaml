@@ -38,7 +38,7 @@ jobs:
 
       - name: Automated Data tests
         run:  |
-          dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj --no-restore --verbosity normal
+          dotnet test --no-restore --verbosity normal
           echo "Count failed tests %ERRORLEVEL%"
           echo "Exited with '$?'"
           
