@@ -93,10 +93,6 @@
                     stream.Position = 0;
                     Response<BlobContentInfo> response = await blob.UploadAsync(
                         stream,
-                        //new BlobHttpHeaders
-                        //{
-                        //    ContentType = uploadInfo.FileInfo.ContentType,
-                        //},
                         conditions: null);
                 }
 
