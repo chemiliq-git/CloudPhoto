@@ -26,6 +26,9 @@ jobs:
 
       - name: npm jquery install
         run: npm i --save-dev @types/jquery
+      
+      - name: npm jquery-cookie install
+        run: npm i --save-dev @types/jquery-cookie
         
       - name: Build app
         run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
