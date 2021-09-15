@@ -24,6 +24,9 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj
 
+      - name: npm jquery install
+        run: npm i --save-dev @types/jquery
+        
       - name: Build app
         run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
 
