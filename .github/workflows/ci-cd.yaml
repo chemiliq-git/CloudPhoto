@@ -37,10 +37,8 @@ jobs:
         run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
 
       - name: Automated Data tests
-        run:  |
-          dotnet test
-          echo "Exited with '$?'"
-          
+        run: dotnet test --no-restore --verbosity normal
+                
       - name: Automated Web tests
         run: dotnet test ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj -c Release --no-build
         
