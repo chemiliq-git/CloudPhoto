@@ -10,7 +10,7 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "scripts/**/*"
+    "Scripts/**/*"
   ],
   "exclude": [
     "node_modules",
