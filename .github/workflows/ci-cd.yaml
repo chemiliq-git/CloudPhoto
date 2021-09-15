@@ -38,8 +38,7 @@ jobs:
 
       - name: Automated Data tests
         run:  |
-          dotnet test --no-restore --verbosity normal
-          echo "Count failed tests %ERRORLEVEL%"
+          dotnet test
           echo "Exited with '$?'"
           
       - name: Automated Web tests
