@@ -38,7 +38,7 @@ jobs:
 
       - name: Automated Data tests
         run:  |
-          dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj -c Release --no-build
+          dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj -c Release --no-build --blame
           echo "Count failed tests %ERRORLEVEL%"
           echo "Exited with '$?'"
           
