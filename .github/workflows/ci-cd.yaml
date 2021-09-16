@@ -22,7 +22,9 @@ jobs:
           dotnet-version: '5.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj
+        run: |
+            dotnet restore ./src/Web/RecipeBook.Web/RecipeBook.Web.csproj
+            dotnet restore ./src/Tests/RecipeBook.Services.Data.Tests/RecipeBook.Services.Data.Tests.csproj
 
       - name: npm jquery install
         run: npm i --save-dev @types/jquery
