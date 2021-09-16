@@ -44,5 +44,8 @@ jobs:
       - name: Automated Web tests
         run: dotnet test ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj --no-restore
         
+      - name: Automated Again Data tests
+        run: dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj --no-restore
+        
       - name: Publish app
         run: dotnet publish ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release -o ./out
