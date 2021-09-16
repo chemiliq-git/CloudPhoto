@@ -76,8 +76,7 @@
         public async void UnSubscribeToUserShouldFalse()
         {
             bool result = await this.subscribesService.ManageUserSubsctibe(ThirdTestUserId, FirstTestUserId, false);
-            //Assert.False(result);
-            Assert.True(result);
+            Assert.False(result);
         }
 
         [Fact]
