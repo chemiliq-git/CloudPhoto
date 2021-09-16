@@ -32,17 +32,17 @@
                 this.browser.FindElements(By.CssSelector("footer a")).First().GetAttribute("href"));
         }
 
-        //[Fact]
-        //public void HomePageMustContainLoginButton()
-        //{
-        //    this.browser.Navigate().GoToUrl(this.server.RootUri);
-        //    this.browser.FindElement(By.Id("headerSearchControl")).SendKeys("people" + Keys.Enter);
+        [Fact(Skip ="Not implement")]
+        public void HomePageMustContainLoginButton()
+        {
+            this.browser.Navigate().GoToUrl(this.server.RootUri);
+            this.browser.FindElement(By.Id("headerSearchControl")).SendKeys("people" + Keys.Enter);
 
-        //    WebDriverWait wait = new WebDriverWait(this.browser, TimeSpan.FromSeconds(10));
-        //    IWebElement firstResult = wait.Until(e => e.FindElement(By.XPath("//a/h3")));
+            WebDriverWait wait = new WebDriverWait(this.browser, TimeSpan.FromSeconds(10));
+            IWebElement firstResult = wait.Until(e => e.FindElement(By.XPath("//a/h3")));
 
-        //    Console.WriteLine(firstResult.Text);
-        //}
+            Console.WriteLine(firstResult.Text);
+        }
 
         public void Dispose()
         {

@@ -18,7 +18,6 @@
 
     public class ImagesControllerTest
     {
-
         private const string FirstTestUserId = "firstTestUserId";
 
         [Theory]
