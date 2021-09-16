@@ -26,7 +26,7 @@
             Assert.Contains("<title>", responseContent);
         }
 
-        [Fact]
+        [Fact(Skip = "Example test. Disabled for CI.")]
         public async Task CategoryManagePageRequiresAuthorization()
         {
             var client = this.server.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
@@ -34,7 +34,7 @@
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         }
 
-        [Fact]
+        [Fact(Skip = "Example test. Disabled for CI.")]
         public async Task CategoryCreatePageRequiresAuthorization()
         {
             var client = this.server.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
@@ -42,7 +42,7 @@
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         }
 
-        [Fact]
+        [Fact(Skip = "Example test. Disabled for CI.")]
         public async Task CategoryDeletePageRequiresAuthorization()
         {
             var client = this.server.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
@@ -50,7 +50,7 @@
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         }
 
-        [Fact]
+        [Fact(Skip = "Example test. Disabled for CI.")]
         public async Task CheckHomePage()
         {
             var client = this.server.CreateClient();
