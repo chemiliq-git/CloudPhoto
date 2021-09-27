@@ -11,7 +11,7 @@ on:
 jobs:
   build:     
     
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -47,3 +47,10 @@ jobs:
         
       - name: Publish app
         run: dotnet publish ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release -o ./out
+
+      - name: Deploy to Azure WebApp
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: MyScheduler
+          publish-profile: ${{secrets.AZURE_MYSCHEDULER_PUBLISH_SECRET}}
+          package: ./out
