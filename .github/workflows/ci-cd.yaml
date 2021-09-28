@@ -54,32 +54,21 @@ jobs:
       - name: Build app
         run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
       
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-      
-      - name: Upload artifact for test job
-        uses: actions/upload-artifact@v2
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-          
-  test:
-   runs-on: windows-latest
-   needs: build
-      
-   steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v2
-        with:
-          name: .net-app
-          
       - name: Automated Data tests
         run: dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj --no-restore
                    
       - name: Automated Web tests
         run: dotnet test ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj --no-restore
-   
-  
+      
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      
+      - name: Upload artifact for deploy job
+        uses: actions/upload-artifact@v2
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
+          
   deploy:
     runs-on: windows-latest
     needs: build
@@ -95,4 +84,4 @@ jobs:
         with: 
           app-name: CloudPhoto
           publish-profile: ${{secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5867D541E7FE4A11B79958ABD2B3F8E7}}
-          package: ./out
+          package: .
