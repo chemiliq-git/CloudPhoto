@@ -66,6 +66,6 @@ jobs:
       - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v2
         with: 
-          app-name: MyScheduler
+          app-name: CloudPhoto
           publish-profile: ${{secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5867D541E7FE4A11B79958ABD2B3F8E7}}
           package: ./out
