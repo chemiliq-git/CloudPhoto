@@ -47,7 +47,7 @@ var myAutocompleteHelper = /** @class */ (function () {
                     });
                 },
                 error: function (data) {
-                    alert(data);
+                    alert("Error with autocomplite functionality");
                 }
             });
         });
