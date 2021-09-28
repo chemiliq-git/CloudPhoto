@@ -35,7 +35,22 @@ jobs:
       
       - name: npm jqueryui install
         run: npm i --save-dev @types/jqueryui
-        
+      
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: './src/Web/CloudPhoto.Web/appsettings*.json'
+        env:
+          ConnectionStrings.DefaultConnection: ${{ secrets.CONNECTION_STRINGS_DEFAULT_CONNECTION }}
+          BlobAzureSettings.Connection: ${{ secrets.BLOB_AZURE_SETTINGS_CONNECTION }}
+          Cloudinary.CloudName: ${{ secrets.CLOURINARY_CLOUD_NAME }}
+          Cloudinary.APIKey: ${{ secrets.CLOURINARY_API_KEY }}
+          Cloudinary.APISecret: ${{ secrets.CLOURINARY_API_SECRET }}
+          Authentication.Google.ClientId: ${{ secrets.AUTHENTICATION_GOOGLE_CLIENT_ID }}
+          Authentication.Google.ClientSecret: ${{ secrets.AUTHENTICATION_GOOGLE_CLIENT_SECRET }}
+          Authentication.Facebook.AppId: ${{ secrets.AUTHENTICATION_FACEBOOK_APP_ID }}
+          Authentication.Facebook.AppSecret: ${{ secrets.AUTHENTICATION_FACEBOOK_APP_SECRET }}
+          
       - name: Build app
         run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
 
