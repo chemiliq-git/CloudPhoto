@@ -54,11 +54,6 @@ jobs:
       - name: Build app
         run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
 
-  tests:
-    runs-on: windows-latest
-    needs: build
-    
-    steps:
       - name: Automated Data tests
         run: dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj --no-restore
                    
@@ -68,7 +63,7 @@ jobs:
   
   deploy:
     runs-on: windows-latest
-    needs: tests
+    needs: build
     
     steps:
     
