@@ -53,13 +53,7 @@ jobs:
           
       - name: Build app
         run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
-      
-      - name: Automated Data tests
-        run: dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj --no-restore
-                   
-      - name: Automated Web tests
-        run: dotnet test ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj --no-restore
-      
+     
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
       
@@ -68,6 +62,13 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
+          
+      - name: Automated Data tests
+        run: dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj --no-restore
+                   
+      - name: Automated Web tests
+        run: dotnet test ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj --no-restore
+         
           
   deploy:
     runs-on: windows-latest
