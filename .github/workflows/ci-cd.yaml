@@ -67,5 +67,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with: 
           app-name: MyScheduler
-          publish-profile: ${{secrets.AZURE_MYSCHEDULER_PUBLISH_SECRET}}
+          publish-profile: ${{secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5867D541E7FE4A11B79958ABD2B3F8E7}}
           package: ./out
