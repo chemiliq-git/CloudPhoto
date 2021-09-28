@@ -22,7 +22,7 @@
                 return this.BadRequest();
             }
 
-            if (searchData.Length <= 2)
+            if (searchData.Length < 2)
             {
                 return this.BadRequest();
             }

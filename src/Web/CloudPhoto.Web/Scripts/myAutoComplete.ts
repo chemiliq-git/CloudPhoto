@@ -70,7 +70,7 @@ class myAutocompleteHelper {
                     });
                 },
                 error: function (data) {
-                    alert(data);
+                    alert("Error with autocomplite functionality");
                 }
             });
         });

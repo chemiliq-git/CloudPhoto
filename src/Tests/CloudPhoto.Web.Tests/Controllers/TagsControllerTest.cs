@@ -38,10 +38,10 @@
             IActionResult result = controller.AutoCompleteSearch(null);
             Assert.IsType<BadRequestResult>(result);
 
-            result = controller.AutoCompleteSearch("te");
+            result = controller.AutoCompleteSearch("t");
             Assert.IsType<BadRequestResult>(result);
 
-            result = controller.AutoCompleteSearch("tes");
+            result = controller.AutoCompleteSearch("te");
             Assert.IsNotType<BadRequestResult>(result);
         }
 
