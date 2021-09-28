@@ -359,3 +359,5 @@ appsettings.Production.json
 *.min.js
 /src/Web/CloudPhoto.Web/appsettings.json
 /src/Web/CloudPhoto.Web/wwwroot/lib
+/src/Web/CloudPhoto.Web/Properties/ServiceDependencies/CloudPhoto - Web Deploy
+/src/Web/CloudPhoto.Web/Properties
