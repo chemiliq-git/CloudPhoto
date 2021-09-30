@@ -1,0 +1,60 @@
+#Only for test purpose. Build and run automatic tests
+#Run manual
+name: Run test without deploy
+
+on:
+  
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:     
+    
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .Net 5
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+
+      - name: Restore dependencies
+        run: |
+            dotnet restore ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj
+            dotnet restore ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj
+            dotnet restore ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj
+			
+      - name: npm jquery install
+        run: npm i --save-dev @types/jquery
+      
+      - name: npm jquery.cookie install
+        run: npm i --save-dev @types/jquery.cookie
+      
+      - name: npm jqueryui install
+        run: npm i --save-dev @types/jqueryui
+      
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: './src/Web/CloudPhoto.Web/appsettings*.json'
+        env:
+          ConnectionStrings.DefaultConnection: ${{ secrets.CONNECTION_STRINGS_DEFAULT_CONNECTION }}
+          BlobAzureSettings.Connection: ${{ secrets.BLOB_AZURE_SETTINGS_CONNECTION }}
+          Cloudinary.CloudName: ${{ secrets.CLOURINARY_CLOUD_NAME }}
+          Cloudinary.APIKey: ${{ secrets.CLOURINARY_API_KEY }}
+          Cloudinary.APISecret: ${{ secrets.CLOURINARY_API_SECRET }}
+          Authentication.Google.ClientId: ${{ secrets.AUTHENTICATION_GOOGLE_CLIENT_ID }}
+          Authentication.Google.ClientSecret: ${{ secrets.AUTHENTICATION_GOOGLE_CLIENT_SECRET }}
+          Authentication.Facebook.AppId: ${{ secrets.AUTHENTICATION_FACEBOOK_APP_ID }}
+          Authentication.Facebook.AppSecret: ${{ secrets.AUTHENTICATION_FACEBOOK_APP_SECRET }}
+          
+      - name: Build app
+        run: dotnet build ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj -c Release --no-restore
+
+      - name: Automated Data tests
+        run: dotnet test ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj --no-restore
+                   
+      - name: Automated Web tests
+        run: dotnet test ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj --no-restore
