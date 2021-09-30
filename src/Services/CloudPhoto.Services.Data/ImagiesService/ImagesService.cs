@@ -222,6 +222,7 @@
                                         ImageType = tempData.Image.ImageType,
                                         AuthorId = tempData.Image.AuthorId,
                                         AuthorAvatarUrl = tempData.User.UserAvatarUrl,
+                                        PayPalEmail = tempData.User.PayPalEmail,
                                         IsFollow = tempData.IsFollow,
                                         IsLike = tempData.IsLike,
                                         LikeCount = tempData.LikeCount,

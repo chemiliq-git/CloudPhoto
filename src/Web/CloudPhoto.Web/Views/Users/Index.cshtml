@@ -61,9 +61,12 @@
                 {
                     @if (!string.IsNullOrEmpty(Model.PayPalEmail))
                     {
-                        <form method="post" asp-controller="users" asp-action="donate" asp-route-id=@Model.Id>
-                            <input type="submit" class="btn btn-sm btn-outline-dark m-1" value="Donate" alt="Support this photographer with a PayPal donation">
-                        </form>
+                        @Html.ActionLink(
+                           "Donate",
+                           "donate",                         // controller action
+                           "users",        // controller
+                           new { Model.Id },         // action parameters aka route values
+                           new { @class = "btn btn-sm btn-outline-dark m-1" })
                     }
 
                     <button id="followButton" type="button" class="btn btn-sm btn-outline-dark m-1"

@@ -150,8 +150,7 @@
             return this.Json(await this.UsersServices.ChangeAvatar(userId, avatarUrl));
         }
 
-        [HttpPost("Donate")]
-        [ValidateAntiForgeryToken]
+        [HttpGet("Donate")]
         public async Task<IActionResult> Donate(string id)
         {
             if (!this.ModelState.IsValid)

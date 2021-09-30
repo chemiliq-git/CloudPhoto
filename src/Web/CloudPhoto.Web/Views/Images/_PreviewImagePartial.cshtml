@@ -58,12 +58,13 @@
                         {
                             if (!string.IsNullOrEmpty(Model.PayPalEmail))
                             {
-                                <form method="post" asp-controller="users" asp-action="donate" asp-route-id=@Model.AuthorId>
-                                    <input type="submit" class="btn btn-outline-dark btn-sm float-left m-1" value="Donate" alt="Support this photographer with a PayPal donation">
-                                </form>
+                                @Html.ActionLink(
+                                      "Donate",
+                                      "donate",
+                                      "users",
+                                      new { @id = Model.AuthorId },
+                                      new { @class = "btn btn-outline-dark btn-sm float-left m-1" })
                             }
-
-
 
                             <button id="followButton" type="button" class="btn btn-outline-dark btn-sm float-left m-1"
                                     onclick="myInvokeSubscribe(this,'@Model.AuthorId'); return false;">
@@ -148,16 +149,19 @@
                     </div>
                 </div>
             </div>
-            @{
-                if (this.User.Identity.IsAuthenticated
+              
+            @if (this.User.Identity.IsAuthenticated
                                            && Model.AuthorId != this.User.FindFirst(ClaimTypes.NameIdentifier).Value)
                 {
-                    if (!string.IsNullOrEmpty(Model.PayPalEmail))
+                    @if (!string.IsNullOrEmpty(Model.PayPalEmail))
                     {
                         <div class="col-sm-6">
-                            <form method="post" asp-controller="users" asp-action="donate" asp-route-id=@Model.AuthorId>
-                                <input type="submit" class="btn btn-block btn-outline-dark btn-sm float-left m-1" value="Donate" alt="Support this photographer with a PayPal donation">
-                            </form>
+                            @Html.ActionLink(
+                            "Donate",
+                            "donate",
+                            "users",
+                            new { @id = Model.AuthorId },
+                            new { @class = "btn btn-block btn-outline-dark btn-sm float-left m-1" })
                         </div>
                     }
 
@@ -169,7 +173,6 @@
                         </button>
                     </div>
                 }
-            }
         </div>
     </div>
 </div>

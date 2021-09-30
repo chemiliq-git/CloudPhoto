@@ -20,6 +20,8 @@
 
         public string AuthorAvatarUrl { get; set; }
 
+        public string PayPalEmail { get; set; }
+
         public bool IsFollow { get; set; }
 
         public bool IsLike { get; set; }
