@@ -25,7 +25,7 @@ jobs:
             dotnet restore ./src/Web/CloudPhoto.Web/CloudPhoto.Web.csproj
             dotnet restore ./src/Tests/CloudPhoto.Services.Data.Tests/CloudPhoto.Services.Data.Tests.csproj
             dotnet restore ./src/Tests/CloudPhoto.Web.Tests/CloudPhoto.Web.Tests.csproj
-			
+      
       - name: npm jquery install
         run: npm i --save-dev @types/jquery
       
