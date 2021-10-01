@@ -362,3 +362,26 @@ appsettings.Production.json
 /src/Web/CloudPhoto.Web/Properties/ServiceDependencies/CloudPhoto - Web Deploy
 /src/Web/CloudPhoto.Web/Properties
 /src/Web/CloudPhoto.Web/appsettings.Development.json
+/src/Tests/CloudPhoto.Web.Tests/appsettings.Development.json
+/src/Web/CloudPhoto.Web/wwwroot/js/cookieHelperBase.js
+/src/Web/CloudPhoto.Web/wwwroot/js/homeIndexView.js
+/src/Web/CloudPhoto.Web/wwwroot/js/homeIndexView.min.js
+/src/Web/CloudPhoto.Web/wwwroot/js/imageCreateView.js
+/src/Web/CloudPhoto.Web/wwwroot/js/imageIndexView.js
+/src/Web/CloudPhoto.Web/wwwroot/js/imageRalateByUserCookieData.js
+/src/Web/CloudPhoto.Web/wwwroot/js/mainImageCookieData.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myAlerts.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myAlerts.min.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myAutoComplete.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myAutoComplete.min.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myFloatPaging.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myFloatPaging.min.js
+/src/Web/CloudPhoto.Web/wwwroot/js/mySubscribe.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myVotes.js
+/src/Web/CloudPhoto.Web/wwwroot/js/myVotes.min.js
+/src/Web/CloudPhoto.Web/wwwroot/js/site.js
+/src/Web/CloudPhoto.Web/wwwroot/js/site.min.js
+/src/Web/CloudPhoto.Web/wwwroot/js/userIndexView.js
+/src/Web/CloudPhoto.Web/wwwroot/js/userRalateByUserCookieData.js
+/src/Web/CloudPhoto.Web/wwwroot/js/userIndexView.js
+/src/Web/CloudPhoto.Web/wwwroot/js/userRalateByUserCookieData.js

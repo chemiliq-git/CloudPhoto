@@ -180,8 +180,15 @@
             using (var serviceScope = app.ApplicationServices.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                dbContext.Database.Migrate();
-                new ApplicationDbContextSeeder().SeedAsync(dbContext, serviceScope.ServiceProvider).GetAwaiter().GetResult();
+                /* For test purpose
+                 * When run web test use memory database provider
+                 * which not allow migrate data
+                 */
+                if (dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+                {
+                    dbContext.Database.Migrate();
+                    new ApplicationDbContextSeeder().SeedAsync(dbContext, serviceScope.ServiceProvider).GetAwaiter().GetResult();
+                }
             }
 
             if (env.IsDevelopment())
