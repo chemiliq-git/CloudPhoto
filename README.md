@@ -6,7 +6,7 @@ Implement website for share images. Users can upload and download images in orig
 - google authentication
 - facebook authentication
 
-## Website can store images on
+## Project can store images on
 - cloudinary cloud - https://cloudinary.com/
 - azure blobStorage - https://azure.microsoft.com/en-us/services/storage/blobs/#features
 
