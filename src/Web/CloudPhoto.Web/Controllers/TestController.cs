@@ -16,11 +16,21 @@ namespace CloudPhoto.Web.Controllers
         }
 
         // http://localhost:5000/api/test/getid
+        // request {"name" : "JSON_Parameter" }
         [HttpGet("getid/", Name = "Getid")]
         [IgnoreAntiforgeryToken]
-        public IActionResult Getid1()
+        public IActionResult Getid1([FromBody] ServiceParameter parameter)
         {
-            string id = "1#21312";
+            string id = $"1#Getid1_Method/{parameter.name}/";
+            return this.Json(id);
+        }
+
+        // https://localhost:44319/api/test/GetWithParam?name=URL_Paramter
+        [HttpGet("GetWithParam/", Name = "GetWithParam")]
+        [IgnoreAntiforgeryToken]
+        public IActionResult GetWithParam(string name)
+        {
+            string id = $"1#Getid1_Method/{name}/";
             return this.Json(id);
         }
 
@@ -43,16 +53,16 @@ namespace CloudPhoto.Web.Controllers
             [FromQuery] string name4,
             [FromRoute] string name5)
         {
-            string id = "0#21312" + name1;
+            string id = "0#21312/" + name1;
             return this.Json(id);
         }
 
         // http://localhost:5000/api/test/setid
         [HttpPost("setid/")]
         [IgnoreAntiforgeryToken]
-        public IActionResult SetId1(string name)
+        public IActionResult SetId1([FromBody] string name)
         {
-            string id = "1#21312" + name;
+            string id = "1#SetId1_Method/" + name;
             return this.Json(id);
         }
 
@@ -66,7 +76,7 @@ namespace CloudPhoto.Web.Controllers
         }
     }
 
-    public class PostParameter
+    public class ServiceParameter
     {
         public string name { get; set; }
     }
