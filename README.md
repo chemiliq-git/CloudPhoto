@@ -1,5 +1,5 @@
 ## Description
-Implement website for share images. Users can upload and download images in original file size. 
+Implement a website for sharing images. Users can upload and download images in original file size. 
 
 ## Users can login with 
 - email and password
