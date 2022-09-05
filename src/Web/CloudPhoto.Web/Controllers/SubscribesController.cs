@@ -2,9 +2,9 @@
 {
     using System.Threading.Tasks;
 
-    using CloudPhoto.Data.Models;
+    using Data.Models;
     using CloudPhoto.Services.Data.SubscribesService;
-    using CloudPhoto.Web.ViewModels.Subscribes;
+    using ViewModels.Subscribes;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
@@ -16,8 +16,8 @@
             UserManager<ApplicationUser> userManager,
             ISubscribesService subscribesService)
         {
-            this.UserManager = userManager;
-            this.SubscribesService = subscribesService;
+            UserManager = userManager;
+            SubscribesService = subscribesService;
         }
 
         public UserManager<ApplicationUser> UserManager { get; }
@@ -29,27 +29,27 @@
         [Authorize]
         public async Task<ActionResult<SubscribeResponseModel>> Subscribe(SubscribeInputModel input)
         {
-            if (!this.ModelState.IsValid
+            if (!ModelState.IsValid
                 || input == null
                 || string.IsNullOrEmpty(input.UserId))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            ApplicationUser userToSubscribe = await this.UserManager.FindByIdAsync(input.UserId);
+            ApplicationUser userToSubscribe = await UserManager.FindByIdAsync(input.UserId);
             if (userToSubscribe == null)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            var userSubcrebed = this.UserManager.GetUserId(this.User);
+            var userSubcrebed = UserManager.GetUserId(User);
 
             if (string.Compare(userToSubscribe.Id.ToString(), userSubcrebed, true) == 0)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            bool result = await this.SubscribesService.ManageUserSubsctibe(userSubcrebed, userToSubscribe.Id, input.Follow);
+            bool result = await SubscribesService.ManageUserSubsctibe(userSubcrebed, userToSubscribe.Id, input.Follow);
             return new SubscribeResponseModel { Result = result };
         }
     }

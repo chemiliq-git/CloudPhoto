@@ -4,10 +4,10 @@
     using System.Linq;
     using System.Threading;
 
-    using CloudPhoto.Data.Models;
+    using Data.Models;
     using CloudPhoto.Services.Data.SubscribesService;
     using CloudPhoto.Web.Controllers;
-    using CloudPhoto.Web.ViewModels.Subscribes;
+    using ViewModels.Subscribes;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;

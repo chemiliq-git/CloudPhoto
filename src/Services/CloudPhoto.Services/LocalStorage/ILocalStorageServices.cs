@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
 
-    using CloudPhoto.Services.RemoteStorage;
+    using RemoteStorage;
 
     public interface ILocalStorageServices
     {

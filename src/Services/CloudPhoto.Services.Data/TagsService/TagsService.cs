@@ -6,13 +6,13 @@
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Mapping;
+    using Mapping;
 
     public class TagsService : ITagsService
     {
         public TagsService(IDeletableEntityRepository<Tag> tagRepository)
         {
-            this.TagRepository = tagRepository;
+            TagRepository = tagRepository;
         }
 
         public IDeletableEntityRepository<Tag> TagRepository { get; }
@@ -20,7 +20,7 @@
         public T GetByTagName<T>(string tagName)
         {
             IQueryable<Tag> query =
-                this.TagRepository.All()
+                TagRepository.All()
                 .Where(c => c.Name.ToLower() == tagName.ToLower());
 
             return query.To<T>().FirstOrDefault();
@@ -35,15 +35,15 @@
                 AuthorId = userId,
             };
 
-            await this.TagRepository.AddAsync(tag);
-            await this.TagRepository.SaveChangesAsync();
+            await TagRepository.AddAsync(tag);
+            await TagRepository.SaveChangesAsync();
             return tag.Id;
         }
 
         public List<T> FiterTagsByNames<T>(string searchText)
         {
             var query =
-                  this.TagRepository.All()
+                  TagRepository.All()
                   .Where(c => c.Name.Contains(searchText));
             return query.To<T>().ToList();
         }

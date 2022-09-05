@@ -5,21 +5,21 @@
     using System.IO;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Services.RemoteStorage;
+    using RemoteStorage;
     using Microsoft.Extensions.Logging;
 
     public class LocalStorage : ILocalStorageServices
     {
         public LocalStorage(ILogger<LocalStorage> logger)
         {
-            this.Logger = logger;
+            Logger = logger;
         }
 
         public ILogger<LocalStorage> Logger { get; }
 
         public Task<bool> DeleteData(StoreFileInfo fileInfo)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public async Task<StoreFileInfo> UploadFile(UploadDataInfo uploadInfo)
@@ -42,7 +42,7 @@
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, "Error when save local file");
+                Logger.LogError(e, "Error when save local file");
                 return new StoreFileInfo(false);
             }
         }

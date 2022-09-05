@@ -4,7 +4,7 @@
     using System.IO;
     using System.Linq;
 
-    using CloudPhoto.Data;
+    using Data;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc.Testing;
     using Microsoft.EntityFrameworkCore;

@@ -6,29 +6,29 @@
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Mapping;
+    using Mapping;
 
     public class TempCloudImagesService : ITempCloudImagesService
     {
         public TempCloudImagesService(
             IRepository<TempCloudImage> repository)
         {
-            this.Repository = repository;
+            Repository = repository;
         }
 
         public IRepository<TempCloudImage> Repository { get; }
 
         public async Task<string> CreateAsync(TempCloudImage newCloudImage)
         {
-            await this.Repository.AddAsync(newCloudImage);
-            await this.Repository.SaveChangesAsync();
+            await Repository.AddAsync(newCloudImage);
+            await Repository.SaveChangesAsync();
             return newCloudImage.Id;
         }
 
         public IEnumerable<T> GetByImageId<T>(string imageId)
         {
             var query =
-                  this.Repository.All()
+                  Repository.All()
                   .Where(c => c.ImageId == imageId);
             return query.To<T>().ToList();
         }

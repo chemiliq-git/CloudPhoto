@@ -5,7 +5,7 @@
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Mapping;
+    using Mapping;
 
     public class SettingsService : ISettingsService
     {
@@ -18,12 +18,12 @@
 
         public int GetCount()
         {
-            return this.settingsRepository.AllAsNoTracking().Count();
+            return settingsRepository.AllAsNoTracking().Count();
         }
 
         public IEnumerable<T> GetAll<T>()
         {
-            return this.settingsRepository.All().To<T>().ToList();
+            return settingsRepository.All().To<T>().ToList();
         }
     }
 }

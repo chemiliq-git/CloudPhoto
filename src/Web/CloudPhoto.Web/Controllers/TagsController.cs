@@ -1,14 +1,14 @@
 ﻿namespace CloudPhoto.Web.Controllers
 {
     using CloudPhoto.Services.Data.TagsService;
-    using CloudPhoto.Web.ViewModels.Tags;
+    using ViewModels.Tags;
     using Microsoft.AspNetCore.Mvc;
 
     public class TagsController : BaseController
     {
         public TagsController(ITagsService tagsService)
         {
-            this.TagsService = tagsService;
+            TagsService = tagsService;
         }
 
         public ITagsService TagsService { get; }
@@ -19,16 +19,16 @@
         {
             if (string.IsNullOrEmpty(searchData))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             if (searchData.Length < 2)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            var foundTags = this.TagsService.FiterTagsByNames<SearchTagDataModel>(searchData);
-            return this.Json(foundTags);
+            var foundTags = TagsService.FiterTagsByNames<SearchTagDataModel>(searchData);
+            return Json(foundTags);
         }
     }
 }

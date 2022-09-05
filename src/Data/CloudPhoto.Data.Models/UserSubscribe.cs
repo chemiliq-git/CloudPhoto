@@ -9,7 +9,7 @@
     {
         public UserSubscribe()
         {
-            this.Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToString();
         }
 
         [Required]

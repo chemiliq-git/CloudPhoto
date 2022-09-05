@@ -5,7 +5,7 @@
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
-    using CloudPhoto.Services.Data.VotesService;
+    using VotesService;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Moq;
@@ -28,49 +28,49 @@
 
         public VotesServiceTest()
         {
-            this.InitTestServices();
+            InitTestServices();
 
-            this.AddTestData();
+            AddTestData();
         }
 
         [Fact]
         public async void VoteFirstTimeShouldSucceeded()
         {
-            bool result = await this.votesService.VoteAsync(ThirdTestImageId, ThirdUserTestId, true);
+            bool result = await votesService.VoteAsync(ThirdTestImageId, ThirdUserTestId, true);
             Assert.True(result);
         }
 
         [Fact]
         public async void TryDownVoteFirstTimeShouldFalse()
         {
-            bool result = await this.votesService.VoteAsync(FourTestImageId, FourUserTestId, false);
+            bool result = await votesService.VoteAsync(FourTestImageId, FourUserTestId, false);
             Assert.False(result);
         }
 
         [Fact]
         public async void TryVoteManyTimes()
         {
-            bool result = await this.votesService.VoteAsync(FirstTestImageId, FirstUserTestId, true);
+            bool result = await votesService.VoteAsync(FirstTestImageId, FirstUserTestId, true);
             Assert.False(result);
         }
 
         [Fact]
         public async void TryDownVote()
         {
-            bool result = await this.votesService.VoteAsync(FirstTestImageId, FirstUserTestId, false);
+            bool result = await votesService.VoteAsync(FirstTestImageId, FirstUserTestId, false);
             Assert.True(result);
         }
 
         [Fact]
         public async void TryDownVoteWhenAlreadyDownVote()
         {
-            bool result = await this.votesService.VoteAsync(SecondTestImageId, FirstUserTestId, false);
+            bool result = await votesService.VoteAsync(SecondTestImageId, FirstUserTestId, false);
             Assert.False(result);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -78,7 +78,7 @@
         {
             if (disposing)
             {
-                this.repository.Dispose();
+                repository.Dispose();
             }
         }
 
@@ -86,34 +86,34 @@
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
-            this.repository = new EfRepository<Vote>(new ApplicationDbContext(options.Options));
+            repository = new EfRepository<Vote>(new ApplicationDbContext(options.Options));
 
             var logger = Mock.Of<ILogger<VotesService>>();
 
-            this.votesService = new VotesService(
+            votesService = new VotesService(
                 logger,
-                this.repository);
+                repository);
         }
 
         private async void AddTestData()
         {
             // FirstTestImageId vote by FirstUserTestId, SecondUserTestId
             // SecondTestImageId vote by FirstUserTestId
-            await this.repository.AddAsync(
+            await repository.AddAsync(
                  new Vote()
                  {
                      ImageId = FirstTestImageId,
                      AuthorId = FirstUserTestId,
                      IsLike = 1,
                  });
-            await this.repository.AddAsync(
+            await repository.AddAsync(
                 new Vote()
                 {
                     ImageId = FirstTestImageId,
                     AuthorId = SecondUserTestId,
                     IsLike = 1,
                 });
-            await this.repository.AddAsync(
+            await repository.AddAsync(
                 new Vote()
                 {
                     ImageId = SecondTestImageId,
@@ -121,7 +121,7 @@
                     IsLike = 0,
                 });
 
-            await this.repository.SaveChangesAsync();
+            await repository.SaveChangesAsync();
         }
     }
 }

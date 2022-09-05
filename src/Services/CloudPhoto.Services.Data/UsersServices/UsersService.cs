@@ -8,7 +8,7 @@
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Mapping;
+    using Mapping;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.Logging;
 
@@ -20,10 +20,10 @@
             IRepository<ApplicationUser> userRepository,
             IRepository<UserSubscribe> userSubscribeRepository)
         {
-            this.Logger = logger;
-            this.UserManager = userManager;
-            this.UserRepository = userRepository;
-            this.UserSubscribeRepository = userSubscribeRepository;
+            Logger = logger;
+            UserManager = userManager;
+            UserRepository = userRepository;
+            UserSubscribeRepository = userSubscribeRepository;
         }
 
         public ILogger<UsersService> Logger { get; }
@@ -43,37 +43,37 @@
                     return false;
                 }
 
-                ApplicationUser user = await this.UserManager.FindByIdAsync(userId);
+                ApplicationUser user = await UserManager.FindByIdAsync(userId);
                 if (user == null)
                 {
                     return false;
                 }
 
                 user.UserAvatarUrl = avatarUrl;
-                IdentityResult result = await this.UserManager.UpdateAsync(user);
+                IdentityResult result = await UserManager.UpdateAsync(user);
 
                 return result.Succeeded;
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, $"Error update user avatar for UseId:{userId}");
+                Logger.LogError(e, $"Error update user avatar for UseId:{userId}");
                 return false;
             }
         }
 
         public T GetUserInfo<T>(string infoForUserId, string currentLoginUserId)
         {
-            return this.GetUsersData<T>(infoForUserId, currentLoginUserId).FirstOrDefault();
+            return GetUsersData<T>(infoForUserId, currentLoginUserId).FirstOrDefault();
         }
 
         public IEnumerable<T> GetFollowingUsers<T>(string infoForUserId, string currentLoginUserId, int perPage, int page)
         {
-            return this.GetUsersData<T>(infoForUserId, currentLoginUserId, perPage, page, isGetFollowing: true);
+            return GetUsersData<T>(infoForUserId, currentLoginUserId, perPage, page, isGetFollowing: true);
         }
 
         public IEnumerable<T> GetFollowerUsers<T>(string infoForUserId, string currentLoginUserId, int perPage, int page)
         {
-            return this.GetUsersData<T>(infoForUserId, currentLoginUserId, perPage, page, isGetFollower: true);
+            return GetUsersData<T>(infoForUserId, currentLoginUserId, perPage, page, isGetFollower: true);
         }
 
         private IEnumerable<T> GetUsersData<T>(
@@ -84,15 +84,15 @@
             bool isGetFollower = false,
             bool isGetFollowing = false)
         {
-            var selectUserInfo = from user in this.UserRepository.All()
-                                     let isFollowCurrentUser = (from subscribe in this.UserSubscribeRepository.All()
+            var selectUserInfo = from user in UserRepository.All()
+                                     let isFollowCurrentUser = (from subscribe in UserSubscribeRepository.All()
                                                                 where subscribe.UserSubscribedId == currentLoginUserId
                                                                 && user.Id == subscribe.SubscribeToUserId
                                                                 select subscribe).Count()
-                                     let countFollowers = (from subscribe in this.UserSubscribeRepository.All()
+                                     let countFollowers = (from subscribe in UserSubscribeRepository.All()
                                                            where user.Id == subscribe.SubscribeToUserId
                                                            select subscribe).Count()
-                                     let countFollowing = (from subscribe in this.UserSubscribeRepository.All()
+                                     let countFollowing = (from subscribe in UserSubscribeRepository.All()
                                                            where user.Id == subscribe.UserSubscribedId
                                                            select subscribe).Count()
                                      select new ApplicationUser()
@@ -118,14 +118,14 @@
                 if (isGetFollower)
                 {
                     selectUserInfo = selectUserInfo.Where(
-                        temp => this.UserSubscribeRepository.All().
+                        temp => UserSubscribeRepository.All().
                         Where(x => x.SubscribeToUserId == infoForUserId).Select(x => x.UserSubscribedId).Contains(temp.Id));
                 }
 
                 if (isGetFollowing)
                 {
                     selectUserInfo = selectUserInfo.Where(
-                     temp => this.UserSubscribeRepository.All().
+                     temp => UserSubscribeRepository.All().
                      Where(x => x.UserSubscribedId == infoForUserId).Select(x => x.SubscribeToUserId).Contains(temp.Id));
                 }
             }

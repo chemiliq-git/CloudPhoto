@@ -38,20 +38,20 @@ namespace CloudPhoto.Web.ViewModels.Images
             ValidationResult error = null;
             try
             {
-                List<string> parse = JsonConvert.DeserializeObject<List<string>>(this.ImageTags);
+                List<string> parse = JsonConvert.DeserializeObject<List<string>>(ImageTags);
                 if (parse == null
                     || parse.Count == 0)
                 {
                     error = new ValidationResult(
                         $"Can not parse image tag.",
-                        new[] { nameof(this.ImageTags) });
+                        new[] { nameof(ImageTags) });
                 }
             }
             catch (Exception)
             {
                 error = new ValidationResult(
                     $"Can not parse image tag.",
-                    new[] { nameof(this.ImageTags) });
+                    new[] { nameof(ImageTags) });
             }
 
             if (error != null)

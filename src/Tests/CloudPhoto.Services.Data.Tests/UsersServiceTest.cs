@@ -8,7 +8,7 @@
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
-    using CloudPhoto.Services.Data.UsersServices;
+    using UsersServices;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
@@ -28,50 +28,50 @@
 
         public UsersServiceTest()
         {
-            this.InitTestServices();
+            InitTestServices();
 
-            this.AddTestData();
+            AddTestData();
         }
 
         [Fact]
         public void GetUserInfoForNotExistUser()
         {
-            ApplicationUser applicationUser = this.usersService.GetUserInfo<ApplicationUser>("notExistUserId", null);
+            ApplicationUser applicationUser = usersService.GetUserInfo<ApplicationUser>("notExistUserId", null);
             Assert.Null(applicationUser);
         }
 
         [Fact]
         public void GetUserInfoForExistUser()
         {
-            ApplicationUser applicationUser = this.usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, null);
+            ApplicationUser applicationUser = usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, null);
             Assert.Equal(FirstTestUserId, applicationUser?.Id);
         }
 
         [Fact]
         public void GetUserCheckFollowings()
         {
-            ApplicationUser applicationUser = this.usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, null);
+            ApplicationUser applicationUser = usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, null);
             Assert.Equal(2, applicationUser.CountFollowing);
         }
 
         [Fact]
         public void GetUserCheckFollowers()
         {
-            ApplicationUser applicationUser = this.usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, null);
+            ApplicationUser applicationUser = usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, null);
             Assert.Equal(1, applicationUser.CountFollowers);
         }
 
         [Fact]
         public void GetUserCheckSubscribeShouldTrue()
         {
-            ApplicationUser applicationUser = this.usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, SecondTestUserId);
+            ApplicationUser applicationUser = usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, SecondTestUserId);
             Assert.True(applicationUser.IsFollowCurrentUser);
         }
 
         [Fact]
         public void GetUserCheckSubscribeShouldFalse()
         {
-            ApplicationUser applicationUser = this.usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, ThirdTestUserId);
+            ApplicationUser applicationUser = usersService.GetUserInfo<ApplicationUser>(FirstTestUserId, ThirdTestUserId);
             Assert.False(applicationUser.IsFollowCurrentUser);
         }
 
@@ -79,7 +79,7 @@
         public void GetFollowers()
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowerUsers<ApplicationUser>(FirstTestUserId, SecondTestUserId, 0, 0);
+                = usersService.GetFollowerUsers<ApplicationUser>(FirstTestUserId, SecondTestUserId, 0, 0);
             Assert.Single(lstFollowerUsers.ToList());
         }
 
@@ -87,7 +87,7 @@
         public void GetFollowersMissingUserIdInputData()
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowerUsers<ApplicationUser>(null, SecondTestUserId, 0, 0);
+                = usersService.GetFollowerUsers<ApplicationUser>(null, SecondTestUserId, 0, 0);
             Assert.Empty(lstFollowerUsers.ToList());
         }
 
@@ -95,7 +95,7 @@
         public void GetFollowersMissingCurrentUserIdInputData()
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowerUsers<ApplicationUser>(FirstTestUserId, null, 0, 0);
+                = usersService.GetFollowerUsers<ApplicationUser>(FirstTestUserId, null, 0, 0);
             Assert.Single(lstFollowerUsers.ToList());
         }
 
@@ -104,7 +104,7 @@
         {
             // try get not exist index of list
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowerUsers<ApplicationUser>(FirstTestUserId, null, 5, 5);
+                = usersService.GetFollowerUsers<ApplicationUser>(FirstTestUserId, null, 5, 5);
             Assert.Empty(lstFollowerUsers.ToList());
         }
 
@@ -112,7 +112,7 @@
         public void GetFollowings()
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowingUsers<ApplicationUser>(FirstTestUserId, SecondTestUserId, 0, 0);
+                = usersService.GetFollowingUsers<ApplicationUser>(FirstTestUserId, SecondTestUserId, 0, 0);
             Assert.Equal(2, lstFollowerUsers.ToList()?.Count);
         }
 
@@ -120,7 +120,7 @@
         public void GetFollowingsPagingTest()
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowingUsers<ApplicationUser>(FirstTestUserId, SecondTestUserId, 1, 1);
+                = usersService.GetFollowingUsers<ApplicationUser>(FirstTestUserId, SecondTestUserId, 1, 1);
             Assert.Single(lstFollowerUsers.ToList());
         }
 
@@ -128,7 +128,7 @@
         public void GetFollowingMissingUserIdInputData()
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowingUsers<ApplicationUser>(null, SecondTestUserId, 0, 0);
+                = usersService.GetFollowingUsers<ApplicationUser>(null, SecondTestUserId, 0, 0);
             Assert.Empty(lstFollowerUsers.ToList());
         }
 
@@ -136,34 +136,34 @@
         public void GetFollowingMissingCurrentUserIdInputData()
         {
             IEnumerable<ApplicationUser> lstFollowerUsers
-                = this.usersService.GetFollowingUsers<ApplicationUser>(FirstTestUserId, null, 0, 0);
+                = usersService.GetFollowingUsers<ApplicationUser>(FirstTestUserId, null, 0, 0);
             Assert.Equal(2, lstFollowerUsers.ToList()?.Count);
         }
 
         [Fact]
         public async void ChangeAvatar()
         {
-            bool result = await this.usersService.ChangeAvatar(FirstTestUserId, "testAvatar");
+            bool result = await usersService.ChangeAvatar(FirstTestUserId, "testAvatar");
             Assert.True(result);
         }
 
         [Fact]
         public async void ChangeAvatarMissingUserId()
         {
-            bool result = await this.usersService.ChangeAvatar(null, "testAvatar");
+            bool result = await usersService.ChangeAvatar(null, "testAvatar");
             Assert.False(result);
         }
 
         [Fact]
         public async void ChangeAvatarMissingAvatarUrl()
         {
-            bool result = await this.usersService.ChangeAvatar(FirstTestUserId, null);
+            bool result = await usersService.ChangeAvatar(FirstTestUserId, null);
             Assert.False(result);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -171,10 +171,10 @@
         {
             if (disposing)
             {
-                this.userRepository.Dispose();
-                this.userSubscribeRepository.Dispose();
+                userRepository.Dispose();
+                userSubscribeRepository.Dispose();
 
-                this.userManager.Dispose();
+                userManager.Dispose();
             }
         }
 
@@ -207,23 +207,23 @@
         private void InitTestServices()
         {
             UserManager<ApplicationUser> userManagerMock = MockUserManager();
-            this.userManager = userManagerMock;
+            userManager = userManagerMock;
 
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             ApplicationDbContext dbContext = new ApplicationDbContext(options.Options);
 
-            this.userRepository = new EfDeletableEntityRepository<ApplicationUser>(dbContext);
-            this.userSubscribeRepository = new EfRepository<UserSubscribe>(dbContext);
+            userRepository = new EfDeletableEntityRepository<ApplicationUser>(dbContext);
+            userSubscribeRepository = new EfRepository<UserSubscribe>(dbContext);
 
             var logger = Mock.Of<ILogger<UsersService>>();
 
-            this.usersService = new UsersService(
+            usersService = new UsersService(
                 logger,
-                this.userManager,
-                this.userRepository,
-                this.userSubscribeRepository);
+                userManager,
+                userRepository,
+                userSubscribeRepository);
         }
 
         private async void AddTestData()
@@ -234,7 +234,7 @@
                 FirstName = "Test1",
                 LastName = "User1",
             };
-            await this.userRepository.AddAsync(firstUser);
+            await userRepository.AddAsync(firstUser);
 
             ApplicationUser secondtUser = new ApplicationUser
             {
@@ -242,7 +242,7 @@
                 FirstName = "Test2",
                 LastName = "User2",
             };
-            await this.userRepository.AddAsync(secondtUser);
+            await userRepository.AddAsync(secondtUser);
 
             ApplicationUser thirdtUser = new ApplicationUser
             {
@@ -250,19 +250,19 @@
                 FirstName = "Test3",
                 LastName = "User3",
             };
-            await this.userRepository.AddAsync(thirdtUser);
+            await userRepository.AddAsync(thirdtUser);
 
-            await this.userRepository.SaveChangesAsync();
+            await userRepository.SaveChangesAsync();
 
             // add User subscribers
-            await this.userSubscribeRepository.AddAsync(
+            await userSubscribeRepository.AddAsync(
                 new UserSubscribe() { UserSubscribedId = FirstTestUserId, SubscribeToUserId = SecondTestUserId });
-            await this.userSubscribeRepository.AddAsync(
+            await userSubscribeRepository.AddAsync(
                 new UserSubscribe() { UserSubscribedId = FirstTestUserId, SubscribeToUserId = ThirdTestUserId });
-            await this.userSubscribeRepository.AddAsync(
+            await userSubscribeRepository.AddAsync(
                 new UserSubscribe() { UserSubscribedId = SecondTestUserId, SubscribeToUserId = FirstTestUserId });
 
-            await this.userSubscribeRepository.SaveChangesAsync();
+            await userSubscribeRepository.SaveChangesAsync();
         }
     }
 }

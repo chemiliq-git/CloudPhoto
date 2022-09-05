@@ -4,13 +4,13 @@
     using System.IO;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Data.Models;
+    using Data.Models;
     using CloudPhoto.Services.Data.BackgroundServices;
     using CloudPhoto.Services.Data.BackgroundServices.BackgroundQueue;
-    using CloudPhoto.Services.ImageValidate;
-    using CloudPhoto.Services.LocalStorage;
-    using CloudPhoto.Services.RemoteStorage;
-    using CloudPhoto.Web.ViewModels.Files;
+    using Services.ImageValidate;
+    using Services.LocalStorage;
+    using Services.RemoteStorage;
+    using ViewModels.Files;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
@@ -30,13 +30,13 @@
             IConfiguration configuration,
             IBackgroundQueue<ImageInfoParams> queue)
         {
-            this.LocalStorageService = localStorageService;
-            this.RemoteStorageService = remoteStorageService;
-            this.ImageValidator = imageValidator;
-            this.UserManager = userManager;
-            this.Env = env;
-            this.Configuration = configuration;
-            this.Queue = queue;
+            LocalStorageService = localStorageService;
+            RemoteStorageService = remoteStorageService;
+            ImageValidator = imageValidator;
+            UserManager = userManager;
+            Env = env;
+            Configuration = configuration;
+            Queue = queue;
         }
 
         public ILocalStorageServices LocalStorageService { get; }
@@ -58,34 +58,34 @@
         [Authorize]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
-            if (this.ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 if (file == null)
                 {
-                    return this.BadRequest();
+                    return BadRequest();
                 }
 
-                ImageValidateResult result = this.ImageValidator.ValidateImageFile(file);
+                ImageValidateResult result = ImageValidator.ValidateImageFile(file);
                 if (!result.IsValid)
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
+                    return Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
                 }
 
-                if (!this.IsCorrectImageSize(file, out string errMessage))
+                if (!IsCorrectImageSize(file, out string errMessage))
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errMessage });
+                    return Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errMessage });
                 }
 
-                StoreFileInfo info = await this.UploadFileToLocalFolder(file);
+                StoreFileInfo info = await UploadFileToLocalFolder(file);
 
                 if (info.BoolResult)
                 {
-                    string filePath = this.Env.WebRootPath + info.FileAddress;
+                    string filePath = Env.WebRootPath + info.FileAddress;
 
                     // start backgroun process
-                    this.Queue.Enqueue(new ImageInfoParams() { ImageId = info.FileId, ImagePath = filePath });
+                    Queue.Enqueue(new ImageInfoParams() { ImageId = info.FileId, ImagePath = filePath });
 
-                    return this.Json(new ResponseUploadFileController()
+                    return Json(new ResponseUploadFileController()
                     {
                         Result = true,
                         ImageUrl = info.FileAddress,
@@ -94,7 +94,7 @@
                 }
                 else
                 {
-                    return this.Json(new ResponseUploadFileController()
+                    return Json(new ResponseUploadFileController()
                     {
                         Result = false,
                         ErrorMessage = "Error uploading file to storage",
@@ -103,7 +103,7 @@
             }
             else
             {
-                return this.BadRequest();
+                return BadRequest();
             }
         }
 
@@ -112,28 +112,28 @@
         [Authorize]
         public async Task<IActionResult> UploadAvatart(IFormFile file, string userId)
         {
-            if (this.ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 if (file == null)
                 {
-                    return this.BadRequest();
+                    return BadRequest();
                 }
 
-                ApplicationUser user = await this.UserManager.GetUserAsync(this.User);
+                ApplicationUser user = await UserManager.GetUserAsync(User);
                 if (user.Id != userId)
                 {
-                    return this.BadRequest();
+                    return BadRequest();
                 }
 
-                ImageValidateResult result = this.ImageValidator.ValidateImageFile(file);
+                ImageValidateResult result = ImageValidator.ValidateImageFile(file);
                 if (!result.IsValid)
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
+                    return Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Invalid image format!" });
                 }
 
-                if (!this.IsCorrectAcatarSize(file, out string errorMessage))
+                if (!IsCorrectAcatarSize(file, out string errorMessage))
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errorMessage });
+                    return Json(new ResponseUploadFileController() { Result = false, ErrorMessage = errorMessage });
                 }
 
                 StoreFileInfo info;
@@ -142,7 +142,7 @@
                     file.CopyTo(memory);
                     memory.Position = 0;
 
-                    info = await this.RemoteStorageService.UploadFile(new UploadDataInfo(
+                    info = await RemoteStorageService.UploadFile(new UploadDataInfo(
                                 file.FileName,
                                 memory,
                                 "WebPictures",
@@ -151,16 +151,16 @@
 
                 if (info.BoolResult)
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = true, ImageUrl = info.FileAddress });
+                    return Json(new ResponseUploadFileController() { Result = true, ImageUrl = info.FileAddress });
                 }
                 else
                 {
-                    return this.Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
+                    return Json(new ResponseUploadFileController() { Result = false, ErrorMessage = "Error uploading file to storage" });
                 }
             }
             else
             {
-                return this.BadRequest();
+                return BadRequest();
             }
         }
 
@@ -168,26 +168,26 @@
         {
             string fileId = Guid.NewGuid().ToString();
             string folderForResize = Path.Combine(
-                this.Env.WebRootPath,
-                this.Configuration.GetSection("Images:LocalImageFolder").Value,
+                Env.WebRootPath,
+                Configuration.GetSection("Images:LocalImageFolder").Value,
                 fileId);
 
             using MemoryStream stream = new MemoryStream();
             file.CopyTo(stream);
             stream.Position = 0;
-            StoreFileInfo info = await this.LocalStorageService.UploadFile(
+            StoreFileInfo info = await LocalStorageService.UploadFile(
                 new UploadDataInfo(
                     file.FileName,
                     stream,
                     folderForResize));
             info.FileId = fileId;
-            info.FileAddress = info.FileAddress.Replace(this.Env.WebRootPath, string.Empty);
+            info.FileAddress = info.FileAddress.Replace(Env.WebRootPath, string.Empty);
             return info;
         }
 
         private bool IsCorrectImageSize(IFormFile file, out string errMessage)
         {
-            string strSettingSize = this.Configuration.GetSection("Images:MinimumImageSizeMB")?.Value;
+            string strSettingSize = Configuration.GetSection("Images:MinimumImageSizeMB")?.Value;
             if (!int.TryParse(strSettingSize, out int intSettingSize))
             {
                 intSettingSize = 2;
@@ -209,7 +209,7 @@
 
         private bool IsCorrectAcatarSize(IFormFile file, out string errMessage)
         {
-            string strSettingSize = this.Configuration.GetSection("Images:MaxAvatarSizeKB")?.Value;
+            string strSettingSize = Configuration.GetSection("Images:MaxAvatarSizeKB")?.Value;
             if (!int.TryParse(strSettingSize, out int intSettingSize))
             {
                 intSettingSize = 50;

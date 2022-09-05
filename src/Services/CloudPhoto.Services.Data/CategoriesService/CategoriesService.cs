@@ -8,7 +8,7 @@
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Mapping;
+    using Mapping;
     using Microsoft.Extensions.Logging;
 
     public class CategoriesService : ICategoriesService
@@ -47,28 +47,28 @@
                 AuthorId = userId,
             };
 
-            await this.categoriesRepository.AddAsync(category);
-            await this.categoriesRepository.SaveChangesAsync();
+            await categoriesRepository.AddAsync(category);
+            await categoriesRepository.SaveChangesAsync();
             return category.Id;
         }
 
         public async Task<bool> Delete(string id)
         {
-            var category = this.GetByCategoryId<Category>(id);
+            var category = GetByCategoryId<Category>(id);
             if (category == null)
             {
                 return false;
             }
 
-            this.categoriesRepository.Delete(category);
-            int result = await this.categoriesRepository.SaveChangesAsync();
+            categoriesRepository.Delete(category);
+            int result = await categoriesRepository.SaveChangesAsync();
             return result > 0;
         }
 
         public IEnumerable<T> GetAll<T>()
         {
             IQueryable<Category> query =
-                this.categoriesRepository.All().OrderBy(x => x.SortOrder);
+                categoriesRepository.All().OrderBy(x => x.SortOrder);
 
             return query.To<T>().ToList();
         }
@@ -76,7 +76,7 @@
         public T GetByCategoryId<T>(string categoryId)
         {
             IQueryable<Category> query =
-                this.categoriesRepository.All()
+                categoriesRepository.All()
                 .Where(c => c.Id == categoryId)
                 .OrderBy(x => x.SortOrder);
 
@@ -87,11 +87,11 @@
         {
             try
             {
-                var selectTopVoteCategory = (from category in this.categoriesRepository.All()
-                                             let likeCounts = (from vote in this.voteRepository.All()
-                                                               join image in this.imageRepository.All()
+                var selectTopVoteCategory = (from category in categoriesRepository.All()
+                                             let likeCounts = (from vote in voteRepository.All()
+                                                               join image in imageRepository.All()
                                                                on vote.ImageId equals image.Id
-                                                               join imageCategory in this.imageCategoryRepository.All()
+                                                               join imageCategory in imageCategoryRepository.All()
                                                                on image.Id equals imageCategory.ImageId
                                                                where imageCategory.CategoryId == category.Id
                                                                select vote.IsLike).Sum()
@@ -106,7 +106,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogError(e, $"Error get top vote categories");
+                logger.LogError(e, $"Error get top vote categories");
                 return null;
             }
         }
@@ -118,7 +118,7 @@
                 return false;
             }
 
-            var category = this.GetByCategoryId<Category>(id);
+            var category = GetByCategoryId<Category>(id);
 
             if (category == null)
             {
@@ -128,8 +128,8 @@
             category.Name = name;
             category.Description = description;
 
-            this.categoriesRepository.Update(category);
-            int result = await this.categoriesRepository.SaveChangesAsync();
+            categoriesRepository.Update(category);
+            int result = await categoriesRepository.SaveChangesAsync();
             return result > 0;
         }
     }

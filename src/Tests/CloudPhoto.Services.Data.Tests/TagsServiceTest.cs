@@ -8,7 +8,7 @@
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
-    using CloudPhoto.Services.Data.TagsService;
+    using TagsService;
     using Microsoft.EntityFrameworkCore;
     using Xunit;
 
@@ -26,71 +26,71 @@
 
         public TagsServiceTest()
         {
-            this.InitTestServices();
+            InitTestServices();
 
-            this.AddTestData();
+            AddTestData();
         }
 
         [Fact]
         public async void CreateTag()
         {
-            string newTadId = await this.tagService.CreateAsync("Nature Tag Name", "description", "userId");
-            Tag selectNewTag = this.tagService.GetByTagName<Tag>("Nature Tag Name");
+            string newTadId = await tagService.CreateAsync("Nature Tag Name", "description", "userId");
+            Tag selectNewTag = tagService.GetByTagName<Tag>("Nature Tag Name");
             Assert.Equal(newTadId, selectNewTag?.Id);
         }
 
         [Fact]
         public async void CreateTagOnlyWithName()
         {
-            string newTadId = await this.tagService.CreateAsync("Name", null, null);
+            string newTadId = await tagService.CreateAsync("Name", null, null);
             Assert.NotNull(newTadId);
         }
 
         [Fact]
         public void GetTagByFullName()
         {
-            Tag selectTag = this.tagService.GetByTagName<Tag>(TestTagName1);
-            Assert.Equal(this.testTagId1, selectTag?.Id);
+            Tag selectTag = tagService.GetByTagName<Tag>(TestTagName1);
+            Assert.Equal(testTagId1, selectTag?.Id);
         }
 
         [Fact]
         public void GetTagByUndefineName()
         {
-            Tag selectTag = this.tagService.GetByTagName<Tag>("undefine");
+            Tag selectTag = tagService.GetByTagName<Tag>("undefine");
             Assert.Null(selectTag);
         }
 
         [Fact]
         public void FilteTagByFullName()
         {
-            IEnumerable<Tag> selectTags = this.tagService.FiterTagsByNames<Tag>(TestTagName1);
+            IEnumerable<Tag> selectTags = tagService.FiterTagsByNames<Tag>(TestTagName1);
             Assert.Single(selectTags);
         }
 
         [Fact]
         public void FilteTagByName()
         {
-            IEnumerable<Tag> selectTags = this.tagService.FiterTagsByNames<Tag>(TestTagName2);
-            Assert.Equal(selectTags.ToList()[0].Id, this.testTagId2);
+            IEnumerable<Tag> selectTags = tagService.FiterTagsByNames<Tag>(TestTagName2);
+            Assert.Equal(selectTags.ToList()[0].Id, testTagId2);
         }
 
         [Fact]
         public void FilteTagByPartialName()
         {
-            IEnumerable<Tag> selectTags = this.tagService.FiterTagsByNames<Tag>(TestTagPartialName);
+            IEnumerable<Tag> selectTags = tagService.FiterTagsByNames<Tag>(TestTagPartialName);
             Assert.Equal(2, selectTags?.Count());
         }
 
         [Fact]
         public void FilteTagByUndefineName()
         {
-            IEnumerable<Tag> selectTags = this.tagService.FiterTagsByNames<Tag>("undefine");
+            IEnumerable<Tag> selectTags = tagService.FiterTagsByNames<Tag>("undefine");
             Assert.Empty(selectTags);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -98,7 +98,7 @@
         {
             if (disposing)
             {
-                this.tagRepository.Dispose();
+                tagRepository.Dispose();
             }
         }
 
@@ -109,16 +109,16 @@
 
             ApplicationDbContext dbContext = new ApplicationDbContext(options.Options);
 
-            this.tagRepository = new EfDeletableEntityRepository<Tag>(dbContext);
+            tagRepository = new EfDeletableEntityRepository<Tag>(dbContext);
 
-            this.tagService = new TagsService(
-                this.tagRepository);
+            tagService = new TagsService(
+                tagRepository);
         }
 
         private async void AddTestData()
         {
-            this.testTagId1 = await this.tagService.CreateAsync(TestTagName1, null, "userId1");
-            this.testTagId2 = await this.tagService.CreateAsync(TestTagName2, null, "userId2");
+            testTagId1 = await tagService.CreateAsync(TestTagName1, null, "userId1");
+            testTagId2 = await tagService.CreateAsync(TestTagName2, null, "userId2");
         }
     }
 }

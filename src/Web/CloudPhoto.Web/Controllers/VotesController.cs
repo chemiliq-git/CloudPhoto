@@ -2,10 +2,10 @@
 {
     using System.Threading.Tasks;
 
-    using CloudPhoto.Data.Models;
+    using Data.Models;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.VotesService;
-    using CloudPhoto.Web.ViewModels.Votes;
+    using ViewModels.Votes;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
@@ -18,9 +18,9 @@
             IVotesService votesService,
             IImagesService imagesService)
         {
-            this.UserManager = userManager;
-            this.VotesService = votesService;
-            this.ImagesService = imagesService;
+            UserManager = userManager;
+            VotesService = votesService;
+            ImagesService = imagesService;
         }
 
         public UserManager<ApplicationUser> UserManager { get; }
@@ -34,35 +34,35 @@
         [Authorize]
         public async Task<ActionResult<VoteResponseModel>> Index(VoteInputModel input)
         {
-            if (this.ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 if (input == null)
                 {
-                    return this.BadRequest();
+                    return BadRequest();
                 }
 
-                var userId = this.UserManager.GetUserId(this.User);
+                var userId = UserManager.GetUserId(User);
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return this.BadRequest();
+                    return BadRequest();
                 }
 
                 if (string.IsNullOrEmpty(input.ImageId))
                 {
-                    return this.BadRequest();
+                    return BadRequest();
                 }
 
-                var dbImage = this.ImagesService.GetImageById<Image>(input.ImageId);
+                var dbImage = ImagesService.GetImageById<Image>(input.ImageId);
                 if (dbImage == null)
                 {
-                    return this.BadRequest();
+                    return BadRequest();
                 }
 
-                bool result = await this.VotesService.VoteAsync(input.ImageId, userId, input.IsLike);
+                bool result = await VotesService.VoteAsync(input.ImageId, userId, input.IsLike);
                 return new VoteResponseModel { Result = result };
             }
 
-            return this.View();
+            return View();
         }
     }
 }

@@ -31,22 +31,22 @@
             IConfiguration configuration,
             ILogger<BlobStorageService> logger)
         {
-            this.Configuration = configuration;
-            this.connection = this.Configuration.GetSection("BlobAzureSettings:Connection")?.Value;
-            this.pattern = this.Configuration.GetSection("BlobAzureSettings:RegexBlogPattern")?.Value;
-            this.Logger = logger;
+            Configuration = configuration;
+            connection = Configuration.GetSection("BlobAzureSettings:Connection")?.Value;
+            pattern = Configuration.GetSection("BlobAzureSettings:RegexBlogPattern")?.Value;
+            Logger = logger;
 
-            if (string.IsNullOrEmpty(this.connection))
+            if (string.IsNullOrEmpty(connection))
             {
                 string message = string.Format("{0} request connection to Azure Store", nameof(BlobStorageService));
-                this.Logger.LogError(message);
+                Logger.LogError(message);
                 throw new Exception(message);
             }
 
-            if (string.IsNullOrEmpty(this.pattern))
+            if (string.IsNullOrEmpty(pattern))
             {
                 string message = string.Format("{0} request patter to parse Azure AbsoluteUrl", nameof(BlobStorageService));
-                this.Logger.LogError(message);
+                Logger.LogError(message);
                 throw new Exception(message);
             }
         }
@@ -66,7 +66,7 @@
                 }
                 else
                 {
-                    this.Logger.LogError("Conainer name is required");
+                    Logger.LogError("Conainer name is required");
                     return new StoreFileInfo(false);
                 }
 
@@ -74,17 +74,17 @@
                     || uploadInfo.Stream.Length == 0
                     || string.IsNullOrEmpty(uploadInfo.FileName))
                 {
-                    this.Logger.LogError("File is required");
+                    Logger.LogError("File is required");
                     return new StoreFileInfo(false);
                 }
 
                 // Get a reference to a container named "sample-container" and then create it
-                BlobContainerClient blobContainer = new BlobContainerClient(this.connection, container);
+                BlobContainerClient blobContainer = new BlobContainerClient(connection, container);
                 await blobContainer.CreateIfNotExistsAsync();
 
                 // Get a reference to a blob named "sample-file" in a container named "sample-container"
                 BlobClient blob = blobContainer.GetBlobClient(
-                    this.GenerateFileName(uploadInfo.DirectoryName, uploadInfo.FileName));
+                    GenerateFileName(uploadInfo.DirectoryName, uploadInfo.FileName));
 
                 // Upload local file
                 using (MemoryStream stream = new MemoryStream())
@@ -100,7 +100,7 @@
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, "Can not upload file");
+                Logger.LogError(e, "Can not upload file");
                 return new StoreFileInfo(false);
             }
         }
@@ -109,12 +109,12 @@
         {
             try
             {
-                if (!this.ParseBlockName(fileInfo.FileAddress, out string container, out string folder, out string fileName))
+                if (!ParseBlockName(fileInfo.FileAddress, out string container, out string folder, out string fileName))
                 {
                     return false;
                 }
 
-                BlobContainerClient blobContainer = new BlobContainerClient(this.connection, container);
+                BlobContainerClient blobContainer = new BlobContainerClient(connection, container);
                 await blobContainer.CreateIfNotExistsAsync();
 
                 // Get a reference to a blob named "sample-file" in a container named "sample-container"
@@ -124,7 +124,7 @@
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, e.Message);
+                Logger.LogError(e, e.Message);
                 return false;
             }
         }
@@ -140,7 +140,7 @@
                 return false;
             }
 
-            Match match = Regex.Match(fileUrl, this.pattern);
+            Match match = Regex.Match(fileUrl, pattern);
 
             if (!match.Success)
             {

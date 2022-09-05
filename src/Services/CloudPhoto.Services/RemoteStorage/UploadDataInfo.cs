@@ -6,21 +6,21 @@
     {
         public UploadDataInfo(string fileName, MemoryStream stream)
         {
-            this.FileName = fileName;
-            this.Stream = stream;
+            FileName = fileName;
+            Stream = stream;
         }
 
         public UploadDataInfo(string fileName, MemoryStream stream, string container, string directoryName)
             : this(fileName, stream)
         {
-            this.Container = container;
-            this.DirectoryName = directoryName;
+            Container = container;
+            DirectoryName = directoryName;
         }
 
         public UploadDataInfo(string fileName, MemoryStream stream, string directoryName)
             : this(fileName, stream)
         {
-            this.DirectoryName = directoryName;
+            DirectoryName = directoryName;
         }
 
         public string FileName { get; }

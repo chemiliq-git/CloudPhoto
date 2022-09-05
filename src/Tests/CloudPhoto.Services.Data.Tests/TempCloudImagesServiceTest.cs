@@ -8,7 +8,7 @@
     using CloudPhoto.Data;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
-    using CloudPhoto.Services.Data.TempCloudImageService;
+    using TempCloudImageService;
     using Microsoft.EntityFrameworkCore;
     using Xunit;
 
@@ -23,35 +23,35 @@
 
         public TempCloudImagesServiceTest()
         {
-            this.InitTestServices();
+            InitTestServices();
 
-            this.AddTestData();
+            AddTestData();
         }
 
         [Fact]
         public void GetByImage()
         {
-            IEnumerable<TempCloudImage> lstSelectImage = this.service.GetByImageId<TempCloudImage>(FirstTestImageId);
+            IEnumerable<TempCloudImage> lstSelectImage = service.GetByImageId<TempCloudImage>(FirstTestImageId);
             Assert.Equal(2, lstSelectImage?.Count());
         }
 
         [Fact]
         public void GetByImageByNotExistImage()
         {
-            IEnumerable<TempCloudImage> lstSelectImage = this.service.GetByImageId<TempCloudImage>("undefined");
+            IEnumerable<TempCloudImage> lstSelectImage = service.GetByImageId<TempCloudImage>("undefined");
             Assert.Empty(lstSelectImage);
         }
 
         [Fact]
         public void GetByImageOneImage()
         {
-            IEnumerable<TempCloudImage> lstSelectImage = this.service.GetByImageId<TempCloudImage>(SecondTestImageId);
+            IEnumerable<TempCloudImage> lstSelectImage = service.GetByImageId<TempCloudImage>(SecondTestImageId);
             Assert.Single(lstSelectImage);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -59,7 +59,7 @@
         {
             if (disposing)
             {
-                this.repository.Dispose();
+                repository.Dispose();
             }
         }
 
@@ -70,14 +70,14 @@
 
             ApplicationDbContext dbContext = new ApplicationDbContext(options.Options);
 
-            this.repository = new EfRepository<TempCloudImage>(dbContext);
+            repository = new EfRepository<TempCloudImage>(dbContext);
 
-            this.service = new TempCloudImagesService(this.repository);
+            service = new TempCloudImagesService(repository);
         }
 
         private async void AddTestData()
         {
-            await this.repository.AddAsync(
+            await repository.AddAsync(
                   new TempCloudImage()
                   {
                       ImageId = FirstTestImageId,
@@ -86,7 +86,7 @@
                       FileId = "undefine",
                   });
 
-            await this.repository.AddAsync(
+            await repository.AddAsync(
                   new TempCloudImage()
                   {
                       ImageId = FirstTestImageId,
@@ -95,7 +95,7 @@
                       FileId = "undefine",
                   });
 
-            await this.repository.AddAsync(
+            await repository.AddAsync(
                   new TempCloudImage()
                   {
                       ImageId = SecondTestImageId,
@@ -104,7 +104,7 @@
                       FileId = "undefine",
                   });
 
-            await this.repository.AddAsync(
+            await repository.AddAsync(
                   new TempCloudImage()
                   {
                       ImageId = ThirdTestImageId,
@@ -113,7 +113,7 @@
                       FileId = "undefine",
                   });
 
-            await this.repository.SaveChangesAsync();
+            await repository.SaveChangesAsync();
         }
     }
 }

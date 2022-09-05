@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
 
     using CloudPhoto.Common;
-    using CloudPhoto.Data.Models;
+    using Models;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -15,7 +15,7 @@
     {
         public CategorySeeder(ILogger logger)
         {
-            this.Logger = logger;
+            Logger = logger;
         }
 
         public ILogger Logger { get; }
@@ -32,7 +32,7 @@
             ApplicationUser admin = await userManager.FindByEmailAsync(GlobalConstants.DefaultAdministratorEmail);
             if (admin == null)
             {
-                this.Logger.LogError($"Not found administartor with email: {GlobalConstants.DefaultAdministratorEmail}");
+                Logger.LogError($"Not found administartor with email: {GlobalConstants.DefaultAdministratorEmail}");
                 return;
             }
 

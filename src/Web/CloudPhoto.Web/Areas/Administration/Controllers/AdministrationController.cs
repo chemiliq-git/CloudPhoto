@@ -1,6 +1,6 @@
 ﻿namespace CloudPhoto.Web.Areas.Administration.Controllers
 {
-    using CloudPhoto.Common;
+    using Common;
     using CloudPhoto.Web.Controllers;
 
     using Microsoft.AspNetCore.Authorization;

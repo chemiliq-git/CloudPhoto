@@ -5,11 +5,11 @@
     using System.Linq;
     using System.Threading;
 
-    using CloudPhoto.Data.Models;
+    using Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Web.Controllers;
-    using CloudPhoto.Web.ViewModels.Images;
+    using ViewModels.Images;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;

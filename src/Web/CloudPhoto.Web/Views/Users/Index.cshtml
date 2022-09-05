@@ -57,7 +57,7 @@
                 <p class="text-dark text-truncate h4">@Model.DisplayUserName</p>
             </div>
             <div class="col-xl-5 col-lg-5 col-md-12 col-sm-12 d-flex justify-content-lg-start justify-content-xl-start justify-content-md-center justify-content-sm-center justify-content-center">
-                @if (Model.Id != this.User.FindFirst(ClaimTypes.NameIdentifier).Value)
+                @if (Model.Id != User.FindFirst(ClaimTypes.NameIdentifier).Value)
                 {
                     @if (!string.IsNullOrEmpty(Model.PayPalEmail))
                     {

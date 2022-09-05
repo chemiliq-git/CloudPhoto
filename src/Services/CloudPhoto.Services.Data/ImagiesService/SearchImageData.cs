@@ -6,8 +6,8 @@
     {
         public SearchImageData()
         {
-            this.FilterCategory = new List<string>();
-            this.FilterTags = new List<string>();
+            FilterCategory = new List<string>();
+            FilterTags = new List<string>();
         }
 
         public List<string> FilterCategory { get; set; }

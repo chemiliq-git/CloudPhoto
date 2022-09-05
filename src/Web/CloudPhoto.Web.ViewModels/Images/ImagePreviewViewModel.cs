@@ -43,7 +43,7 @@ namespace CloudPhoto.Web.ViewModels.Images
         {
             get
             {
-                return string.IsNullOrEmpty(this.AuthorFullName) ? this.AuthorEmail : this.AuthorFullName;
+                return string.IsNullOrEmpty(AuthorFullName) ? AuthorEmail : AuthorFullName;
             }
         }
     }

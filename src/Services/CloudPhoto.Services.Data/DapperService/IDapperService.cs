@@ -5,11 +5,11 @@
     using System.Data;
     using System.Data.Common;
 
-    using global::Dapper;
+    using Dapper;
 
     public interface IDapperService : IDisposable
     {
-        DbConnection GetDbconnection();
+        DbConnection GetDbConnection();
 
         T Get<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.StoredProcedure);
 

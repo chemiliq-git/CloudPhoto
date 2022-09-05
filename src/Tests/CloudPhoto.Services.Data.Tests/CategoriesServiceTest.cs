@@ -9,10 +9,10 @@
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
-    using CloudPhoto.Services.Data.CategoriesService;
-    using CloudPhoto.Services.Data.ImagiesService;
-    using CloudPhoto.Services.Data.TagsService;
-    using CloudPhoto.Services.Data.TempCloudImageService;
+    using CategoriesService;
+    using ImagiesService;
+    using TagsService;
+    using TempCloudImageService;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Moq;
@@ -44,77 +44,77 @@
 
         public CategoriesServiceTest()
         {
-            this.InitTestServices();
+            InitTestServices();
 
-            this.AddTestData();
+            AddTestData();
         }
 
         [Fact]
         public void GetAllCategories()
         {
-            IEnumerable<Category> lstCategories = this.categoriesService.GetAll<Category>();
+            IEnumerable<Category> lstCategories = categoriesService.GetAll<Category>();
             Assert.Equal(3, lstCategories?.Count());
         }
 
         [Fact]
         public async void CreateCategory()
         {
-            string newId = await this.categoriesService.CreateAsync(null, "name", "undefine");
+            string newId = await categoriesService.CreateAsync(null, "name", "undefine");
             Assert.Null(newId);
         }
 
         [Fact]
         public void GetMostLikedHaveOnlyThirdCategory()
         {
-            IEnumerable<Category> lstCategories = this.categoriesService.GetMostLikedCategory<Category>(5);
+            IEnumerable<Category> lstCategories = categoriesService.GetMostLikedCategory<Category>(5);
             Assert.Equal(3, lstCategories?.Count());
         }
 
         [Fact]
         public void GetMostLikedTestTopCount()
         {
-            IEnumerable<Category> lstCategories = this.categoriesService.GetMostLikedCategory<Category>(2);
+            IEnumerable<Category> lstCategories = categoriesService.GetMostLikedCategory<Category>(2);
             Assert.Equal(2, lstCategories?.Count());
         }
 
         [Fact]
         public async void UpdateCategory()
         {
-            bool isUpdate = await this.categoriesService.UpdateAsync(this.testCategoryId1, "UpdateName", "UpdateDescription");
+            bool isUpdate = await categoriesService.UpdateAsync(testCategoryId1, "UpdateName", "UpdateDescription");
             if (!isUpdate)
             {
                 Assert.True(isUpdate);
             }
 
-            Category updateCategory = this.categoriesService.GetByCategoryId<Category>(this.testCategoryId1);
+            Category updateCategory = categoriesService.GetByCategoryId<Category>(testCategoryId1);
             Assert.Equal("UpdateName", updateCategory?.Name);
         }
 
         [Fact]
         public async void UpdateNotExistCategoryShouldFail()
         {
-            bool isUpdate = await this.categoriesService.UpdateAsync("undefine", "UpdateName", "UpdateDescription");
+            bool isUpdate = await categoriesService.UpdateAsync("undefine", "UpdateName", "UpdateDescription");
             Assert.False(isUpdate);
         }
 
         [Fact]
         public async void UpdateCategoryWrongParamsShouldFail()
         {
-            bool isUpdate = await this.categoriesService.UpdateAsync(null, null, "UpdateDescription");
+            bool isUpdate = await categoriesService.UpdateAsync(null, null, "UpdateDescription");
             Assert.False(isUpdate);
         }
 
         [Fact]
         public async void UpdateCategoryEmptyNameShouldFail()
         {
-            bool isUpdate = await this.categoriesService.UpdateAsync(this.testCategoryId1, null, "UpdateDescription");
+            bool isUpdate = await categoriesService.UpdateAsync(testCategoryId1, null, "UpdateDescription");
             Assert.False(isUpdate);
         }
 
         [Fact]
         public async void DeleteCategory()
         {
-            bool isDelete = await this.categoriesService.Delete(this.testCategoryId3);
+            bool isDelete = await categoriesService.Delete(testCategoryId3);
             Assert.True(isDelete);
         }
 
@@ -123,13 +123,13 @@
         [InlineData("undefine")]
         public async void DeleteCategoryShouldFalse(string categoryId)
         {
-            bool isDelete = await this.categoriesService.Delete(categoryId);
+            bool isDelete = await categoriesService.Delete(categoryId);
             Assert.False(isDelete);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -137,10 +137,10 @@
         {
             if (disposing)
             {
-                this.categoriesRepository.Dispose();
-                this.voteRepository.Dispose();
-                this.imageRepository.Dispose();
-                this.imageCategoryRepository.Dispose();
+                categoriesRepository.Dispose();
+                voteRepository.Dispose();
+                imageRepository.Dispose();
+                imageCategoryRepository.Dispose();
             }
         }
 
@@ -151,23 +151,23 @@
 
             ApplicationDbContext dbContext = new ApplicationDbContext(options.Options);
 
-            this.imageRepository = new EfDeletableEntityRepository<Image>(dbContext);
+            imageRepository = new EfDeletableEntityRepository<Image>(dbContext);
 
-            this.imageCategoryRepository = new EfDeletableEntityRepository<ImageCategory>(dbContext);
+            imageCategoryRepository = new EfDeletableEntityRepository<ImageCategory>(dbContext);
 
-            this.voteRepository = new EfRepository<Vote>(dbContext);
+            voteRepository = new EfRepository<Vote>(dbContext);
 
-            this.categoriesRepository = new EfDeletableEntityRepository<Category>(dbContext);
+            categoriesRepository = new EfDeletableEntityRepository<Category>(dbContext);
             var loggerCategory = Mock.Of<ILogger<CategoriesService>>();
 
-            this.categoriesService = new CategoriesService(
+            categoriesService = new CategoriesService(
                 loggerCategory,
-                this.categoriesRepository,
-                this.voteRepository,
-                this.imageRepository,
-                this.imageCategoryRepository);
+                categoriesRepository,
+                voteRepository,
+                imageRepository,
+                imageCategoryRepository);
 
-            this.CreateImageService(dbContext);
+            CreateImageService(dbContext);
         }
 
         private void CreateImageService(ApplicationDbContext dbContext)
@@ -181,70 +181,70 @@
             var userRepository = new EfDeletableEntityRepository<ApplicationUser>(dbContext);
 
             var tempCloudImageRepository = new EfRepository<TempCloudImage>(dbContext);
-            this.tempCloudImagesService = new TempCloudImagesService(tempCloudImageRepository);
+            tempCloudImagesService = new TempCloudImagesService(tempCloudImageRepository);
 
             var logger = Mock.Of<ILogger<ImagesService>>();
 
-            this.imagesService = new ImagesService(
+            imagesService = new ImagesService(
                 logger,
-                this.imageRepository,
-                this.voteRepository,
+                imageRepository,
+                voteRepository,
                 userSubscribeRepository,
                 imageTagRepository,
                 tagRepository,
                 imageCategoryRepository,
                 userRepository,
-                this.categoriesService,
+                categoriesService,
                 tagService,
-                this.tempCloudImagesService);
+                tempCloudImagesService);
         }
 
         private async void AddTestData()
         {
-            this.testCategoryId1 = await this.categoriesService.CreateAsync(TestCategory1, TestCategory1, "undefine");
-            this.testCategoryId2 = await this.categoriesService.CreateAsync(TestCategory2, TestCategory2, "undefine");
-            this.testCategoryId3 = await this.categoriesService.CreateAsync(TestCategory3, TestCategory3, "undefine");
+            testCategoryId1 = await categoriesService.CreateAsync(TestCategory1, TestCategory1, "undefine");
+            testCategoryId2 = await categoriesService.CreateAsync(TestCategory2, TestCategory2, "undefine");
+            testCategoryId3 = await categoriesService.CreateAsync(TestCategory3, TestCategory3, "undefine");
 
-            await this.CreateImageTempData(TestImage1);
-            await this.CreateImageTempData(TestImage2);
-            await this.CreateImageTempData(TestImage3);
+            await CreateImageTempData(TestImage1);
+            await CreateImageTempData(TestImage2);
+            await CreateImageTempData(TestImage3);
 
-            await this.imagesService.CreateAsync(new CreateImageModelData()
+            await imagesService.CreateAsync(new CreateImageModelData()
             {
                 Id = TestImage1,
                 AuthorId = TestUserId,
-                CategoryId = this.testCategoryId1,
+                CategoryId = testCategoryId1,
             });
 
-            await this.imagesService.CreateAsync(new CreateImageModelData()
+            await imagesService.CreateAsync(new CreateImageModelData()
             {
                 Id = TestImage2,
                 AuthorId = TestUserId,
-                CategoryId = this.testCategoryId2,
+                CategoryId = testCategoryId2,
             });
 
-            await this.imagesService.CreateAsync(new CreateImageModelData()
+            await imagesService.CreateAsync(new CreateImageModelData()
             {
                 Id = TestImage3,
                 AuthorId = TestUserId,
-                CategoryId = this.testCategoryId2,
+                CategoryId = testCategoryId2,
             });
 
-            await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId });
-            await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId });
-            await this.voteRepository.AddAsync(new Vote() { ImageId = TestImage2, IsLike = 1, AuthorId = TestUserId });
+            await voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId });
+            await voteRepository.AddAsync(new Vote() { ImageId = TestImage1, IsLike = 1, AuthorId = TestUserId });
+            await voteRepository.AddAsync(new Vote() { ImageId = TestImage2, IsLike = 1, AuthorId = TestUserId });
         }
 
         private async Task CreateImageTempData(string imageId)
         {
-            await this.tempCloudImagesService.CreateAsync(new TempCloudImage()
+            await tempCloudImagesService.CreateAsync(new TempCloudImage()
             {
                 ImageId = imageId,
                 ImageUrl = "tempURL",
                 ImageType = (int)ImageType.Original,
             });
 
-            await this.tempCloudImagesService.CreateAsync(new TempCloudImage()
+            await tempCloudImagesService.CreateAsync(new TempCloudImage()
             {
                 ImageId = imageId,
                 ImageUrl = "tempURL",

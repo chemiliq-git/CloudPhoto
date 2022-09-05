@@ -2,11 +2,11 @@
 {
     using System.Collections.Generic;
 
-    using CloudPhoto.Common;
+    using Common;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Web.Controllers;
-    using CloudPhoto.Web.ViewModels.Home;
+    using ViewModels.Home;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Configuration;
     using Moq;

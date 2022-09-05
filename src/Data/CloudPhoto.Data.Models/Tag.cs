@@ -9,7 +9,7 @@
     {
         public Tag()
         {
-            this.Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToString();
         }
 
         public string Name { get; set; }

@@ -17,7 +17,7 @@
         public FileStorageServices(
             IConfiguration configuration)
         {
-            this.connection = configuration.GetSection("BlobAzureSettings:Connection")?.Value;
+            connection = configuration.GetSection("BlobAzureSettings:Connection")?.Value;
         }
 
         public Task<bool> DeleteData(StoreFileInfo fileInfo)
@@ -31,7 +31,7 @@
             string container = uploadInfo.Container.ToLower();
 
             // Get a reference to a share and then create it
-            ShareClient share = new ShareClient(this.connection, container);
+            ShareClient share = new ShareClient(connection, container);
             share.CreateIfNotExists();
 
             // Get a reference to a directory and create it
@@ -39,7 +39,7 @@
             await directory.CreateIfNotExistsAsync();
 
             // Get a reference to a file and upload it
-            ShareFileClient file = directory.GetFileClient(this.GenerateFileName(uploadInfo.FileName));
+            ShareFileClient file = directory.GetFileClient(GenerateFileName(uploadInfo.FileName));
             Response<ShareFileInfo> uploadFile = file.Create(uploadInfo.Stream.Length);
             file.UploadRange(
                 new HttpRange(0, uploadInfo.Stream.Length),
