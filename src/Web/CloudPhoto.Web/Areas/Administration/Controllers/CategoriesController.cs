@@ -2,11 +2,11 @@
 {
     using System.Threading.Tasks;
 
-    using CloudPhoto.Common;
-    using CloudPhoto.Data;
-    using CloudPhoto.Data.Models;
+    using Common;
+    using Data;
+    using Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
-    using CloudPhoto.Web.ViewModels.Categories;
+    using ViewModels.Categories;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
@@ -34,16 +34,16 @@
         // GET: Categories
         public IActionResult Index()
         {
-            var categories = this.categoriesService.GetAll<ListCategoryViewModel>();
-            return this.View(categories);
+            var categories = categoriesService.GetAll<ListCategoryViewModel>();
+            return View(categories);
         }
 
         // GET: Categories/Create
         [Authorize]
         public IActionResult Create()
         {
-            this.ViewData["AuthorId"] = new SelectList(this.context.Users, "Id", "Id");
-            return this.View();
+            ViewData["AuthorId"] = new SelectList(context.Users, "Id", "Id");
+            return View();
         }
 
         // POST: Categories/Create
@@ -54,16 +54,16 @@
         [Authorize]
         public async Task<IActionResult> Create(CreateCategoryViewModel category)
         {
-            var user = await this.userManager.GetUserAsync(this.User);
+            var user = await userManager.GetUserAsync(User);
 
-            if (this.ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                await this.categoriesService.CreateAsync(category.Name, category.Description, user.Id);
-                await this.context.SaveChangesAsync();
-                return this.RedirectToAction(nameof(this.Index));
+                await categoriesService.CreateAsync(category.Name, category.Description, user.Id);
+                await context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
 
-            return this.View(category);
+            return View(category);
         }
 
         // GET: Categories/Edit/5
@@ -71,16 +71,16 @@
         {
             if (id == null)
             {
-                return this.NotFound();
+                return NotFound();
             }
 
-            var category = this.categoriesService.GetByCategoryId<EditCategoryViewModel>(id);
+            var category = categoriesService.GetByCategoryId<EditCategoryViewModel>(id);
             if (category == null)
             {
-                return this.NotFound();
+                return NotFound();
             }
 
-            return this.View(category);
+            return View(category);
         }
 
         // POST: Categories/Edit/5
@@ -91,21 +91,21 @@
         [Authorize]
         public async Task<IActionResult> Edit(string id, EditCategoryViewModel category)
         {
-            if (this.ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 try
                 {
-                    bool result = await this.categoriesService.UpdateAsync(id, category.Name, category.Description);
+                    bool result = await categoriesService.UpdateAsync(id, category.Name, category.Description);
                     if (!result)
                     {
-                        return this.NotFound();
+                        return NotFound();
                     }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (this.categoriesService.GetByCategoryId<Category>(id) == null)
+                    if (categoriesService.GetByCategoryId<Category>(id) == null)
                     {
-                        return this.NotFound();
+                        return NotFound();
                     }
                     else
                     {
@@ -113,10 +113,10 @@
                     }
                 }
 
-                return this.RedirectToAction(nameof(this.Index));
+                return RedirectToAction(nameof(Index));
             }
 
-            return this.View(category);
+            return View(category);
         }
 
         // GET: Categories/Delete/5
@@ -125,16 +125,16 @@
         {
             if (id == null)
             {
-                return this.NotFound();
+                return NotFound();
             }
 
-            var category = this.categoriesService.GetByCategoryId<ReadonlyCategoryViewMode>(id);
+            var category = categoriesService.GetByCategoryId<ReadonlyCategoryViewMode>(id);
             if (category == null)
             {
-                return this.NotFound();
+                return NotFound();
             }
 
-            return this.View(category);
+            return View(category);
         }
 
         // POST: Categories/Delete/5
@@ -144,13 +144,13 @@
         [Authorize]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            if (await this.categoriesService.Delete(id))
+            if (await categoriesService.Delete(id))
             {
-                return this.RedirectToAction(nameof(this.Index));
+                return RedirectToAction(nameof(Index));
             }
             else
             {
-                return this.NotFound();
+                return NotFound();
             }
         }
     }

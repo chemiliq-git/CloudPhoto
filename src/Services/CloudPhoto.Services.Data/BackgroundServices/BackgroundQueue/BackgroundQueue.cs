@@ -18,14 +18,14 @@
                 throw new ArgumentNullException(nameof(item));
             }
 
-            this.items.Enqueue(item);
-            this.signal.Release();
+            items.Enqueue(item);
+            signal.Release();
         }
 
         public async Task<T> Dequeue()
         {
-            await this.signal.WaitAsync();
-            var success = this.items.TryDequeue(out var workItem);
+            await signal.WaitAsync();
+            var success = items.TryDequeue(out var workItem);
 
             return success
                 ? workItem
@@ -34,7 +34,7 @@
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -42,7 +42,7 @@
         {
             if (disposing)
             {
-                this.signal.Dispose();
+                signal.Dispose();
             }
         }
     }

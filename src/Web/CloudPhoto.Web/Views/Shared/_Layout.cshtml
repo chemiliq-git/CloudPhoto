@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@this.ViewData["Title"] - @GlobalConstants.SystemName</title>
+    <title>@ViewData["Title"] - @GlobalConstants.SystemName</title>
     <link rel="shortcut icon" type="image/ico" href="~/icon/Logo.png">
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
@@ -53,7 +53,7 @@
     <div id="myPageContainer" class="container">
         <partial name="_CookieConsentPartial" />
         <main role="main" class="pb-3">
-            @this.RenderBody()
+            @RenderBody()
         </main>
     </div>
 
@@ -81,7 +81,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
 
-    @await this.RenderSectionAsync("Scripts", required: false)
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
 

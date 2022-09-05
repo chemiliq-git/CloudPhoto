@@ -53,8 +53,8 @@
                 </div>
                 <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 h-100 d-flex align-items-center">
                     @{
-                        if (this.User.Identity.IsAuthenticated
-                                                  && Model.AuthorId != this.User.FindFirst(ClaimTypes.NameIdentifier).Value)
+                        if (User.Identity.IsAuthenticated
+                                                  && Model.AuthorId != User.FindFirst(ClaimTypes.NameIdentifier).Value)
                         {
                             if (!string.IsNullOrEmpty(Model.PayPalEmail))
                             {
@@ -150,8 +150,8 @@
                 </div>
             </div>
               
-            @if (this.User.Identity.IsAuthenticated
-                                           && Model.AuthorId != this.User.FindFirst(ClaimTypes.NameIdentifier).Value)
+            @if (User.Identity.IsAuthenticated
+                                           && Model.AuthorId != User.FindFirst(ClaimTypes.NameIdentifier).Value)
                 {
                     @if (!string.IsNullOrEmpty(Model.PayPalEmail))
                     {

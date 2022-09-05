@@ -4,8 +4,8 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Services.Data.BackgroundServices.BackgroundQueue;
-    using CloudPhoto.Services.Data.BackgroundServices.ImageHelper;
+    using BackgroundQueue;
+    using ImageHelper;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
@@ -28,7 +28,7 @@
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
-            this.logger.LogCritical(
+            logger.LogCritical(
                 "The {Type} is stopping due to a host shutdown, queued items might not be processed anymore.",
                 nameof(BackgroundWorker));
 
@@ -37,9 +37,9 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            this.logger.LogInformation("{Type} is now running in the background.", nameof(BackgroundWorker));
+            logger.LogInformation("{Type} is now running in the background.", nameof(BackgroundWorker));
 
-            await this.BackgroundProcessing(stoppingToken);
+            await BackgroundProcessing(stoppingToken);
         }
 
         private async Task BackgroundProcessing(CancellationToken stoppingToken)
@@ -49,23 +49,23 @@
                 try
                 {
                     await Task.Delay(500, stoppingToken);
-                    var book = await this.queue.Dequeue();
+                    var book = await queue.Dequeue();
 
                     if (book == null)
                     {
                         continue;
                     }
 
-                    this.logger.LogInformation("Book found! Starting to process ..");
+                    logger.LogInformation("Book found! Starting to process ..");
 
-                    using var scope = this.scopeFactory.CreateScope();
+                    using var scope = scopeFactory.CreateScope();
                     var publisher = scope.ServiceProvider.GetRequiredService<IImageHelper>();
 
                     await publisher.UploadImage(book, stoppingToken);
                 }
                 catch (Exception ex)
                 {
-                    this.logger.LogCritical("An error occurred when publishing a book. Exception: {@Exception}", ex);
+                    logger.LogCritical("An error occurred when publishing a book. Exception: {@Exception}", ex);
                 }
             }
         }

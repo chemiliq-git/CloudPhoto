@@ -9,7 +9,7 @@
     {
         public TempCloudImage()
         {
-            this.Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToString();
         }
 
         [Required]

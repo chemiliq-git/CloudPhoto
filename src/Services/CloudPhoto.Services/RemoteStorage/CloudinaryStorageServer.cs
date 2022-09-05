@@ -28,14 +28,14 @@
             IConfiguration configuration,
             ILogger<CloudinaryStorageServer> logger)
         {
-            this.Configuration = configuration;
-            this.Logger = logger;
+            Configuration = configuration;
+            Logger = logger;
 
-            this.cloudName = this.Configuration.GetSection("Cloudinary:CloudName")?.Value;
-            this.apiKey = this.Configuration.GetSection("Cloudinary:APIKey")?.Value;
-            this.apiSecret = this.Configuration.GetSection("Cloudinary:APISecret")?.Value;
+            cloudName = Configuration.GetSection("Cloudinary:CloudName")?.Value;
+            apiKey = Configuration.GetSection("Cloudinary:APIKey")?.Value;
+            apiSecret = Configuration.GetSection("Cloudinary:APISecret")?.Value;
 
-            if (!this.ValidaAccountInf())
+            if (!ValidaAccountInf())
             {
                 throw new Exception("Cloudinary provider is not initialize correctly!!!");
             }
@@ -50,9 +50,9 @@
             try
             {
                 Account account = new Account(
-                       this.cloudName,
-                       this.apiKey,
-                       this.apiSecret);
+                       cloudName,
+                       apiKey,
+                       apiSecret);
 
                 Cloudinary cloudinary = new Cloudinary(account);
                 DeletionParams deletionParams = new DeletionParams(fileInfo.FileId);
@@ -68,7 +68,7 @@
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, e.Message);
+                Logger.LogError(e, e.Message);
                 return false;
             }
         }
@@ -81,14 +81,14 @@
                    || uploadInfo.Stream.Length == 0
                    || string.IsNullOrEmpty(uploadInfo.FileName))
                 {
-                    this.Logger.LogError("File is required");
+                    Logger.LogError("File is required");
                     return new StoreFileInfo(false);
                 }
 
                 Account account = new Account(
-                    this.cloudName,
-                    this.apiKey,
-                    this.apiSecret);
+                    cloudName,
+                    apiKey,
+                    apiSecret);
 
                 Cloudinary cloudinary = new Cloudinary(account);
 
@@ -119,28 +119,28 @@
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, e.Message);
+                Logger.LogError(e, e.Message);
                 return new StoreFileInfo(false);
             }
         }
 
         private bool ValidaAccountInf()
         {
-            if (string.IsNullOrEmpty(this.cloudName))
+            if (string.IsNullOrEmpty(cloudName))
             {
-                this.Logger.LogError("Cloudinary account is required");
+                Logger.LogError("Cloudinary account is required");
                 return false;
             }
 
-            if (string.IsNullOrEmpty(this.apiKey))
+            if (string.IsNullOrEmpty(apiKey))
             {
-                this.Logger.LogError("Cloudinary apiKey is required");
+                Logger.LogError("Cloudinary apiKey is required");
                 return false;
             }
 
-            if (string.IsNullOrEmpty(this.apiSecret))
+            if (string.IsNullOrEmpty(apiSecret))
             {
-                this.Logger.LogError("Cloudinary apiSecret is required");
+                Logger.LogError("Cloudinary apiSecret is required");
                 return false;
             }
 

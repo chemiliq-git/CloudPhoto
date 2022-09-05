@@ -7,13 +7,13 @@
     using System.Text.Json;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Common;
-    using CloudPhoto.Data.Models;
+    using Common;
+    using Data.Models;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.UsersServices;
     using CloudPhoto.Services.Data.VotesService;
-    using CloudPhoto.Web.ViewModels.Images;
-    using CloudPhoto.Web.ViewModels.Users;
+    using ViewModels.Images;
+    using ViewModels.Users;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
 
@@ -26,10 +26,10 @@
             IImagesService imagesService,
             IVotesService votesService)
         {
-            this.UserManager = userManager;
-            this.UsersServices = usersServices;
-            this.ImagesService = imagesService;
-            this.VotesService = votesService;
+            UserManager = userManager;
+            UsersServices = usersServices;
+            ImagesService = imagesService;
+            VotesService = votesService;
         }
 
         public UserManager<ApplicationUser> UserManager { get; }
@@ -50,19 +50,19 @@
         {
             if (string.IsNullOrEmpty(id))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            ApplicationUser loggedUser = await this.UserManager.GetUserAsync(this.User);
+            ApplicationUser loggedUser = await UserManager.GetUserAsync(User);
 
-            ApplicationUser previewUser = await this.UserManager.FindByIdAsync(id);
+            ApplicationUser previewUser = await UserManager.FindByIdAsync(id);
             if (previewUser == null)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            UserPreviewViewModel userInfo = this.UsersServices.GetUserInfo<UserPreviewViewModel>(id, loggedUser?.Id);
-            return this.View(userInfo);
+            UserPreviewViewModel userInfo = UsersServices.GetUserInfo<UserPreviewViewModel>(id, loggedUser?.Id);
+            return View(userInfo);
         }
 
         [HttpPost("GetLinkedUsers")]
@@ -72,10 +72,10 @@
             string userId,
             string type)
         {
-            ApplicationUser user = await this.UserManager.FindByIdAsync(userId);
+            ApplicationUser user = await UserManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             bool isSearchFollowing;
@@ -95,21 +95,21 @@
 
                 default:
                     {
-                        return this.BadRequest();
+                        return BadRequest();
                     }
             }
 
             string likeForUserId = string.Empty;
-            if (this.User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
-                ApplicationUser loginUser = await this.UserManager.GetUserAsync(this.User);
+                ApplicationUser loginUser = await UserManager.GetUserAsync(User);
                 likeForUserId = loginUser.Id;
             }
 
             IEnumerable<UserListViewModel> lstUsersInfo;
             if (isSearchFollowing)
             {
-                lstUsersInfo = this.UsersServices.GetFollowingUsers<UserListViewModel>(
+                lstUsersInfo = UsersServices.GetFollowingUsers<UserListViewModel>(
                           userId,
                           likeForUserId,
                           pageSize,
@@ -117,66 +117,66 @@
             }
             else
             {
-                lstUsersInfo = this.UsersServices.GetFollowerUsers<UserListViewModel>(
+                lstUsersInfo = UsersServices.GetFollowerUsers<UserListViewModel>(
                         userId,
                         likeForUserId,
                         pageSize,
                         pageIndex);
             }
 
-            return this.PartialView("_UserListPartial", lstUsersInfo);
+            return PartialView("_UserListPartial", lstUsersInfo);
         }
 
         [HttpPost("UpdateAvatar")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAvatar(string userId, string avatarUrl)
         {
-            if (!this.ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             if (string.IsNullOrEmpty(avatarUrl))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            ApplicationUser user = await this.UserManager.GetUserAsync(this.User);
+            ApplicationUser user = await UserManager.GetUserAsync(User);
             if (user.Id != userId)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            return this.Json(await this.UsersServices.ChangeAvatar(userId, avatarUrl));
+            return Json(await UsersServices.ChangeAvatar(userId, avatarUrl));
         }
 
         [HttpGet("Donate")]
         public async Task<IActionResult> Donate(string id)
         {
-            if (!this.ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             if (string.IsNullOrEmpty(id))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            ApplicationUser dbUser = await this.UserManager.FindByIdAsync(id);
+            ApplicationUser dbUser = await UserManager.FindByIdAsync(id);
             if (dbUser == null)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             if (string.IsNullOrEmpty(dbUser.PayPalEmail))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             string donateUrl = GenerateDonateUrl(dbUser, "/users/index/" + dbUser.Id.ToString());
 
-            return this.Redirect(donateUrl);
+            return Redirect(donateUrl);
         }
 
         private static string GenerateDonateUrl(ApplicationUser user, string returnToUrl)

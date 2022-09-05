@@ -6,8 +6,8 @@
     {
         public ImageValidateResult(bool isValid, ImageFormat imageFormat)
         {
-            this.IsValid = isValid;
-            this.ImageFormat = imageFormat;
+            IsValid = isValid;
+            ImageFormat = imageFormat;
         }
 
         public bool IsValid { get; private set; }

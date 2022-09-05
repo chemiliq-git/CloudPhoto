@@ -5,13 +5,13 @@
         public StoreFileInfo(string fileAddress, string fileId)
             : this(true)
         {
-            this.FileAddress = fileAddress;
-            this.FileId = fileId;
+            FileAddress = fileAddress;
+            FileId = fileId;
         }
 
         public StoreFileInfo(bool result)
         {
-            this.BoolResult = result;
+            BoolResult = result;
         }
 
         public bool BoolResult { get; set; }

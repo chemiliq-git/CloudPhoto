@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
 
     using CloudPhoto.Common;
-    using CloudPhoto.Data.Models;
+    using Models;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@
     {
         public UserSeeder(ILogger logger)
         {
-            this.Logger = logger;
+            Logger = logger;
         }
 
         public ILogger Logger { get; }
@@ -49,7 +49,7 @@
             }
             else
             {
-                this.Logger.LogError($"Not found user with role {GlobalConstants.AdministratorRoleName}");
+                Logger.LogError($"Not found user with role {GlobalConstants.AdministratorRoleName}");
                 return;
             }
         }

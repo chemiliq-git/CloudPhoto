@@ -9,13 +9,13 @@
     using System.Text.Json;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Data.Models;
+    using Data.Models;
     using CloudPhoto.Services.Data.CategoriesService;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.UsersServices;
     using CloudPhoto.Services.Data.VotesService;
-    using CloudPhoto.Web.ViewModels.Categories;
-    using CloudPhoto.Web.ViewModels.Images;
+    using ViewModels.Categories;
+    using ViewModels.Images;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
@@ -45,7 +45,7 @@
         // GET: Images
         public IActionResult Index()
         {
-            return this.View();
+            return View();
         }
 
         // GET: Images/Create
@@ -53,9 +53,9 @@
         {
             CreateImageViewModel model = new CreateImageViewModel
             {
-                Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>(),
+                Categories = categoriesService.GetAll<CategoryDropDownViewModel>(),
             };
-            return this.View(model);
+            return View(model);
         }
 
         // POST: Images/Create
@@ -66,13 +66,13 @@
         [Authorize]
         public async Task<IActionResult> Create(CreateImageViewModel image)
         {
-            if (this.ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                var user = await this.userManager.GetUserAsync(this.User);
+                var user = await userManager.GetUserAsync(User);
 
                 List<string> lstImageTag = JsonSerializer.Deserialize<List<string>>(image.ImageTags);
 
-                string newId = await this.imagesService.CreateAsync(
+                string newId = await imagesService.CreateAsync(
                     new CreateImageModelData()
                     {
                         Id = image.ImageId,
@@ -86,17 +86,17 @@
 
                 if (string.IsNullOrEmpty(newId))
                 {
-                    image.Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>();
-                    return this.View(image);
+                    image.Categories = categoriesService.GetAll<CategoryDropDownViewModel>();
+                    return View(image);
                 }
                 else
                 {
-                    return this.RedirectToAction(nameof(this.Index));
+                    return RedirectToAction(nameof(Index));
                 }
             }
 
-            image.Categories = this.categoriesService.GetAll<CategoryDropDownViewModel>();
-            return this.View(image);
+            image.Categories = categoriesService.GetAll<CategoryDropDownViewModel>();
+            return View(image);
         }
 
         [HttpPost]
@@ -118,21 +118,21 @@
 
             if (pageSize == 0)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             if (pageIndex == 0)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            if (this.User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
-                ApplicationUser user = await this.userManager.GetUserAsync(this.User);
+                ApplicationUser user = await userManager.GetUserAsync(User);
                 localSearchData.LikeForUserId = user.Id;
             }
 
-            var data = this.imagesService.GetByFilter<ListImageViewModel>(
+            var data = imagesService.GetByFilter<ListImageViewModel>(
                 localSearchData, pageSize, pageIndex);
 
             int indexOfPage = 1;
@@ -144,19 +144,19 @@
 
             if (!data.Any())
             {
-                return this.Json(string.Empty);
+                return Json(string.Empty);
             }
             else
             {
-                return this.PartialView("_ImageListPartial", data);
+                return PartialView("_ImageListPartial", data);
             }
         }
 
         public async Task<IActionResult> PreviewImage(int id)
         {
-            if (!this.Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
+            if (!Request.Cookies.TryGetValue("searchData", out string readSearchDataCookie))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             var options = new JsonSerializerOptions
@@ -171,25 +171,25 @@
                 FilterCategory = cookieSearchData.SelectCategory,
             };
 
-            if (this.User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
-                ApplicationUser user = await this.userManager.GetUserAsync(this.User);
+                ApplicationUser user = await userManager.GetUserAsync(User);
                 localSearchData.LikeForUserId = user.Id;
             }
 
-            var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
+            var data = imagesService.GetByFilter<ImagePreviewViewModel>(
                     localSearchData, 1, id);
 
             if (!data.Any())
             {
-                return this.Json(string.Empty);
+                return Json(string.Empty);
             }
             else
             {
                 ImagePreviewViewModel previewImage = data.First();
                 previewImage.ImageIndex = id;
 
-                return this.PartialView("_PreviewImagePartial", previewImage);
+                return PartialView("_PreviewImagePartial", previewImage);
             }
         }
 
@@ -208,13 +208,13 @@
                || pageIndex == 0
                || string.IsNullOrEmpty(userId))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            ApplicationUser user = await this.userManager.FindByIdAsync(userId);
+            ApplicationUser user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             SearchImageData localSearchData;
@@ -240,17 +240,17 @@
 
                 default:
                     {
-                        return this.BadRequest();
+                        return BadRequest();
                     }
             }
 
-            if (this.User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
-                ApplicationUser loginUser = await this.userManager.GetUserAsync(this.User);
+                ApplicationUser loginUser = await userManager.GetUserAsync(User);
                 localSearchData.LikeForUserId = loginUser.Id;
             }
 
-            var data = this.imagesService.GetByFilter<ListImageViewModel>(
+            var data = imagesService.GetByFilter<ListImageViewModel>(
                     localSearchData, pageSize, pageIndex);
 
             int indexOfPage = 1;
@@ -262,11 +262,11 @@
 
             if (!data.Any())
             {
-                return this.Json(string.Empty);
+                return Json(string.Empty);
             }
             else
             {
-                return this.PartialView("_ImageListPartial", data);
+                return PartialView("_ImageListPartial", data);
             }
         }
 
@@ -275,9 +275,9 @@
         /// </summary>
         public async Task<IActionResult> PreviewUserImage(int id)
         {
-            if (!this.Request.Cookies.TryGetValue("imageRelateByUserData", out string readPagingDataCookie))
+            if (!Request.Cookies.TryGetValue("imageRelateByUserData", out string readPagingDataCookie))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             var options = new JsonSerializerOptions
@@ -286,10 +286,10 @@
             };
             ImagePagingCookieData cookieSearchData = JsonSerializer.Deserialize<ImagePagingCookieData>(readPagingDataCookie, options);
 
-            ApplicationUser userPreviewProfil = await this.userManager.FindByIdAsync(cookieSearchData.UserId);
+            ApplicationUser userPreviewProfil = await userManager.FindByIdAsync(cookieSearchData.UserId);
             if (userPreviewProfil == null)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
             SearchImageData localSearchData = null;
@@ -308,25 +308,25 @@
                 };
             }
 
-            if (this.User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated)
             {
-                ApplicationUser loginUser = await this.userManager.GetUserAsync(this.User);
+                ApplicationUser loginUser = await userManager.GetUserAsync(User);
                 localSearchData.LikeForUserId = loginUser.Id;
             }
 
-            var data = this.imagesService.GetByFilter<ImagePreviewViewModel>(
+            var data = imagesService.GetByFilter<ImagePreviewViewModel>(
                   localSearchData, 1, id);
 
             if (!data.Any())
             {
-                return this.Json(string.Empty);
+                return Json(string.Empty);
             }
             else
             {
                 ImagePreviewViewModel previewImage = data.First();
                 previewImage.ImageIndex = id;
 
-                return this.PartialView("_PreviewImagePartial", previewImage);
+                return PartialView("_PreviewImagePartial", previewImage);
             }
         }
 
@@ -340,16 +340,16 @@
         {
             if (string.IsNullOrEmpty(imageId))
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            Data.Models.Image imageInfo = this.imagesService.GetImageById<Data.Models.Image>(imageId);
+            Data.Models.Image imageInfo = imagesService.GetImageById<Data.Models.Image>(imageId);
             if (imageInfo == null)
             {
-                return this.BadRequest();
+                return BadRequest();
             }
 
-            using (System.Drawing.Image sourceImage = await this.GetImageFromUrl(imageInfo.ImageUrl))
+            using (System.Drawing.Image sourceImage = await GetImageFromUrl(imageInfo.ImageUrl))
             {
                 if (sourceImage != null)
                 {
@@ -359,16 +359,16 @@
 
                         sourceImage.Save(outputStream, sourceImage.RawFormat);
                         outputStream.Seek(0, SeekOrigin.Begin);
-                        return this.File(outputStream, System.Net.Mime.MediaTypeNames.Image.Jpeg, Path.GetFileName(imageInfo.ImageUrl));
+                        return File(outputStream, System.Net.Mime.MediaTypeNames.Image.Jpeg, Path.GetFileName(imageInfo.ImageUrl));
                     }
                     catch (Exception e)
                     {
-                        this.logger.LogError(e, $"Error when send file from url:{imageInfo.ImageUrl}");
+                        logger.LogError(e, $"Error when send file from url:{imageInfo.ImageUrl}");
                     }
                 }
             }
 
-            return this.NotFound();
+            return NotFound();
         }
 
         private async Task<System.Drawing.Image> GetImageFromUrl(string url)
@@ -385,7 +385,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogError(e, $"Error when get image by url:{url}");
+                logger.LogError(e, $"Error when get image by url:{url}");
             }
 
             return image;

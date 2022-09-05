@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
 
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Data.TempCloudImageService;
-    using CloudPhoto.Services.ImageManipulationProvider;
-    using CloudPhoto.Services.RemoteStorage;
+    using TempCloudImageService;
+    using ImageManipulationProvider;
+    using RemoteStorage;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
@@ -38,33 +38,33 @@
         {
             try
             {
-                this.logger.LogInformation("Start upload image on cloud ...");
+                logger.LogInformation("Start upload image on cloud ...");
 
-                if (!await this.SaveThumbnailImage(imageInfoParam))
+                if (!await SaveThumbnailImage(imageInfoParam))
                 {
-                    this.logger.LogError($"Has error when upload thumbnail file. ImageId:{imageInfoParam.ImageId}");
+                    logger.LogError($"Has error when upload thumbnail file. ImageId:{imageInfoParam.ImageId}");
                     return;
                 }
 
-                if (!await this.SaveOriginalImage(imageInfoParam))
+                if (!await SaveOriginalImage(imageInfoParam))
                 {
-                    this.logger.LogError($"Has error when upload original file. ImageId:{imageInfoParam.ImageId}");
+                    logger.LogError($"Has error when upload original file. ImageId:{imageInfoParam.ImageId}");
                     return;
                 }
 
-                this.DeleteLocalFiles(Path.GetDirectoryName(imageInfoParam.ImagePath));
+                DeleteLocalFiles(Path.GetDirectoryName(imageInfoParam.ImagePath));
 
-                this.logger.LogInformation($"Images for ImageId:{imageInfoParam.ImageId} has been uploaded!");
+                logger.LogInformation($"Images for ImageId:{imageInfoParam.ImageId} has been uploaded!");
             }
             catch (Exception e)
             {
-                this.logger.LogError(e, $"Has error when upload files. ImageId:{imageInfoParam.ImageId}");
+                logger.LogError(e, $"Has error when upload files. ImageId:{imageInfoParam.ImageId}");
             }
         }
 
         private async Task<bool> SaveOriginalImage(ImageInfoParams imageInfoParam)
         {
-            StoreFileInfo remoteImage = await this.UploadOriginalFile(imageInfoParam.ImagePath);
+            StoreFileInfo remoteImage = await UploadOriginalFile(imageInfoParam.ImagePath);
             if (!remoteImage.BoolResult)
             {
                 return false;
@@ -77,13 +77,13 @@
                 ImageUrl = remoteImage.FileAddress,
                 ImageType = (int)ImageType.Original,
             };
-            await this.tempCloudImage.CreateAsync(newCloudImage);
+            await tempCloudImage.CreateAsync(newCloudImage);
             return true;
         }
 
         private async Task<bool> SaveThumbnailImage(ImageInfoParams imageInfoParam)
         {
-            StoreFileInfo remoteImage = await this.GenerateThumbnailImage(imageInfoParam.ImagePath);
+            StoreFileInfo remoteImage = await GenerateThumbnailImage(imageInfoParam.ImagePath);
             if (!remoteImage.BoolResult)
             {
                 return false;
@@ -96,7 +96,7 @@
                 ImageUrl = remoteImage.FileAddress,
                 ImageType = (int)ImageType.Thumbnail,
             };
-            await this.tempCloudImage.CreateAsync(newCloudImage);
+            await tempCloudImage.CreateAsync(newCloudImage);
             return true;
         }
 
@@ -108,7 +108,7 @@
                 using MemoryStream memory = new MemoryStream();
                 str.CopyTo(memory);
                 memory.Position = 0;
-                StoreFileInfo storeFile = await this.storageService.UploadFile(
+                StoreFileInfo storeFile = await storageService.UploadFile(
                     new UploadDataInfo(
                         Path.GetFileName(fullPath),
                         memory,
@@ -118,17 +118,17 @@
             }
             catch (Exception e)
             {
-                this.logger.LogError("Error upload original file", e);
+                logger.LogError("Error upload original file", e);
                 return new StoreFileInfo(false);
             }
         }
 
         private async Task<StoreFileInfo> GenerateThumbnailImage(string fullPath)
         {
-            byte[] image = this.ResizeImageToThumbnail(fullPath);
+            byte[] image = ResizeImageToThumbnail(fullPath);
 
             using MemoryStream cropImage = new MemoryStream(image);
-            StoreFileInfo storeFile = await this.storageService.UploadFile(
+            StoreFileInfo storeFile = await storageService.UploadFile(
                 new UploadDataInfo(
                     Path.GetFileName(fullPath),
                     cropImage,
@@ -143,10 +143,10 @@
             using MemoryStream memory = new MemoryStream();
             str.CopyTo(memory);
             memory.Position = 0;
-            return this.imageManipulation.Resize(
+            return imageManipulation.Resize(
                 memory,
-                int.Parse(this.configuration.GetSection("Images:ThumbnailImageWidth").Value),
-                int.Parse(this.configuration.GetSection("Images:ThumbnailImageHeight").Value));
+                int.Parse(configuration.GetSection("Images:ThumbnailImageWidth").Value),
+                int.Parse(configuration.GetSection("Images:ThumbnailImageHeight").Value));
         }
 
         private void DeleteLocalFiles(string fullPath)
@@ -158,7 +158,7 @@
             }
             catch (Exception e)
             {
-                this.logger.LogError("Error delete local files", e);
+                logger.LogError("Error delete local files", e);
             }
         }
     }

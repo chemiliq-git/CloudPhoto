@@ -10,7 +10,7 @@
     {
         public Category()
         {
-            this.Id = Guid.NewGuid().ToString();
+            Id = Guid.NewGuid().ToString();
         }
 
         [Required]

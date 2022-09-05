@@ -6,7 +6,7 @@
 
     using CloudPhoto.Services.Data.TagsService;
     using CloudPhoto.Web.Controllers;
-    using CloudPhoto.Web.ViewModels.Tags;
+    using ViewModels.Tags;
     using Microsoft.AspNetCore.Mvc;
     using Moq;
     using Xunit;
@@ -50,7 +50,7 @@
         {
             var mockTagsService = new Mock<ITagsService>();
             mockTagsService.Setup(x => x.FiterTagsByNames<SearchTagDataModel>("nature"))
-                .Returns(new System.Collections.Generic.List<SearchTagDataModel>()
+                .Returns(new List<SearchTagDataModel>()
                 {
                    new SearchTagDataModel()
                    {
@@ -64,7 +64,7 @@
                    },
                 });
             mockTagsService.Setup(x => x.FiterTagsByNames<SearchTagDataModel>("people"))
-                .Returns(new System.Collections.Generic.List<SearchTagDataModel>()
+                .Returns(new List<SearchTagDataModel>()
                 {
                    new SearchTagDataModel()
                    {

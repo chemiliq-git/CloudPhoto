@@ -3,7 +3,7 @@
     using System.Collections.Generic;
 
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Mapping;
+    using Mapping;
 
     public class CreateImageModelData : IMapFrom<Image>
     {

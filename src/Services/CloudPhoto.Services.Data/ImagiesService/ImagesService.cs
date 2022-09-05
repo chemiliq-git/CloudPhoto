@@ -8,10 +8,10 @@
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Data.CategoriesService;
-    using CloudPhoto.Services.Data.TagsService;
-    using CloudPhoto.Services.Data.TempCloudImageService;
-    using CloudPhoto.Services.Mapping;
+    using CategoriesService;
+    using TagsService;
+    using TempCloudImageService;
+    using Mapping;
     using Microsoft.Extensions.Logging;
 
     public class ImagesService : IImagesService
@@ -29,17 +29,17 @@
             ITagsService tagsService,
             ITempCloudImagesService tempCloudImage)
         {
-            this.Logger = logger;
-            this.ImageRepository = imageRepository;
-            this.VoteRepository = voteRepository;
-            this.UserSubscribeRepository = userSubscribeRepository;
-            this.ImageTagRepository = imageTagRepository;
-            this.TagRepository = tagRepository;
-            this.ImageCategoryRepository = imageCategoryRepository;
-            this.CategoriesService = categoriesService;
-            this.UserRepository = userRepository;
-            this.TagsService = tagsService;
-            this.TempCloudImage = tempCloudImage;
+            Logger = logger;
+            ImageRepository = imageRepository;
+            VoteRepository = voteRepository;
+            UserSubscribeRepository = userSubscribeRepository;
+            ImageTagRepository = imageTagRepository;
+            TagRepository = tagRepository;
+            ImageCategoryRepository = imageCategoryRepository;
+            CategoriesService = categoriesService;
+            UserRepository = userRepository;
+            TagsService = tagsService;
+            TempCloudImage = tempCloudImage;
         }
 
         public ILogger<ImagesService> Logger { get; }
@@ -66,11 +66,11 @@
 
         public async Task<string> CreateAsync(CreateImageModelData createData)
         {
-            Category category = this.CategoriesService.GetByCategoryId<Category>(createData.CategoryId);
+            Category category = CategoriesService.GetByCategoryId<Category>(createData.CategoryId);
 
             if (category == null)
             {
-                this.Logger.LogError($"Not exist category with Id:{createData.CategoryId}");
+                Logger.LogError($"Not exist category with Id:{createData.CategoryId}");
                 return null;
             }
 
@@ -82,7 +82,7 @@
                 AuthorId = createData.AuthorId,
             };
 
-            List<TempCloudImage> lstUploadImages = this.TempCloudImage.GetByImageId<TempCloudImage>(image.Id).ToList();
+            List<TempCloudImage> lstUploadImages = TempCloudImage.GetByImageId<TempCloudImage>(image.Id).ToList();
 
             image.ThumbnailImageUrl = lstUploadImages.Find(temp => temp.ImageType == (int)ImageType.Thumbnail)?.ImageUrl;
             if (string.IsNullOrEmpty(image.ThumbnailImageUrl))
@@ -96,12 +96,12 @@
                 return null;
             }
 
-            image.ImageTags = await this.ParseImageTag(image, createData.Tags);
+            image.ImageTags = await ParseImageTag(image, createData.Tags);
             image.ImageCategories = new List<ImageCategory>() { new ImageCategory() { CategoryId = category.Id, ImageId = image.Id } };
 
-            await this.ImageRepository.AddAsync(image);
+            await ImageRepository.AddAsync(image);
 
-            await this.ImageRepository.SaveChangesAsync();
+            await ImageRepository.SaveChangesAsync();
 
             return image.Id;
         }
@@ -110,9 +110,9 @@
         {
             try
             {
-                var selectTopVoteImage = (from image in this.ImageRepository.All()
+                var selectTopVoteImage = (from image in ImageRepository.All()
                                           where image.ImageCategories.Where(x => x.CategoryId == categoryId).Any()
-                                          let sumLikes = (from vote in this.VoteRepository.All() where vote.ImageId == image.Id select vote.IsLike).Sum()
+                                          let sumLikes = (from vote in VoteRepository.All() where vote.ImageId == image.Id select vote.IsLike).Sum()
                                           select new ImageLikeData
                                           {
                                               Image = image,
@@ -124,7 +124,7 @@
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, $"Error get top vote image from category: {categoryId}");
+                Logger.LogError(e, $"Error get top vote image from category: {categoryId}");
                 return null;
             }
         }
@@ -135,19 +135,19 @@
             int page = 1)
         {
             // add head select
-            var selecTempData = from image in this.ImageRepository.All()
-                                join user in this.UserRepository.All()
+            var selecTempData = from image in ImageRepository.All()
+                                join user in UserRepository.All()
                                 on image.AuthorId equals user.Id
-                                let isFollow = (from subsribe in this.UserSubscribeRepository.All()
+                                let isFollow = (from subsribe in UserSubscribeRepository.All()
                                                 where subsribe.UserSubscribedId == searchData.LikeForUserId
                                                 && subsribe.SubscribeToUserId == user.Id
                                                 select subsribe).Count()
-                                let isLike = (from vote in this.VoteRepository.All()
+                                let isLike = (from vote in VoteRepository.All()
                                               where vote.ImageId == image.Id
                                               && vote.AuthorId == searchData.LikeForUserId
                                               && vote.IsLike == 1
                                               select vote.IsLike).Sum()
-                                let likeCount = (from vote in this.VoteRepository.All()
+                                let likeCount = (from vote in VoteRepository.All()
                                                  where vote.ImageId == image.Id
                                                  select vote.IsLike).Sum()
                                 select new
@@ -164,7 +164,7 @@
               && searchData.FilterCategory.Count > 0)
             {
                 selecTempData = from tempData in selecTempData
-                                join imgCategory in this.ImageCategoryRepository.All()
+                                join imgCategory in ImageCategoryRepository.All()
                                 on tempData.Image.Id equals imgCategory.ImageId
                                 where searchData.FilterCategory.Contains(imgCategory.CategoryId)
                                 select tempData;
@@ -175,7 +175,7 @@
                 && searchData.FilterTags.Count > 0)
             {
                 selecTempData = from tempData in selecTempData
-                                join imageTag in this.ImageTagRepository.All()
+                                join imageTag in ImageTagRepository.All()
                                 on tempData.Image.Id equals imageTag.ImageId
                                 where searchData.FilterTags.Contains(imageTag.TagId)
                                 select tempData;
@@ -185,7 +185,7 @@
             if (!string.IsNullOrEmpty(searchData.LikeByUser))
             {
                 selecTempData = from tempData in selecTempData
-                                join vote in this.VoteRepository.All()
+                                join vote in VoteRepository.All()
                                 on tempData.Image.Id equals vote.ImageId
                                 where vote.AuthorId == searchData.LikeByUser
                                 && vote.IsLike == 1
@@ -202,8 +202,8 @@
             if (!string.IsNullOrEmpty(searchData.FilterByTag))
             {
                 selecTempData = selecTempData.Where(
-                        tempData => (from imaTag in this.ImageTagRepository.All()
-                                     join tag in this.TagRepository.All() on imaTag.TagId equals tag.Id
+                        tempData => (from imaTag in ImageTagRepository.All()
+                                     join tag in TagRepository.All() on imaTag.TagId equals tag.Id
                                      where tag.Name.Contains(searchData.FilterByTag)
                                      select imaTag.ImageId).Contains(tempData.Image.Id));
             }
@@ -234,7 +234,7 @@
             }
             catch (Exception e)
             {
-                this.Logger.LogError(e, e.Message);
+                Logger.LogError(e, e.Message);
                 return null;
             }
         }
@@ -242,7 +242,7 @@
         public T GetImageById<T>(string imageId)
         {
             IQueryable<Image> query =
-                this.ImageRepository.All()
+                ImageRepository.All()
                 .Where(c => c.Id == imageId);
 
             return query.To<T>().FirstOrDefault();
@@ -259,7 +259,7 @@
             Tag tempTag;
             foreach (string tag in tags)
             {
-                tempTag = this.TagsService.GetByTagName<Tag>(tag);
+                tempTag = TagsService.GetByTagName<Tag>(tag);
                 if (tempTag != null)
                 {
                     imageTags.Add(new ImageTag() { ImageId = image.Id, TagId = tempTag.Id });
@@ -273,7 +273,7 @@
                         AuthorId = image.AuthorId,
                     };
 
-                    tempTag.Id = await this.TagsService.CreateAsync(tag, tag, image.AuthorId);
+                    tempTag.Id = await TagsService.CreateAsync(tag, tag, image.AuthorId);
                     imageTags.Add(new ImageTag() { ImageId = image.Id, TagId = tempTag.Id });
                 }
             }

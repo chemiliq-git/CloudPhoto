@@ -8,7 +8,7 @@
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
     using CloudPhoto.Data.Repositories;
-    using CloudPhoto.Services.Data.SubscribesService;
+    using SubscribesService;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Moq;
@@ -25,84 +25,84 @@
 
         public SubscribesServiceTest()
         {
-            this.InitTestServices();
+            InitTestServices();
 
-            this.AddTestData();
+            AddTestData();
         }
 
         [Fact]
         public void GetSubscribes()
         {
-            IEnumerable<UserSubscribe> selectSubscribes = this.subscribesService.GetSubscribes<UserSubscribe>(FirstTestUserId);
+            IEnumerable<UserSubscribe> selectSubscribes = subscribesService.GetSubscribes<UserSubscribe>(FirstTestUserId);
             Assert.Equal(2, selectSubscribes?.Count());
         }
 
         [Fact]
         public void GetSubscribesWhenNotExist()
         {
-            IEnumerable<UserSubscribe> selectSubscribes = this.subscribesService.GetSubscribes<UserSubscribe>(ThirdTestUserId);
+            IEnumerable<UserSubscribe> selectSubscribes = subscribesService.GetSubscribes<UserSubscribe>(ThirdTestUserId);
             Assert.Empty(selectSubscribes);
         }
 
         [Fact]
         public void CheckHasSubscribeToUserShouldReturnTrue()
         {
-            IEnumerable<UserSubscribe> selectSubscribes = this.subscribesService.GetSubscribes<UserSubscribe>(FirstTestUserId, SecondTestUserId);
+            IEnumerable<UserSubscribe> selectSubscribes = subscribesService.GetSubscribes<UserSubscribe>(FirstTestUserId, SecondTestUserId);
             Assert.Equal(1, selectSubscribes?.Count());
         }
 
         [Fact]
         public void CheckHasSubscribeToUserShouldReturnFalse()
         {
-            IEnumerable<UserSubscribe> selectSubscribes = this.subscribesService.GetSubscribes<UserSubscribe>(ThirdTestUserId, SecondTestUserId);
+            IEnumerable<UserSubscribe> selectSubscribes = subscribesService.GetSubscribes<UserSubscribe>(ThirdTestUserId, SecondTestUserId);
             Assert.Empty(selectSubscribes);
         }
 
         [Fact]
         public async void SubscribeToUser()
         {
-            bool result = await this.subscribesService.ManageUserSubsctibe(SecondTestUserId, FirstTestUserId, true);
+            bool result = await subscribesService.ManageUserSubsctibe(SecondTestUserId, FirstTestUserId, true);
             Assert.True(result);
         }
 
         [Fact]
         public async void UnsubscribeFromUser()
         {
-            bool result = await this.subscribesService.ManageUserSubsctibe(SecondTestUserId, ThirdTestUserId, false);
+            bool result = await subscribesService.ManageUserSubsctibe(SecondTestUserId, ThirdTestUserId, false);
             Assert.True(result);
         }
 
         [Fact]
         public async void UnSubscribeToUserShouldFalse()
         {
-            bool result = await this.subscribesService.ManageUserSubsctibe(ThirdTestUserId, FirstTestUserId, false);
+            bool result = await subscribesService.ManageUserSubsctibe(ThirdTestUserId, FirstTestUserId, false);
             Assert.False(result);
         }
 
         [Fact]
         public async void SubscribeToUserShouldFalse()
         {
-            bool result = await this.subscribesService.ManageUserSubsctibe(FirstTestUserId, SecondTestUserId, true);
+            bool result = await subscribesService.ManageUserSubsctibe(FirstTestUserId, SecondTestUserId, true);
             Assert.False(result);
         }
 
         [Fact]
         public async void SubscribeToYourself()
         {
-            bool result = await this.subscribesService.ManageUserSubsctibe(FirstTestUserId, FirstTestUserId, true);
+            bool result = await subscribesService.ManageUserSubsctibe(FirstTestUserId, FirstTestUserId, true);
             Assert.False(result);
         }
 
         [Fact]
         public async void UnSubscribeToYourself()
         {
-            bool result = await this.subscribesService.ManageUserSubsctibe(FirstTestUserId, FirstTestUserId, false);
+            bool result = await subscribesService.ManageUserSubsctibe(FirstTestUserId, FirstTestUserId, false);
             Assert.False(result);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -110,7 +110,7 @@
         {
             if (disposing)
             {
-                this.userSubscribeRepository.Dispose();
+                userSubscribeRepository.Dispose();
             }
         }
 
@@ -121,36 +121,36 @@
 
             ApplicationDbContext dbContext = new ApplicationDbContext(options.Options);
 
-            this.userSubscribeRepository = new EfDeletableEntityRepository<UserSubscribe>(dbContext);
+            userSubscribeRepository = new EfDeletableEntityRepository<UserSubscribe>(dbContext);
 
             var logger = Mock.Of<ILogger<SubscribesService>>();
 
-            this.subscribesService = new SubscribesService(
+            subscribesService = new SubscribesService(
                 logger,
-                this.userSubscribeRepository);
+                userSubscribeRepository);
         }
 
         private async void AddTestData()
         {
-            await this.userSubscribeRepository.AddAsync(
+            await userSubscribeRepository.AddAsync(
                 new UserSubscribe()
                 {
                     UserSubscribedId = FirstTestUserId,
                     SubscribeToUserId = ThirdTestUserId,
                 });
-            await this.userSubscribeRepository.AddAsync(
+            await userSubscribeRepository.AddAsync(
                 new UserSubscribe()
                 {
                     UserSubscribedId = FirstTestUserId,
                     SubscribeToUserId = SecondTestUserId,
                 });
-            await this.userSubscribeRepository.AddAsync(
+            await userSubscribeRepository.AddAsync(
                new UserSubscribe()
                {
                    UserSubscribedId = SecondTestUserId,
                    SubscribeToUserId = ThirdTestUserId,
                });
-            await this.userSubscribeRepository.SaveChangesAsync();
+            await userSubscribeRepository.SaveChangesAsync();
         }
     }
 }

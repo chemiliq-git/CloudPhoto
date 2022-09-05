@@ -7,13 +7,13 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
 
-    using CloudPhoto.Common;
-    using CloudPhoto.Data;
+    using Common;
+    using Data;
     using CloudPhoto.Data.Common;
     using CloudPhoto.Data.Common.Repositories;
-    using CloudPhoto.Data.Models;
-    using CloudPhoto.Data.Repositories;
-    using CloudPhoto.Data.Seeding;
+    using Data.Models;
+    using Data.Repositories;
+    using Data.Seeding;
     using CloudPhoto.Services.Data;
     using CloudPhoto.Services.Data.BackgroundServices;
     using CloudPhoto.Services.Data.BackgroundServices.BackgroundQueue;
@@ -26,13 +26,13 @@
     using CloudPhoto.Services.Data.TempCloudImageService;
     using CloudPhoto.Services.Data.UsersServices;
     using CloudPhoto.Services.Data.VotesService;
-    using CloudPhoto.Services.ImageManipulationProvider;
-    using CloudPhoto.Services.ImageValidate;
-    using CloudPhoto.Services.LocalStorage;
-    using CloudPhoto.Services.Mapping;
-    using CloudPhoto.Services.Messaging;
-    using CloudPhoto.Services.RemoteStorage;
-    using CloudPhoto.Web.ViewModels;
+    using Services.ImageManipulationProvider;
+    using Services.ImageValidate;
+    using Services.LocalStorage;
+    using Services.Mapping;
+    using Services.Messaging;
+    using Services.RemoteStorage;
+    using ViewModels;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -56,7 +56,7 @@
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(
-                options => options.UseSqlServer(this.configuration.GetConnectionString("DefaultConnection")));
+                options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddDefaultIdentity<ApplicationUser>(IdentityOptionsProvider.GetIdentityOptions)
                 .AddRoles<ApplicationRole>().AddEntityFrameworkStores<ApplicationDbContext>();
@@ -64,7 +64,7 @@
             services.AddAuthentication().AddFacebook(facebookOptions =>
             {
                 IConfigurationSection facebookAuthNSection =
-                this.configuration.GetSection("Authentication:Facebook");
+                configuration.GetSection("Authentication:Facebook");
 
                 facebookOptions.AppId = facebookAuthNSection["AppId"];
                 facebookOptions.AppSecret = facebookAuthNSection["AppSecret"];
@@ -93,7 +93,7 @@
             services.AddAuthentication().AddGoogle(options =>
             {
                 IConfigurationSection googleAuthNSection =
-                this.configuration.GetSection("Authentication:Google");
+                configuration.GetSection("Authentication:Google");
 
                 // Provide the Google Client ID
                 options.ClientId = googleAuthNSection["ClientId"];
@@ -141,7 +141,7 @@
             services.AddRazorPages();
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddSingleton(this.configuration);
+            services.AddSingleton(configuration);
 
             // Data repositories
             services.AddScoped(typeof(IDeletableEntityRepository<>), typeof(EfDeletableEntityRepository<>));
@@ -153,11 +153,11 @@
             services.AddTransient<IImageValidatorService, ImageValidator>();
             services.AddTransient<ILocalStorageServices, LocalStorage>();
             services.AddTransient<IImagesService, ImagesService>();
-            services.AddTransient<ITagsService, Services.Data.TagsService.TagsService>();
+            services.AddTransient<ITagsService, TagsService>();
             services.AddTransient<IVotesService, VotesService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IImageManipulationProvider, SkiaSharpImageManipulationProvider>();
-            services.AddTransient<IDapperService, CloudPhoto.Services.Data.DapperService.DapperService>();
+            services.AddTransient<IDapperService, DapperService>();
             services.AddTransient<ITempCloudImagesService, TempCloudImagesService>();
             services.AddTransient<ISubscribesService, SubscribesService>();
 

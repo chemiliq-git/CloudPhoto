@@ -4,11 +4,11 @@
     using System.Linq;
     using System.Threading;
 
-    using CloudPhoto.Data.Models;
+    using Data.Models;
     using CloudPhoto.Services.Data.ImagiesService;
     using CloudPhoto.Services.Data.VotesService;
     using CloudPhoto.Web.Controllers;
-    using CloudPhoto.Web.ViewModels.Votes;
+    using ViewModels.Votes;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
@@ -88,16 +88,16 @@
             UserManager<ApplicationUser> userManager = MockUserManager();
 
             var mockVoteService = new Mock<IVotesService>();
-            mockVoteService.Setup(x => x.VoteAsync(VotesControllerTest.FirstTestImageId, It.IsAny<string>(), true))
+            mockVoteService.Setup(x => x.VoteAsync(FirstTestImageId, It.IsAny<string>(), true))
                 .ReturnsAsync(false);
-            mockVoteService.Setup(x => x.VoteAsync(VotesControllerTest.FirstTestImageId, It.IsAny<string>(), false))
+            mockVoteService.Setup(x => x.VoteAsync(FirstTestImageId, It.IsAny<string>(), false))
                 .ReturnsAsync(true);
 
             var mockImageService = new Mock<IImagesService>();
             mockImageService.Setup(x => x.GetImageById<Image>(It.IsAny<string>()))
                 .Returns(new Image()
                 {
-                    Id = VotesControllerTest.FirstTestImageId,
+                    Id = FirstTestImageId,
                 });
 
             VotesController controller = new VotesController(
@@ -107,7 +107,7 @@
 
             VoteInputModel model = new VoteInputModel()
             {
-                ImageId = VotesControllerTest.FirstTestImageId,
+                ImageId = FirstTestImageId,
                 IsLike = false,
             };
 

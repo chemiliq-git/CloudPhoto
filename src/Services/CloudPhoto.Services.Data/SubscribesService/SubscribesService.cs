@@ -6,7 +6,7 @@
 
     using CloudPhoto.Data.Common.Repositories;
     using CloudPhoto.Data.Models;
-    using CloudPhoto.Services.Mapping;
+    using Mapping;
     using Microsoft.Extensions.Logging;
 
     public class SubscribesService : ISubscribesService
@@ -15,8 +15,8 @@
             ILogger<SubscribesService> logger,
             IDeletableEntityRepository<UserSubscribe> subsctibeRepository)
         {
-            this.Logger = logger;
-            this.SubsctibeRepository = subsctibeRepository;
+            Logger = logger;
+            SubsctibeRepository = subsctibeRepository;
         }
 
         public ILogger<SubscribesService> Logger { get; }
@@ -26,7 +26,7 @@
         public IEnumerable<T> GetSubscribes<T>(string userSubscribedId = null, string subscribeToUserId = null)
         {
             IQueryable<UserSubscribe> query =
-                           this.SubsctibeRepository.All();
+                           SubsctibeRepository.All();
 
             if (!string.IsNullOrEmpty(userSubscribedId))
             {
@@ -49,7 +49,7 @@
             }
 
             UserSubscribe existSubscribe =
-               this.GetSubscribes<UserSubscribe>(userSubscribedId, subscribeToUserId).FirstOrDefault();
+               GetSubscribes<UserSubscribe>(userSubscribedId, subscribeToUserId).FirstOrDefault();
 
             if (isWantToSubscribe)
             {
@@ -58,7 +58,7 @@
                     return false;
                 }
 
-                string newId = await this.CreateAsync(userSubscribedId, subscribeToUserId);
+                string newId = await CreateAsync(userSubscribedId, subscribeToUserId);
                 return !string.IsNullOrEmpty(newId);
             }
             else
@@ -68,7 +68,7 @@
                     return false;
                 }
 
-                return await this.Delete(existSubscribe);
+                return await Delete(existSubscribe);
             }
         }
 
@@ -80,17 +80,17 @@
                 SubscribeToUserId = subscribeToUserId,
             };
 
-            await this.SubsctibeRepository.AddAsync(subscribeRow);
+            await SubsctibeRepository.AddAsync(subscribeRow);
 
-            await this.SubsctibeRepository.SaveChangesAsync();
+            await SubsctibeRepository.SaveChangesAsync();
 
             return subscribeRow.Id;
         }
 
         private async Task<bool> Delete(UserSubscribe record)
         {
-            this.SubsctibeRepository.HardDelete(record);
-            int result = await this.SubsctibeRepository.SaveChangesAsync();
+            SubsctibeRepository.HardDelete(record);
+            int result = await SubsctibeRepository.SaveChangesAsync();
             return result == 1;
         }
     }

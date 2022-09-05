@@ -7,13 +7,13 @@
     using System.Data.SqlClient;
     using System.Linq;
 
-    using global::Dapper;
+    using Dapper;
     using Microsoft.Extensions.Configuration;
 
     public class DapperService : IDapperService
     {
         private readonly IConfiguration config;
-        private readonly string connectionstring = "DefaultConnection";
+        private readonly string connectionString = "DefaultConnection";
 
         public DapperService(IConfiguration config)
         {
@@ -22,24 +22,24 @@
 
         public T Get<T>(string sp, DynamicParameters parms, CommandType commandType = CommandType.Text)
         {
-            using IDbConnection db = new SqlConnection(this.config.GetConnectionString(this.connectionstring));
+            using IDbConnection db = new SqlConnection(config.GetConnectionString(connectionString));
             return db.Query<T>(sp, parms, commandType: commandType).FirstOrDefault();
         }
 
         public List<T> GetAll<T>(string sp, object parms, CommandType commandType = CommandType.StoredProcedure)
         {
-            using IDbConnection db = new SqlConnection(this.config.GetConnectionString(this.connectionstring));
+            using IDbConnection db = new SqlConnection(config.GetConnectionString(connectionString));
             return db.Query<T>(sp, parms, commandType: commandType).ToList();
         }
 
-        public DbConnection GetDbconnection()
+        public DbConnection GetDbConnection()
         {
-            return new SqlConnection(this.config.GetConnectionString(this.connectionstring));
+            return new SqlConnection(config.GetConnectionString(connectionString));
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 

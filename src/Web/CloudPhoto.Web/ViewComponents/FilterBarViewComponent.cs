@@ -3,7 +3,7 @@
     using System.Collections.Generic;
 
     using CloudPhoto.Services.Data.CategoriesService;
-    using CloudPhoto.Web.ViewModels.FilterBar;
+    using ViewModels.FilterBar;
     using Microsoft.AspNetCore.Mvc;
 
     [ViewComponent(Name = "FilterBar")]
@@ -11,7 +11,7 @@
     {
         public FilterBarViewComponent(ICategoriesService categoriesService)
         {
-            this.CategoriesService = categoriesService;
+            CategoriesService = categoriesService;
         }
 
         public ICategoriesService CategoriesService { get; }
@@ -20,9 +20,9 @@
         {
             FilterBarSearchDataViewModel data = new FilterBarSearchDataViewModel
             {
-                Category = (List<CategoryCheckBoxViewModel>)this.CategoriesService.GetAll<CategoryCheckBoxViewModel>(),
+                Category = (List<CategoryCheckBoxViewModel>)CategoriesService.GetAll<CategoryCheckBoxViewModel>(),
             };
-            return this.View(data);
+            return View(data);
         }
     }
 }

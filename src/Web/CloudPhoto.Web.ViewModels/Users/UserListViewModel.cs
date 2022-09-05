@@ -23,13 +23,13 @@ namespace CloudPhoto.Web.ViewModels.Users
         {
             get
             {
-                if (!string.IsNullOrEmpty(this.FirstName))
+                if (!string.IsNullOrEmpty(FirstName))
                 {
-                    return this.FirstName + " " + this.LastName;
+                    return FirstName + " " + LastName;
                 }
                 else
                 {
-                    return this.UserName;
+                    return UserName;
                 }
             }
         }

@@ -13,14 +13,14 @@ namespace CloudPhoto.Data.Models
     {
         public ApplicationUser()
         {
-            this.Id = Guid.NewGuid().ToString();
-            this.Roles = new HashSet<IdentityUserRole<string>>();
-            this.Claims = new HashSet<IdentityUserClaim<string>>();
-            this.Logins = new HashSet<IdentityUserLogin<string>>();
+            Id = Guid.NewGuid().ToString();
+            Roles = new HashSet<IdentityUserRole<string>>();
+            Claims = new HashSet<IdentityUserClaim<string>>();
+            Logins = new HashSet<IdentityUserLogin<string>>();
 
-            this.Votes = new HashSet<Vote>();
-            this.Images = new HashSet<Image>();
-            this.UserSubscribes = new HashSet<UserSubscribe>();
+            Votes = new HashSet<Vote>();
+            Images = new HashSet<Image>();
+            UserSubscribes = new HashSet<UserSubscribe>();
         }
 
         public string FirstName { get; set; }
@@ -38,13 +38,13 @@ namespace CloudPhoto.Data.Models
         {
             get
             {
-                if (!string.IsNullOrEmpty(this.FirstName))
+                if (!string.IsNullOrEmpty(FirstName))
                 {
-                    return this.FirstName + " " + this.LastName;
+                    return FirstName + " " + LastName;
                 }
                 else
                 {
-                    return this.UserName;
+                    return UserName;
                 }
             }
         }
